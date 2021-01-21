@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../../welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="../../overview/index.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../overview/did.html"><strong aria-hidden="true">2.1.</strong> Decentralized Identifiers</a></li><li class="chapter-item expanded "><a href="../../overview/vc.html"><strong aria-hidden="true">2.2.</strong> Verifiable Credentials</a></li></ol></li><li class="chapter-item expanded "><a href="../../libraries/index.html"><strong aria-hidden="true">3.</strong> Libraries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../libraries/rust/index.html"><strong aria-hidden="true">3.1.</strong> Rust</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../libraries/rust/getting_started.html"><strong aria-hidden="true">3.1.1.</strong> Getting Started</a></li></ol></li><li class="chapter-item expanded "><a href="../../libraries/wasm/index.html"><strong aria-hidden="true">3.2.</strong> WASM</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../libraries/wasm/getting_started.html" class="active"><strong aria-hidden="true">3.2.1.</strong> Getting Started</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../Glossary.html"><strong aria-hidden="true">4.</strong> Glossary</a></li><li class="chapter-item expanded "><a href="../../contribute.html"><strong aria-hidden="true">5.</strong> Contribute</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../../welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="../../overview/index.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../overview/did.html"><strong aria-hidden="true">2.1.</strong> Decentralized Identifiers</a></li><li class="chapter-item expanded "><a href="../../overview/vc.html"><strong aria-hidden="true">2.2.</strong> Verifiable Credentials</a></li></ol></li><li class="chapter-item expanded "><a href="../../libraries/index.html"><strong aria-hidden="true">3.</strong> Libraries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../libraries/rust/index.html"><strong aria-hidden="true">3.1.</strong> Rust</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../libraries/rust/getting_started.html"><strong aria-hidden="true">3.1.1.</strong> Getting Started</a></li></ol></li><li class="chapter-item expanded "><a href="../../libraries/wasm/index.html"><strong aria-hidden="true">3.2.</strong> WASM</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../libraries/wasm/getting_started.html" class="active"><strong aria-hidden="true">3.2.1.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../../libraries/wasm/soon.html"><strong aria-hidden="true">3.2.2.</strong> Examples</a></li><li class="chapter-item expanded "><a href="../../libraries/wasm/api-reference.html"><strong aria-hidden="true">3.2.3.</strong> API Reference</a></li><li class="chapter-item expanded "><a href="../../libraries/wasm/soon.html"><strong aria-hidden="true">3.2.4.</strong> Troubleshooting</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../Glossary.html"><strong aria-hidden="true">4.</strong> Glossary</a></li><li class="chapter-item expanded "><a href="../../contribute.html"><strong aria-hidden="true">5.</strong> Contribute</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -164,6 +164,107 @@
                 <div id="content" class="content">
                     <main>
                         <h1><a class="header" href="#getting-started-with-wasm" id="getting-started-with-wasm">Getting Started with WASM</a></h1>
+<h1><a class="header" href="#iota-identity-wasm" id="iota-identity-wasm">IOTA Identity WASM</a></h1>
+<blockquote>
+<p>This is the alpha version of the official WASM binding to IOTA's Identity API.</p>
+</blockquote>
+<h2><a class="header" href="#a-hrefdocsapi-referencehtmlapi-referencea" id="a-hrefdocsapi-referencehtmlapi-referencea"><a href="docs/api-reference.html">API Reference</a></a></h2>
+<h2><a class="header" href="#install-the-library" id="install-the-library">Install the library:</a></h2>
+<pre><code class="language-bash">$ npm install iota-identity-wasm-test
+// or using yarn
+$ yarn add iota-identity-wasm-test
+</code></pre>
+<h2><a class="header" href="#nodejs-setup" id="nodejs-setup">NodeJS Setup</a></h2>
+<pre><code class="language-js">const identity = require('iota-identity-wasm-test/node')
+
+// Generate Keypair
+const alice_keypair = identity.Key.generateEd25519()
+console.log(&quot;alice_keypair: &quot;, alice_keypair)
+
+// Create the DIDs
+let alice_did = new identity.DID(alice_keypair)
+console.log(&quot;alice_did and IOTA address: &quot;, alice_did.toString(), alice_did.address)
+
+// Create the public key
+let alice_pubkey = identity.PubKey.generateEd25519(alice_did, alice_keypair.public)
+console.log(&quot;alice_pubkey: &quot;, alice_pubkey);
+
+// Create the DID Documents
+let alice_document = new identity.Doc(alice_pubkey)
+console.log(&quot;alice_document: &quot;, alice_document)
+</code></pre>
+<h2><a class="header" href="#web-setup" id="web-setup">Web Setup</a></h2>
+<p>The library loads the WASM file with an HTTP GET request, so the .wasm file must be copied to the root of the dist folder.</p>
+<h3><a class="header" href="#rollup" id="rollup">Rollup</a></h3>
+<ul>
+<li>Install <code>rollup-plugin-copy</code>:</li>
+</ul>
+<pre><code class="language-bash">$ npm install rollup-plugin-copy --save-dev
+// or using yarn
+$ yarn add rollup-plugin-copy --dev
+</code></pre>
+<ul>
+<li>Add the copy plugin usage to the <code>plugins</code> array under <code>rollup.config.js</code>:</li>
+</ul>
+<pre><code class="language-js">// Include the copy plugin
+import copy from 'rollup-plugin-copy'
+
+// Add the copy plugin to the `plugins` array of your rollup config:
+copy({
+    targets: [{
+        src: 'node_modules/iota-identity-wasm-test/web/iota_identity_wasm_bg.wasm',
+        dest: 'public',
+        rename: 'iota_identity_wasm_bg.wasm'
+    }]
+})
+</code></pre>
+<h3><a class="header" href="#webpack" id="webpack">Webpack</a></h3>
+<ul>
+<li>Install <code>copy-webpack-plugin</code>:</li>
+</ul>
+<pre><code class="language-bash">$ npm install copy-webpack-plugin --save-dev
+// or using yarn
+$ yarn add copy-webpack-plugin --dev
+</code></pre>
+<pre><code class="language-js">// Include the copy plugin
+const CopyWebPlugin= require('copy-webpack-plugin');
+
+// Add the copy plugin to the `plugins` array of your webpack config:
+
+new CopyWebPlugin({
+    patterns: [
+        {
+          from: 'node_modules/iota-identity-wasm-test/web/iota_identity_wasm_bg.wasm',
+          to: 'iota_identity_wasm_bg.wasm'
+        }
+    ]
+}),
+</code></pre>
+<h3><a class="header" href="#usage" id="usage">Usage</a></h3>
+<pre><code class="language-js">import * as identity from &quot;iota-identity-wasm-test/web/&quot;;
+
+
+identity.init().then(() =&gt; {
+    let keyPair = identity.Key.ed25519();
+    console.log(&quot;keyPair&quot;, keyPair);
+    let did = new identity.DID(keyPair);
+    console.log(&quot;did&quot;, did);
+});
+
+// or
+
+(async () =&gt; {
+    await identity.init()
+    let keyPair = identity.Key.ed25519();
+    console.log(&quot;keyPair&quot;, keyPair);
+    let did = new identity.DID(keyPair);
+    console.log(&quot;did&quot;, did);
+ })();
+
+// Default path is &quot;iota_identity_wasm_bg.wasm&quot;, but you can override it like this
+ await identity.init(&quot;./static/iota_identity_wasm_bg.wasm&quot;);
+</code></pre>
+<p><code>identity.init().then(() =&gt; {</code> or <code>await identity.init()</code> is required to load the wasm file (from the server if not available, because of that it will only be slow for the first time)</p>
 
                     </main>
 
@@ -176,7 +277,7 @@
                         
 
                         
-                            <a rel="next" href="../../Glossary.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../../libraries/wasm/soon.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -194,7 +295,7 @@
                 
 
                 
-                    <a rel="next" href="../../Glossary.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../../libraries/wasm/soon.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
