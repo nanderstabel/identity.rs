@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["builder",""],["service",""]],"struct":[["Service","A DID Document Service"],["ServiceBuilder","A `ServiceBuilder` is used to generate a customized `Service`."]]});

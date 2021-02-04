@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Resolution","The output returned from DID resolution."]]});

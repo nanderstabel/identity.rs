@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `identity_iota/src/chain/diff.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>diff.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `identity-iota/src/chain/diff.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>diff.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../identity_iota/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -144,149 +144,163 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
+<span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
+
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">slice</span>::<span class="ident">Iter</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">chain</span>::{<span class="ident">AuthChain</span>, <span class="ident">DocumentChain</span>},
-    <span class="ident">did</span>::{<span class="ident">DocumentDiff</span>, <span class="ident">IotaDID</span>},
-    <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>},
-    <span class="ident">tangle</span>::{<span class="ident">Message</span>, <span class="ident">MessageId</span>, <span class="ident">MessageIndex</span>, <span class="ident">TangleRef</span> <span class="kw">as</span> <span class="kw">_</span>},
-};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">chain</span>::<span class="ident">AuthChain</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">chain</span>::<span class="ident">DocumentChain</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DocumentDiff</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">IotaDID</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tangle</span>::<span class="ident">Message</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tangle</span>::<span class="ident">MessageId</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tangle</span>::<span class="ident">MessageIndex</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tangle</span>::<span class="ident">TangleRef</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DiffChain</span> {
-    <span class="ident">inner</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DocumentDiff</span><span class="op">&gt;</span>,
+  <span class="ident">inner</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DocumentDiff</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DiffChain</span> {
-    <span class="doccomment">/// Constructs a new `DiffChain` for the given `AuthChain` from a slice of `Message`s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_from_messages</span>(<span class="ident">auth</span>: <span class="kw-2">&amp;</span><span class="ident">AuthChain</span>, <span class="ident">messages</span>: <span class="kw-2">&amp;</span>[<span class="ident">Message</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">messages</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="ident">new</span>());
+  <span class="doccomment">/// Constructs a new `DiffChain` for the given `AuthChain` from a slice of `Message`s.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_from_messages</span>(<span class="ident">auth</span>: <span class="kw-2">&amp;</span><span class="ident">AuthChain</span>, <span class="ident">messages</span>: <span class="kw-2">&amp;</span>[<span class="ident">Message</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">messages</span>.<span class="ident">is_empty</span>() {
+      <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="ident">new</span>());
+    }
+
+    <span class="kw">let</span> <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">IotaDID</span> <span class="op">=</span> <span class="ident">auth</span>.<span class="ident">current</span>().<span class="ident">id</span>();
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span>: <span class="ident">MessageIndex</span><span class="op">&lt;</span><span class="ident">DocumentDiff</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">messages</span>
+      .<span class="ident">iter</span>()
+      .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="ident">message</span>.<span class="ident">try_extract_diff</span>(<span class="ident">did</span>))
+      .<span class="ident">collect</span>();
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span>: <span class="self">Self</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">new</span>();
+
+    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">list</span>) <span class="op">=</span> <span class="ident">index</span>.<span class="ident">remove</span>(<span class="ident">DocumentChain</span>::<span class="ident">__diff_message_id</span>(<span class="ident">auth</span>, <span class="kw-2">&amp;</span><span class="ident">this</span>)) {
+      <span class="lifetime">&#39;inner</span>: <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span> <span class="ident">list</span>.<span class="ident">pop</span>() {
+        <span class="kw">if</span> <span class="ident">auth</span>.<span class="ident">current</span>().<span class="ident">verify_data</span>(<span class="kw-2">&amp;</span><span class="ident">next</span>).<span class="ident">is_ok</span>() {
+          <span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">push</span>(<span class="ident">next</span>);
+          <span class="kw">break</span> <span class="lifetime">&#39;inner</span>;
         }
-
-        <span class="kw">let</span> <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">IotaDID</span> <span class="op">=</span> <span class="ident">auth</span>.<span class="ident">current</span>().<span class="ident">id</span>();
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span>: <span class="ident">MessageIndex</span><span class="op">&lt;</span><span class="ident">DocumentDiff</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">messages</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="ident">message</span>.<span class="ident">try_extract_diff</span>(<span class="ident">did</span>))
-            .<span class="ident">collect</span>();
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span>: <span class="self">Self</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">new</span>();
-
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">list</span>) <span class="op">=</span> <span class="ident">index</span>.<span class="ident">remove</span>(<span class="ident">DocumentChain</span>::<span class="ident">__diff_message_id</span>(<span class="ident">auth</span>, <span class="kw-2">&amp;</span><span class="ident">this</span>)) {
-            <span class="lifetime">&#39;inner</span>: <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span> <span class="ident">list</span>.<span class="ident">pop</span>() {
-                <span class="kw">if</span> <span class="ident">auth</span>.<span class="ident">current</span>().<span class="ident">verify_data</span>(<span class="kw-2">&amp;</span><span class="ident">next</span>).<span class="ident">is_ok</span>() {
-                    <span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">push</span>(<span class="ident">next</span>);
-                    <span class="kw">break</span> <span class="lifetime">&#39;inner</span>;
-                }
-            }
-        }
-
-        <span class="prelude-val">Ok</span>(<span class="ident">this</span>)
+      }
     }
 
-    <span class="doccomment">/// Creates a new `DiffChain`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">inner</span>: <span class="ident">Vec</span>::<span class="ident">new</span>() }
+    <span class="prelude-val">Ok</span>(<span class="ident">this</span>)
+  }
+
+  <span class="doccomment">/// Creates a new `DiffChain`.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="self">Self</span> { <span class="ident">inner</span>: <span class="ident">Vec</span>::<span class="ident">new</span>() }
+  }
+
+  <span class="doccomment">/// Returns the total number of diffs in the chain.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">len</span>()
+  }
+
+  <span class="doccomment">/// Returns `true` if the diff chain is empty.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">is_empty</span>()
+  }
+
+  <span class="doccomment">/// Empties the diff chain, removing all diffs.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clear</span>();
+  }
+
+  <span class="doccomment">/// Returns an iterator yielding references to `DocumentDiff`s.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">DocumentDiff</span><span class="op">&gt;</span> {
+    <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">iter</span>()
+  }
+
+  <span class="doccomment">/// Returns the `MessageId` of the latest diff if the chain, if any.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">MessageId</span><span class="op">&gt;</span> {
+    <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">last</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">diff</span><span class="op">|</span> <span class="ident">diff</span>.<span class="ident">message_id</span>())
+  }
+
+  <span class="doccomment">/// Adds a new diff to the diff chain.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Errors</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Fails if the diff signature is invalid or the Tangle message</span>
+  <span class="doccomment">/// references within the diff are invalid.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">auth</span>: <span class="kw-2">&amp;</span><span class="ident">AuthChain</span>, <span class="ident">diff</span>: <span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="self">self</span>.<span class="ident">check_validity</span>(<span class="ident">auth</span>, <span class="kw-2">&amp;</span><span class="ident">diff</span>)<span class="question-mark">?</span>;
+
+    <span class="comment">// SAFETY: we performed the necessary validation in `check_validity`.</span>
+    <span class="kw">unsafe</span> {
+      <span class="self">self</span>.<span class="ident">push_unchecked</span>(<span class="ident">diff</span>);
     }
 
-    <span class="doccomment">/// Returns the total number of diffs in the chain.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">len</span>()
+    <span class="prelude-val">Ok</span>(())
+  }
+
+  <span class="doccomment">/// Adds a new diff to the diff chain with performing validation checks.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Safety</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// This function is unsafe because it does not check the validity of</span>
+  <span class="doccomment">/// the signature or Tangle references of the `DocumentDiff`.</span>
+  <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">push_unchecked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">diff</span>: <span class="ident">DocumentDiff</span>) {
+    <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">push</span>(<span class="ident">diff</span>);
+  }
+
+  <span class="doccomment">/// Returns `true` if the `DocumentDiff` can be added to the diff chain.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_valid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">auth</span>: <span class="kw-2">&amp;</span><span class="ident">AuthChain</span>, <span class="ident">diff</span>: <span class="kw-2">&amp;</span><span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="self">self</span>.<span class="ident">check_validity</span>(<span class="ident">auth</span>, <span class="ident">diff</span>).<span class="ident">is_ok</span>()
+  }
+
+  <span class="doccomment">/// Checks if the `DocumentDiff` can be added to the diff chain.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Errors</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Fails if the `DocumentDiff` is not a valid addition.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_validity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">auth</span>: <span class="kw-2">&amp;</span><span class="ident">AuthChain</span>, <span class="ident">diff</span>: <span class="kw-2">&amp;</span><span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">auth</span>.<span class="ident">current</span>().<span class="ident">verify_data</span>(<span class="ident">diff</span>).<span class="ident">is_err</span>() {
+      <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ChainError</span> {
+        <span class="ident">error</span>: <span class="string">&quot;Invalid Signature&quot;</span>,
+      });
     }
 
-    <span class="doccomment">/// Returns `true` if the diff chain is empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">is_empty</span>()
+    <span class="kw">if</span> <span class="ident">diff</span>.<span class="ident">message_id</span>().<span class="ident">is_none</span>() {
+      <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ChainError</span> {
+        <span class="ident">error</span>: <span class="string">&quot;Invalid Message Id&quot;</span>,
+      });
     }
 
-    <span class="doccomment">/// Empties the diff chain, removing all diffs.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clear</span>();
+    <span class="kw">if</span> <span class="ident">diff</span>.<span class="ident">previous_message_id</span>().<span class="ident">is_none</span>() {
+      <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ChainError</span> {
+        <span class="ident">error</span>: <span class="string">&quot;Invalid Previous Message Id&quot;</span>,
+      });
     }
 
-    <span class="doccomment">/// Returns an iterator yielding references to `DocumentDiff`s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">DocumentDiff</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">iter</span>()
+    <span class="kw">if</span> <span class="ident">diff</span>.<span class="ident">previous_message_id</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">DocumentChain</span>::<span class="ident">__diff_message_id</span>(<span class="ident">auth</span>, <span class="self">self</span>) {
+      <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ChainError</span> {
+        <span class="ident">error</span>: <span class="string">&quot;Invalid Previous Message Id&quot;</span>,
+      });
     }
 
-    <span class="doccomment">/// Returns the `MessageId` of the latest diff if the chain, if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">MessageId</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">last</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">diff</span><span class="op">|</span> <span class="ident">diff</span>.<span class="ident">message_id</span>())
-    }
-
-    <span class="doccomment">/// Adds a new diff to the diff chain.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Fails if the diff signature is invalid or the Tangle message</span>
-    <span class="doccomment">/// references within the diff are invalid.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">auth</span>: <span class="kw-2">&amp;</span><span class="ident">AuthChain</span>, <span class="ident">diff</span>: <span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">check_validity</span>(<span class="ident">auth</span>, <span class="kw-2">&amp;</span><span class="ident">diff</span>)<span class="question-mark">?</span>;
-
-        <span class="comment">// SAFETY: we performed the necessary validation in `check_validity`.</span>
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">push_unchecked</span>(<span class="ident">diff</span>);
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Adds a new diff to the diff chain with performing validation checks.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is unsafe because it does not check the validity of</span>
-    <span class="doccomment">/// the signature or Tangle references of the `DocumentDiff`.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">push_unchecked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">diff</span>: <span class="ident">DocumentDiff</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">push</span>(<span class="ident">diff</span>);
-    }
-
-    <span class="doccomment">/// Returns `true` if the `DocumentDiff` can be added to the diff chain.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_valid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">auth</span>: <span class="kw-2">&amp;</span><span class="ident">AuthChain</span>, <span class="ident">diff</span>: <span class="kw-2">&amp;</span><span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">check_validity</span>(<span class="ident">auth</span>, <span class="ident">diff</span>).<span class="ident">is_ok</span>()
-    }
-
-    <span class="doccomment">/// Checks if the `DocumentDiff` can be added to the diff chain.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Fails if the `DocumentDiff` is not a valid addition.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_validity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">auth</span>: <span class="kw-2">&amp;</span><span class="ident">AuthChain</span>, <span class="ident">diff</span>: <span class="kw-2">&amp;</span><span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">auth</span>.<span class="ident">current</span>().<span class="ident">verify_data</span>(<span class="ident">diff</span>).<span class="ident">is_err</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ChainError</span> {
-                <span class="ident">error</span>: <span class="string">&quot;Invalid Signature&quot;</span>,
-            });
-        }
-
-        <span class="kw">if</span> <span class="ident">diff</span>.<span class="ident">message_id</span>().<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ChainError</span> {
-                <span class="ident">error</span>: <span class="string">&quot;Invalid Message Id&quot;</span>,
-            });
-        }
-
-        <span class="kw">if</span> <span class="ident">diff</span>.<span class="ident">previous_message_id</span>().<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ChainError</span> {
-                <span class="ident">error</span>: <span class="string">&quot;Invalid Previous Message Id&quot;</span>,
-            });
-        }
-
-        <span class="kw">if</span> <span class="ident">diff</span>.<span class="ident">previous_message_id</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">DocumentChain</span>::<span class="ident">__diff_message_id</span>(<span class="ident">auth</span>, <span class="self">self</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ChainError</span> {
-                <span class="ident">error</span>: <span class="string">&quot;Invalid Previous Message Id&quot;</span>,
-            });
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
+    <span class="prelude-val">Ok</span>(())
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">DiffChain</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>()
-    }
+  <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="self">Self</span>::<span class="ident">new</span>()
+  }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "identity_iota";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

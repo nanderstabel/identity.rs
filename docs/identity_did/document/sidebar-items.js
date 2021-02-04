@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["builder",""],["document",""]],"struct":[["Document","A DID Document"],["DocumentBuilder","A `DocumentBuilder` is used to generate a customized `Document`."]]});

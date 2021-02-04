@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["AsJson","A convenience-trait for types that can be converted to and from JSON."],["FromJson","A convenience-trait for types that can be deserialized from JSON."],["ToJson","A convenience-trait for types that can be serialized as JSON."]]});

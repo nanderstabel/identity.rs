@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["DocumentBuilder","A `DocumentBuilder` is used to generate a customized `Document`."]]});

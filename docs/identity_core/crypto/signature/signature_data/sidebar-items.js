@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["SignatureData","A DID Document signature with a dynamic JSON field name."]]});

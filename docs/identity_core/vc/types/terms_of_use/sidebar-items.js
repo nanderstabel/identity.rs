@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["TermsOfUse","Information used to express obligations, prohibitions, and permissions about a `Credential` or `Presentation`."]]});

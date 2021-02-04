@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["CredentialSchema","Information used to validate the structure of a `Credential`."]]});

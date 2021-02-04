@@ -418,7 +418,6 @@ identity.init().then(() =&gt; {
 <li><em>static</em>
 <ul>
 <li><a href="libraries/wasm/api-reference.html#DID.fromBase58Key">.fromBase58Key(key, network)</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#DID.fromBase64Key">.fromBase64Key(key, network)</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
 <li><a href="libraries/wasm/api-reference.html#DID.parse">.parse(input)</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
 </ul>
 </li>
@@ -460,14 +459,6 @@ identity.init().then(() =&gt; {
 <tr><td>key</td><td><code>string</code></td></tr>
 <tr><td>network</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="DID.fromBase64Key"></a></p>
-<h3><a class="header" href="#didfrombase64keykey-network--a-hreflibrarieswasmapi-referencehtmldiddida" id="didfrombase64keykey-network--a-hreflibrarieswasmapi-referencehtmldiddida">DID.fromBase64Key(key, network) ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></a></h3>
-<p>Creates a new <code>DID</code> from a base64-encoded public key.</p>
-<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>key</td><td><code>string</code></td></tr>
-<tr><td>network</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
 <p><a name="DID.parse"></a></p>
 <h3><a class="header" href="#didparseinput--a-hreflibrarieswasmapi-referencehtmldiddida" id="didparseinput--a-hreflibrarieswasmapi-referencehtmldiddida">DID.parse(input) ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></a></h3>
 <p>Parses a <code>DID</code> from the input string.</p>
@@ -490,7 +481,7 @@ identity.init().then(() =&gt; {
 <li><a href="libraries/wasm/api-reference.html#Doc+proof">.proof</a> ⇒ <code>any</code></li>
 <li><a href="libraries/wasm/api-reference.html#Doc+sign">.sign(key)</a> ⇒ <code>any</code></li>
 <li><a href="libraries/wasm/api-reference.html#Doc+verify">.verify()</a> ⇒ <code>boolean</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+diff">.diff(other, key)</a> ⇒ <code>any</code></li>
+<li><a href="libraries/wasm/api-reference.html#Doc+diff">.diff(other, key, prev_msg)</a> ⇒ <code>any</code></li>
 <li><a href="libraries/wasm/api-reference.html#Doc+verifyDiff">.verifyDiff(diff)</a> ⇒ <code>boolean</code></li>
 <li><a href="libraries/wasm/api-reference.html#Doc+updateService">.updateService(did, url, service_type)</a></li>
 <li><a href="libraries/wasm/api-reference.html#Doc+clearServices">.clearServices()</a></li>
@@ -548,12 +539,13 @@ identity.init().then(() =&gt; {
 <p>Verify the signature with the authentication_key</p>
 <p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
 <a name="Doc+diff"></a></p>
-<h3><a class="header" href="#docdiffother-key--any" id="docdiffother-key--any">doc.diff(other, key) ⇒ <code>any</code></a></h3>
+<h3><a class="header" href="#docdiffother-key-prev_msg--any" id="docdiffother-key-prev_msg--any">doc.diff(other, key, prev_msg) ⇒ <code>any</code></a></h3>
 <p>Generate the difference between two DID Documents and sign it</p>
 <p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>other</td><td><a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></td></tr>
 <tr><td>key</td><td><a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></td></tr>
+<tr><td>prev_msg</td><td><code>string</code></td></tr>
 </tbody></table>
 <p><a name="Doc+verifyDiff"></a></p>
 <h3><a class="header" href="#docverifydiffdiff--boolean" id="docverifydiffdiff--boolean">doc.verifyDiff(diff) ⇒ <code>boolean</code></a></h3>
@@ -680,7 +672,6 @@ identity.init().then(() =&gt; {
 <ul>
 <li><a href="libraries/wasm/api-reference.html#Key.generateEd25519">.generateEd25519()</a> ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></li>
 <li><a href="libraries/wasm/api-reference.html#Key.fromBase58">.fromBase58(public_key, private_key)</a> ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#Key.fromBase64">.fromBase64(public_key, private_key)</a> ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></li>
 <li><a href="libraries/wasm/api-reference.html#Key.fromJSON">.fromJSON(json)</a> ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></li>
 </ul>
 </li>
@@ -712,14 +703,6 @@ identity.init().then(() =&gt; {
 <a name="Key.fromBase58"></a></p>
 <h3><a class="header" href="#keyfrombase58public_key-private_key--a-hreflibrarieswasmapi-referencehtmlkeykeya" id="keyfrombase58public_key-private_key--a-hreflibrarieswasmapi-referencehtmlkeykeya">Key.fromBase58(public_key, private_key) ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></a></h3>
 <p>Parses a <code>Key</code> object from base58-encoded public/private keys.</p>
-<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><code>string</code></td></tr>
-<tr><td>private_key</td><td><code>string</code></td></tr>
-</tbody></table>
-<p><a name="Key.fromBase64"></a></p>
-<h3><a class="header" href="#keyfrombase64public_key-private_key--a-hreflibrarieswasmapi-referencehtmlkeykeya" id="keyfrombase64public_key-private_key--a-hreflibrarieswasmapi-referencehtmlkeykeya">Key.fromBase64(public_key, private_key) ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></a></h3>
-<p>Parses a <code>Key</code> object from base64-encoded public/private keys.</p>
 <p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>public_key</td><td><code>string</code></td></tr>

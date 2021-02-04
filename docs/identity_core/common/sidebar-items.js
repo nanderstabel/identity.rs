@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["context",""],["one_or_many",""],["timestamp",""],["url",""]],"type":[["Object",""],["Value",""]]});
+initSidebarItems({"enum":[["Context","A reference to a JSON-LD context"],["OneOrMany","A generic container that stores one or many values of a given type."],["Value","Represents any valid JSON value."]],"mod":[["context",""],["object",""],["one_or_many",""],["timestamp",""],["url",""]],"struct":[["Timestamp","A parsed Timestamp."],["Url","A parsed URL."]],"type":[["Object","An alias for an ordered map of key-[value][`Value`] pairs."]]});

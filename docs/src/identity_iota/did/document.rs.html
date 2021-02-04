@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `identity_iota/src/did/document.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>document.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `identity-iota/src/did/document.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>document.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../identity_iota/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -469,32 +469,55 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">convert</span>::<span class="ident">TryFrom</span>,
-    <span class="ident">fmt</span>::{<span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">Formatter</span>, <span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">FmtResult</span>},
-    <span class="ident">ops</span>::<span class="ident">Deref</span>,
-};
-<span class="kw">use</span> <span class="ident">identity_core</span>::{
-    <span class="ident">common</span>::{<span class="ident">Object</span>, <span class="ident">Timestamp</span>, <span class="ident">Value</span>},
-    <span class="ident">convert</span>::{<span class="ident">FromJson</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">SerdeInto</span> <span class="kw">as</span> <span class="kw">_</span>},
-    <span class="ident">crypto</span>::{<span class="ident">KeyPair</span>, <span class="ident">SecretKey</span>},
-    <span class="ident">did_doc</span>::{
-        <span class="ident">Document</span>, <span class="ident">LdSuite</span>, <span class="ident">MethodQuery</span>, <span class="ident">MethodScope</span>, <span class="ident">MethodType</span>, <span class="ident">MethodWrap</span>, <span class="ident">ResolveMethod</span>, <span class="ident">SetSignature</span>, <span class="ident">Signature</span>,
-        <span class="ident">SignatureOptions</span>, <span class="ident">TrySignature</span>, <span class="ident">TrySignatureMut</span>, <span class="ident">VerifiableDocument</span>,
-    },
-    <span class="ident">did_url</span>::<span class="ident">DID</span>,
-    <span class="ident">proof</span>::<span class="ident">JcsEd25519Signature2020</span>,
-};
+<span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
+<span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
+
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Display</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">FmtResult</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">Deref</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Object</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Timestamp</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">convert</span>::<span class="ident">SerdeInto</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">JcsEd25519Signature2020</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">KeyPair</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">SecretKey</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">SetSignature</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">Signature</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">SignatureOptions</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">TrySignature</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">TrySignatureMut</span>;
+<span class="kw">use</span> <span class="ident">identity_did</span>::<span class="ident">did</span>::<span class="ident">DID</span>;
+<span class="kw">use</span> <span class="ident">identity_did</span>::<span class="ident">document</span>::<span class="ident">Document</span>;
+<span class="kw">use</span> <span class="ident">identity_did</span>::<span class="ident">verifiable</span>::<span class="ident">LdSuite</span>;
+<span class="kw">use</span> <span class="ident">identity_did</span>::<span class="ident">verifiable</span>::<span class="ident">Properties</span> <span class="kw">as</span> <span class="ident">VerifiableProperties</span>;
+<span class="kw">use</span> <span class="ident">identity_did</span>::<span class="ident">verifiable</span>::<span class="ident">ResolveMethod</span>;
+<span class="kw">use</span> <span class="ident">identity_did</span>::<span class="ident">verification</span>::<span class="ident">MethodQuery</span>;
+<span class="kw">use</span> <span class="ident">identity_did</span>::<span class="ident">verification</span>::<span class="ident">MethodScope</span>;
+<span class="kw">use</span> <span class="ident">identity_did</span>::<span class="ident">verification</span>::<span class="ident">MethodType</span>;
+<span class="kw">use</span> <span class="ident">identity_did</span>::<span class="ident">verification</span>::<span class="ident">MethodWrap</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">client</span>::{<span class="ident">Client</span>, <span class="ident">Network</span>},
-    <span class="ident">did</span>::{<span class="ident">DocumentDiff</span>, <span class="ident">IotaDID</span>, <span class="ident">IotaDocumentBuilder</span>, <span class="ident">Properties</span>},
-    <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>},
-    <span class="ident">tangle</span>::{<span class="ident">MessageId</span>, <span class="ident">TangleRef</span>},
-    <span class="ident">utils</span>::<span class="ident">utf8_to_trytes</span>,
-};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">client</span>::<span class="ident">Client</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">client</span>::<span class="ident">Network</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DocumentDiff</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">IotaDID</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">IotaDocumentBuilder</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">Properties</span> <span class="kw">as</span> <span class="ident">BaseProperties</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tangle</span>::<span class="ident">MessageId</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tangle</span>::<span class="ident">TangleRef</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">utf8_to_trytes</span>;
 
 <span class="kw">const</span> <span class="ident">AUTH_QUERY</span>: (<span class="ident">usize</span>, <span class="ident">MethodScope</span>) <span class="op">=</span> (<span class="number">0</span>, <span class="ident">MethodScope</span>::<span class="ident">Authentication</span>);
 
@@ -502,441 +525,430 @@
 <span class="kw">const</span> <span class="ident">ERR_AMMF</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;Authentication Method Missing Fragment&quot;</span>;
 <span class="kw">const</span> <span class="ident">ERR_AMIM</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;Authentication Method Id Mismatch&quot;</span>;
 
-<span class="kw">type</span> <span class="ident">__Document</span> <span class="op">=</span> <span class="ident">VerifiableDocument</span><span class="op">&lt;</span><span class="ident">Properties</span><span class="op">&gt;</span>;
+<span class="kw">type</span> <span class="ident">Properties</span> <span class="op">=</span> <span class="ident">VerifiableProperties</span><span class="op">&lt;</span><span class="ident">BaseProperties</span><span class="op">&gt;</span>;
+<span class="kw">type</span> <span class="ident">__Document</span> <span class="op">=</span> <span class="ident">Document</span><span class="op">&lt;</span><span class="ident">Properties</span>, (), ()<span class="op">&gt;</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">try_from</span> <span class="op">=</span> <span class="string">&quot;Document&quot;</span>, <span class="ident">into</span> <span class="op">=</span> <span class="string">&quot;__Document&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">try_from</span> <span class="op">=</span> <span class="string">&quot;Document&lt;Object&gt;&quot;</span>, <span class="ident">into</span> <span class="op">=</span> <span class="string">&quot;__Document&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IotaDocument</span> {
-    <span class="ident">document</span>: <span class="ident">__Document</span>,
-    <span class="ident">message_id</span>: <span class="ident">MessageId</span>,
+  <span class="ident">document</span>: <span class="ident">__Document</span>,
+  <span class="ident">message_id</span>: <span class="ident">MessageId</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_ed25519</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="ident">tag</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">network</span>: <span class="ident">T</span>, <span class="ident">shard</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">KeyPair</span>)<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span>: <span class="ident">IotaDocumentBuilder</span> <span class="op">=</span> <span class="ident">IotaDocumentBuilder</span>::<span class="ident">new</span>()
-            .<span class="ident">authentication_tag</span>(<span class="ident">tag</span>)
-            .<span class="ident">authentication_type</span>(<span class="ident">MethodType</span>::<span class="ident">Ed25519VerificationKey2018</span>);
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_ed25519</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="ident">tag</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">network</span>: <span class="ident">T</span>, <span class="ident">shard</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">KeyPair</span>)<span class="op">&gt;</span>
+  <span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+  {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span>: <span class="ident">IotaDocumentBuilder</span> <span class="op">=</span> <span class="ident">IotaDocumentBuilder</span>::<span class="ident">new</span>()
+      .<span class="ident">authentication_tag</span>(<span class="ident">tag</span>)
+      .<span class="ident">authentication_type</span>(<span class="ident">MethodType</span>::<span class="ident">Ed25519VerificationKey2018</span>);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">network</span>.<span class="ident">into</span>() {
-            <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">did_network</span>(<span class="ident">value</span>);
-        }
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">shard</span>.<span class="ident">into</span>() {
-            <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">did_shard</span>(<span class="ident">value</span>);
-        }
-
-        <span class="ident">builder</span>.<span class="ident">build</span>()
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">network</span>.<span class="ident">into</span>() {
+      <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">did_network</span>(<span class="ident">value</span>);
     }
 
-    <span class="doccomment">/// Converts a generic DID `Document` to an `IotaDocument`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `Err` if the document is not a valid `IotaDocument`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_from_document</span>(<span class="kw-2">mut</span> <span class="ident">document</span>: <span class="ident">Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">IotaDID</span> <span class="op">=</span> <span class="ident">IotaDID</span>::<span class="ident">try_from_borrowed</span>(<span class="ident">document</span>.<span class="ident">id</span>())<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">DID</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">try_resolve</span>(<span class="ident">AUTH_QUERY</span>)<span class="question-mark">?</span>.<span class="ident">into_method</span>().<span class="ident">id</span>();
-
-        <span class="comment">// Ensure the authentication method has an identifying fragment</span>
-        <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">fragment</span>().<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMMF</span> });
-        }
-
-        <span class="comment">// Ensure the authentication method DID matches the document DID</span>
-        <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">authority</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">did</span>.<span class="ident">authority</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMIM</span> });
-        }
-
-        <span class="kw">let</span> <span class="ident">proof</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">remove</span>(<span class="string">&quot;proof&quot;</span>);
-        <span class="kw">let</span> <span class="ident">root</span>: <span class="ident">Document</span><span class="op">&lt;</span><span class="ident">Properties</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">try_map</span>(<span class="op">|</span><span class="ident">old</span><span class="op">|</span> <span class="ident">old</span>.<span class="ident">serde_into</span>())<span class="question-mark">?</span>;
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">proof</span>) <span class="op">=</span> <span class="ident">proof</span> {
-            <span class="kw">let</span> <span class="ident">proof</span>: <span class="ident">Signature</span> <span class="op">=</span> <span class="ident">Signature</span>::<span class="ident">from_json_value</span>(<span class="ident">proof</span>)<span class="question-mark">?</span>;
-
-            <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-                <span class="ident">document</span>: <span class="ident">VerifiableDocument</span>::<span class="ident">with_proof</span>(<span class="ident">root</span>, <span class="ident">proof</span>),
-                <span class="ident">message_id</span>: <span class="ident">MessageId</span>::<span class="ident">NONE</span>,
-            })
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-                <span class="ident">document</span>: <span class="ident">VerifiableDocument</span>::<span class="ident">new</span>(<span class="ident">root</span>),
-                <span class="ident">message_id</span>: <span class="ident">MessageId</span>::<span class="ident">NONE</span>,
-            })
-        }
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">shard</span>.<span class="ident">into</span>() {
+      <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">did_shard</span>(<span class="ident">value</span>);
     }
 
-    <span class="doccomment">/// Creates a `IotaDocumentBuilder` to configure a new `IotaDocument`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is the same as `IotaDocumentBuilder::new()`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IotaDocumentBuilder</span> {
-        <span class="ident">IotaDocumentBuilder</span>::<span class="ident">new</span>()
+    <span class="ident">builder</span>.<span class="ident">build</span>()
+  }
+
+  <span class="doccomment">/// Converts a generic DID `Document` to an `IotaDocument`.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Errors</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Returns `Err` if the document is not a valid `IotaDocument`.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_from_document</span>(<span class="ident">document</span>: <span class="ident">Document</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">IotaDID</span> <span class="op">=</span> <span class="ident">IotaDID</span>::<span class="ident">try_from_borrowed</span>(<span class="ident">document</span>.<span class="ident">id</span>())<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">DID</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">try_resolve</span>(<span class="ident">AUTH_QUERY</span>)<span class="question-mark">?</span>.<span class="ident">into_method</span>().<span class="ident">id</span>();
+
+    <span class="comment">// Ensure the authentication method has an identifying fragment</span>
+    <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">fragment</span>().<span class="ident">is_none</span>() {
+      <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMMF</span> });
     }
 
-    <span class="doccomment">/// Returns the DID document `id`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">IotaDID</span> {
-        <span class="comment">// SAFETY: We checked the validity of the DID Document ID in the</span>
-        <span class="comment">// IotaDocument constructors; we don&#39;t provide mutable references so</span>
-        <span class="comment">// the value cannot change with typical &quot;safe&quot; Rust.</span>
-        <span class="kw">unsafe</span> { <span class="ident">IotaDID</span>::<span class="ident">new_unchecked_ref</span>(<span class="self">self</span>.<span class="ident">document</span>.<span class="ident">id</span>()) }
+    <span class="comment">// Ensure the authentication method DID matches the document DID</span>
+    <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">authority</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">did</span>.<span class="ident">authority</span>() {
+      <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMIM</span> });
     }
 
-    <span class="doccomment">/// Returns the default authentication method of the DID document.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authentication</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MethodWrap</span> {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">resolve</span>(<span class="ident">AUTH_QUERY</span>).<span class="ident">unwrap</span>()
+    <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
+      <span class="ident">document</span>: <span class="ident">document</span>.<span class="ident">serde_into</span>()<span class="question-mark">?</span>,
+      <span class="ident">message_id</span>: <span class="ident">MessageId</span>::<span class="ident">NONE</span>,
+    })
+  }
+
+  <span class="doccomment">/// Creates a `IotaDocumentBuilder` to configure a new `IotaDocument`.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// This is the same as `IotaDocumentBuilder::new()`.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IotaDocumentBuilder</span> {
+    <span class="ident">IotaDocumentBuilder</span>::<span class="ident">new</span>()
+  }
+
+  <span class="doccomment">/// Returns the DID document `id`.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">IotaDID</span> {
+    <span class="comment">// SAFETY: We checked the validity of the DID Document ID in the</span>
+    <span class="comment">// IotaDocument constructors; we don&#39;t provide mutable references so</span>
+    <span class="comment">// the value cannot change with typical &quot;safe&quot; Rust.</span>
+    <span class="kw">unsafe</span> { <span class="ident">IotaDID</span>::<span class="ident">new_unchecked_ref</span>(<span class="self">self</span>.<span class="ident">document</span>.<span class="ident">id</span>()) }
+  }
+
+  <span class="doccomment">/// Returns the default authentication method of the DID document.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authentication</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">resolve</span>(<span class="ident">AUTH_QUERY</span>).<span class="ident">unwrap</span>()
+  }
+
+  <span class="doccomment">/// Returns the key bytes of the default DID document authentication method.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authentication_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">try_resolve_bytes</span>(<span class="ident">AUTH_QUERY</span>).<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+  }
+
+  <span class="doccomment">/// Returns the method type of the default DID document authentication method.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authentication_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MethodType</span> {
+    <span class="self">self</span>.<span class="ident">authentication</span>().<span class="ident">key_type</span>()
+  }
+
+  <span class="doccomment">/// Returns the timestamp of when the DID document was created.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">created</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Timestamp</span> {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties</span>().<span class="ident">created</span>
+  }
+
+  <span class="doccomment">/// Sets the timestamp of when the DID document was created.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_created</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Timestamp</span>) {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">created</span> <span class="op">=</span> <span class="ident">value</span>;
+  }
+
+  <span class="doccomment">/// Sets the DID document &quot;created&quot; timestamp to `Timestamp::now`.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_created_now</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="self">self</span>.<span class="ident">set_created</span>(<span class="ident">Timestamp</span>::<span class="ident">now</span>());
+  }
+
+  <span class="doccomment">/// Returns the timestamp of the last DID document update.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">updated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Timestamp</span> {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties</span>().<span class="ident">updated</span>
+  }
+
+  <span class="doccomment">/// Sets the timestamp of the last DID document update.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_updated</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Timestamp</span>) {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">updated</span> <span class="op">=</span> <span class="ident">value</span>;
+  }
+
+  <span class="doccomment">/// Sets the DID document &quot;updated&quot; timestamp to `Timestamp::now`.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_updated_now</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="self">self</span>.<span class="ident">set_updated</span>(<span class="ident">Timestamp</span>::<span class="ident">now</span>());
+  }
+
+  <span class="doccomment">/// Returns the Tangle message id of the previous DID document, if any.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">previous_message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">MessageId</span> {
+    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties</span>().<span class="ident">previous_message_id</span>
+  }
+
+  <span class="doccomment">/// Sets the Tangle message id the previous DID document.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_previous_message_id</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>)
+  <span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MessageId</span><span class="op">&gt;</span>,
+  {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">previous_message_id</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">into</span>();
+  }
+
+  <span class="doccomment">/// Returns true if the `IotaDocument` is flagged as immutable.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">immutable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties</span>().<span class="ident">immutable</span>
+  }
+
+  <span class="doccomment">/// Sets the value of the `immutable` flag.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_immutable</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">immutable</span> <span class="op">=</span> <span class="ident">value</span>;
+  }
+
+  <span class="doccomment">/// Returns a reference to the custom `IotaDocument` properties.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">properties</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Object</span> {
+    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties</span>().<span class="ident">properties</span>
+  }
+
+  <span class="doccomment">/// Returns a mutable reference to the custom `IotaDocument` properties.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">properties_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Object</span> {
+    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">properties</span>
+  }
+
+  <span class="doccomment">/// Returns a reference to the underlying `Document`.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">__Document</span> {
+    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>
+  }
+
+  <span class="doccomment">/// Returns a mutable reference to the underlying `Document`.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Safety</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// This function is unsafe because it does not check that modifications</span>
+  <span class="doccomment">/// made to the `Document` maintain a valid `IotaDocument`.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// If this constraint is violated, it may cause issues with future uses of</span>
+  <span class="doccomment">/// the `IotaDocument`.</span>
+  <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">as_document_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">__Document</span> {
+    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">document</span>
+  }
+
+  <span class="doccomment">/// Signs the DID document with the default authentication method.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Errors</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Fails if an unsupported verification method is used, document</span>
+  <span class="doccomment">/// serialization fails, or the signature operation fails.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">secret</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">authentication_type</span>() {
+      <span class="ident">MethodType</span>::<span class="ident">Ed25519VerificationKey2018</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">suite</span>: <span class="ident">LdSuite</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">LdSuite</span>::<span class="ident">new</span>(<span class="ident">JcsEd25519Signature2020</span>);
+        <span class="kw">let</span> <span class="ident">options</span>: <span class="ident">SignatureOptions</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">resolve_options</span>()<span class="question-mark">?</span>;
+
+        <span class="ident">suite</span>.<span class="ident">sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">document</span>, <span class="ident">options</span>, <span class="ident">secret</span>)<span class="question-mark">?</span>;
+      }
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMNS</span> });
+      }
     }
 
-    <span class="doccomment">/// Returns the key bytes of the default DID document authentication method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authentication_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">try_resolve_bytes</span>(<span class="ident">AUTH_QUERY</span>).<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+    <span class="prelude-val">Ok</span>(())
+  }
+
+  <span class="doccomment">/// Verifies the signature of the DID document.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Note: It is assumed that the signature was created using the default</span>
+  <span class="doccomment">/// authentication method.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Errors</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Fails if an unsupported verification method is used, document</span>
+  <span class="doccomment">/// serialization fails, or the verification operation fails.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">authentication_type</span>() {
+      <span class="ident">MethodType</span>::<span class="ident">Ed25519VerificationKey2018</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">LdSuite</span>::<span class="ident">new</span>(<span class="ident">JcsEd25519Signature2020</span>).<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>)<span class="question-mark">?</span>;
+      }
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMNS</span> });
+      }
     }
 
-    <span class="doccomment">/// Returns the method type of the default DID document authentication method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authentication_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MethodType</span> {
-        <span class="self">self</span>.<span class="ident">authentication</span>().<span class="ident">key_type</span>()
+    <span class="prelude-val">Ok</span>(())
+  }
+
+  <span class="doccomment">/// Signs the provided data with the default authentication method.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Errors</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Fails if an unsupported verification method is used, document</span>
+  <span class="doccomment">/// serialization fails, or the signature operation fails.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sign_data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>, <span class="ident">secret</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+  <span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Serialize</span> <span class="op">+</span> <span class="ident">SetSignature</span>,
+  {
+    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">authentication_type</span>() {
+      <span class="ident">MethodType</span>::<span class="ident">Ed25519VerificationKey2018</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">suite</span>: <span class="ident">LdSuite</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">LdSuite</span>::<span class="ident">new</span>(<span class="ident">JcsEd25519Signature2020</span>);
+        <span class="kw">let</span> <span class="ident">options</span>: <span class="ident">SignatureOptions</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">resolve_options</span>()<span class="question-mark">?</span>;
+
+        <span class="ident">suite</span>.<span class="ident">sign</span>(<span class="ident">data</span>, <span class="ident">options</span>, <span class="ident">secret</span>)<span class="question-mark">?</span>;
+      }
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMNS</span> });
+      }
     }
 
-    <span class="doccomment">/// Returns the timestamp of when the DID document was created.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">created</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Timestamp</span> {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties</span>().<span class="ident">created</span>
+    <span class="prelude-val">Ok</span>(())
+  }
+
+  <span class="doccomment">/// Verfies the signature of the provided data.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Note: It is assumed that the signature was created using the default</span>
+  <span class="doccomment">/// authentication method.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Errors</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Fails if an unsupported verification method is used, document</span>
+  <span class="doccomment">/// serialization fails, or the verification operation fails.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify_data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+  <span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Serialize</span> <span class="op">+</span> <span class="ident">TrySignature</span>,
+  {
+    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">authentication_type</span>() {
+      <span class="ident">MethodType</span>::<span class="ident">Ed25519VerificationKey2018</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">LdSuite</span>::<span class="ident">new</span>(<span class="ident">JcsEd25519Signature2020</span>).<span class="ident">verify_data</span>(<span class="ident">data</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>)<span class="question-mark">?</span>;
+      }
+      <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMNS</span> });
+      }
     }
 
-    <span class="doccomment">/// Sets the timestamp of when the DID document was created.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_created</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Timestamp</span>) {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">created</span> <span class="op">=</span> <span class="ident">value</span>;
+    <span class="prelude-val">Ok</span>(())
+  }
+
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve_options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SignatureOptions</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span>: <span class="ident">SignatureOptions</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">resolve_options</span>(<span class="ident">AUTH_QUERY</span>)<span class="question-mark">?</span>;
+
+    <span class="ident">options</span>.<span class="ident">created</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Timestamp</span>::<span class="ident">now</span>().<span class="ident">to_string</span>());
+
+    <span class="prelude-val">Ok</span>(<span class="ident">options</span>)
+  }
+
+  <span class="doccomment">/// Creates a `DocumentDiff` representing the changes between `self` and `other`.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// The returned `DocumentDiff` will have a digital signature created using the</span>
+  <span class="doccomment">/// default authentication method and `secret`.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Errors</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Fails if the diff operation or signature operation fails.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">diff</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">secret</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>, <span class="ident">previous_message_id</span>: <span class="ident">MessageId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DocumentDiff</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span>: <span class="ident">DocumentDiff</span> <span class="op">=</span> <span class="ident">DocumentDiff</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>, <span class="ident">previous_message_id</span>)<span class="question-mark">?</span>;
+
+    <span class="self">self</span>.<span class="ident">sign_data</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">diff</span>, <span class="ident">secret</span>)<span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">diff</span>)
+  }
+
+  <span class="doccomment">/// Verifies a `DocumentDiff` signature and merges the changes into `self`.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// If merging fails `self` remains unmodified, otherwise `self` represents</span>
+  <span class="doccomment">/// the merged document state.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Errors</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Fails if the merge operation or signature operation fails.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">diff</span>: <span class="kw-2">&amp;</span><span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="self">self</span>.<span class="ident">verify_data</span>(<span class="ident">diff</span>)<span class="question-mark">?</span>;
+
+    <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">diff</span>.<span class="ident">merge</span>(<span class="self">self</span>)<span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(())
+  }
+
+  <span class="doccomment">/// Publishes the `IotaDocument` to the Tangle using a default `Client`.</span>
+  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">publish</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">network</span>: <span class="ident">Network</span> <span class="op">=</span> <span class="ident">Network</span>::<span class="ident">from_name</span>(<span class="self">self</span>.<span class="ident">id</span>().<span class="ident">network</span>());
+    <span class="kw">let</span> <span class="ident">client</span>: <span class="ident">Client</span> <span class="op">=</span> <span class="ident">Client</span>::<span class="ident">from_network</span>(<span class="ident">network</span>)<span class="question-mark">?</span>;
+
+    <span class="self">self</span>.<span class="ident">publish_with_client</span>(<span class="kw-2">&amp;</span><span class="ident">client</span>).<span class="ident">await</span>
+  }
+
+  <span class="doccomment">/// Publishes the `IotaDocument` to the Tangle using the provided `Client`.</span>
+  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">publish_with_client</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">client</span>: <span class="kw-2">&amp;</span><span class="ident">Client</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">transaction</span>: <span class="kw">_</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">publish_document</span>(<span class="self">self</span>).<span class="ident">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">message_id</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">transaction_hash</span>(<span class="kw-2">&amp;</span><span class="ident">transaction</span>);
+
+    <span class="self">self</span>.<span class="ident">set_message_id</span>(<span class="ident">message_id</span>.<span class="ident">into</span>());
+
+    <span class="prelude-val">Ok</span>(())
+  }
+
+  <span class="doccomment">/// Returns the Tangle address of the DID diff chain.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">diff_address</span>(<span class="ident">message_id</span>: <span class="kw-2">&amp;</span><span class="ident">MessageId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">message_id</span>.<span class="ident">is_none</span>() {
+      <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> {
+        <span class="ident">error</span>: <span class="string">&quot;Invalid Message Id&quot;</span>,
+      });
     }
 
-    <span class="doccomment">/// Sets the DID document &quot;created&quot; timestamp to `Timestamp::now`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_created_now</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">set_created</span>(<span class="ident">Timestamp</span>::<span class="ident">now</span>());
-    }
+    <span class="kw">let</span> <span class="ident">hash</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">IotaDID</span>::<span class="ident">encode_key</span>(<span class="ident">message_id</span>.<span class="ident">as_str</span>().<span class="ident">as_bytes</span>());
 
-    <span class="doccomment">/// Returns the timestamp of the last DID document update.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">updated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Timestamp</span> {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties</span>().<span class="ident">updated</span>
-    }
-
-    <span class="doccomment">/// Sets the timestamp of the last DID document update.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_updated</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Timestamp</span>) {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">updated</span> <span class="op">=</span> <span class="ident">value</span>;
-    }
-
-    <span class="doccomment">/// Sets the DID document &quot;updated&quot; timestamp to `Timestamp::now`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_updated_now</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">set_updated</span>(<span class="ident">Timestamp</span>::<span class="ident">now</span>());
-    }
-
-    <span class="doccomment">/// Returns the Tangle message id of the previous DID document, if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">previous_message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">MessageId</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties</span>().<span class="ident">previous_message_id</span>
-    }
-
-    <span class="doccomment">/// Sets the Tangle message id the previous DID document.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_previous_message_id</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>)
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MessageId</span><span class="op">&gt;</span>,
-    {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">previous_message_id</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">into</span>();
-    }
-
-    <span class="doccomment">/// Returns true if the `IotaDocument` is flagged as immutable.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">immutable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties</span>().<span class="ident">immutable</span>
-    }
-
-    <span class="doccomment">/// Sets the value of the `immutable` flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_immutable</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">immutable</span> <span class="op">=</span> <span class="ident">value</span>;
-    }
-
-    <span class="doccomment">/// Returns a reference to the custom `IotaDocument` properties.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">properties</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Object</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties</span>().<span class="ident">properties</span>
-    }
-
-    <span class="doccomment">/// Returns a mutable reference to the custom `IotaDocument` properties.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">properties_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Object</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">properties_mut</span>().<span class="ident">properties</span>
-    }
-
-    <span class="doccomment">/// Returns a reference to the `VerifiableDocument`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">__Document</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>
-    }
-
-    <span class="doccomment">/// Returns a mutable reference to the `VerifiableDocument`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is unsafe because it does not check that modifications</span>
-    <span class="doccomment">/// made to the `VerifiableDocument` maintain a valid `IotaDocument`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If this constraint is violated, it may cause issues with future uses of</span>
-    <span class="doccomment">/// the `IotaDocument`.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">as_document_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">__Document</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">document</span>
-    }
-
-    <span class="doccomment">/// Signs the DID document with the default authentication method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Fails if an unsupported verification method is used, document</span>
-    <span class="doccomment">/// serialization fails, or the signature operation fails.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">secret</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">authentication_type</span>() {
-            <span class="ident">MethodType</span>::<span class="ident">Ed25519VerificationKey2018</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">suite</span>: <span class="ident">LdSuite</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">LdSuite</span>::<span class="ident">new</span>(<span class="ident">JcsEd25519Signature2020</span>);
-                <span class="kw">let</span> <span class="ident">options</span>: <span class="ident">SignatureOptions</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">resolve_options</span>()<span class="question-mark">?</span>;
-
-                <span class="ident">suite</span>.<span class="ident">sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">document</span>, <span class="ident">options</span>, <span class="ident">secret</span>)<span class="question-mark">?</span>;
-            }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMNS</span> });
-            }
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Verifies the signature of the DID document.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: It is assumed that the signature was created using the default</span>
-    <span class="doccomment">/// authentication method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Fails if an unsupported verification method is used, document</span>
-    <span class="doccomment">/// serialization fails, or the verification operation fails.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">authentication_type</span>() {
-            <span class="ident">MethodType</span>::<span class="ident">Ed25519VerificationKey2018</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">LdSuite</span>::<span class="ident">new</span>(<span class="ident">JcsEd25519Signature2020</span>).<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>)<span class="question-mark">?</span>;
-            }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMNS</span> });
-            }
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Signs the provided data with the default authentication method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Fails if an unsupported verification method is used, document</span>
-    <span class="doccomment">/// serialization fails, or the signature operation fails.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sign_data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>, <span class="ident">secret</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Serialize</span> <span class="op">+</span> <span class="ident">SetSignature</span>,
-    {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">authentication_type</span>() {
-            <span class="ident">MethodType</span>::<span class="ident">Ed25519VerificationKey2018</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">suite</span>: <span class="ident">LdSuite</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">LdSuite</span>::<span class="ident">new</span>(<span class="ident">JcsEd25519Signature2020</span>);
-                <span class="kw">let</span> <span class="ident">options</span>: <span class="ident">SignatureOptions</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">resolve_options</span>()<span class="question-mark">?</span>;
-
-                <span class="ident">suite</span>.<span class="ident">sign</span>(<span class="ident">data</span>, <span class="ident">options</span>, <span class="ident">secret</span>)<span class="question-mark">?</span>;
-            }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMNS</span> });
-            }
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Verfies the signature of the provided data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: It is assumed that the signature was created using the default</span>
-    <span class="doccomment">/// authentication method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Fails if an unsupported verification method is used, document</span>
-    <span class="doccomment">/// serialization fails, or the verification operation fails.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify_data</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Serialize</span> <span class="op">+</span> <span class="ident">TrySignature</span>,
-    {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">authentication_type</span>() {
-            <span class="ident">MethodType</span>::<span class="ident">Ed25519VerificationKey2018</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">LdSuite</span>::<span class="ident">new</span>(<span class="ident">JcsEd25519Signature2020</span>).<span class="ident">verify_data</span>(<span class="ident">data</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>)<span class="question-mark">?</span>;
-            }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="ident">ERR_AMNS</span> });
-            }
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve_options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SignatureOptions</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span>: <span class="ident">SignatureOptions</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">resolve_options</span>(<span class="ident">AUTH_QUERY</span>)<span class="question-mark">?</span>;
-
-        <span class="ident">options</span>.<span class="ident">created</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Timestamp</span>::<span class="ident">now</span>().<span class="ident">to_string</span>());
-
-        <span class="prelude-val">Ok</span>(<span class="ident">options</span>)
-    }
-
-    <span class="doccomment">/// Creates a `DocumentDiff` representing the changes between `self` and `other`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned `DocumentDiff` will have a digital signature created using the</span>
-    <span class="doccomment">/// default authentication method and `secret`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Fails if the diff operation or signature operation fails.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">diff</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">secret</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>, <span class="ident">previous_message_id</span>: <span class="ident">MessageId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DocumentDiff</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span>: <span class="ident">DocumentDiff</span> <span class="op">=</span> <span class="ident">DocumentDiff</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>, <span class="ident">previous_message_id</span>)<span class="question-mark">?</span>;
-
-        <span class="self">self</span>.<span class="ident">sign_data</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">diff</span>, <span class="ident">secret</span>)<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(<span class="ident">diff</span>)
-    }
-
-    <span class="doccomment">/// Verifies a `DocumentDiff` signature and merges the changes into `self`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If merging fails `self` remains unmodified, otherwise `self` represents</span>
-    <span class="doccomment">/// the merged document state.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Fails if the merge operation or signature operation fails.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">diff</span>: <span class="kw-2">&amp;</span><span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">verify_data</span>(<span class="ident">diff</span>)<span class="question-mark">?</span>;
-
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">diff</span>.<span class="ident">merge</span>(<span class="self">self</span>)<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Publishes the `IotaDocument` to the Tangle using a default `Client`.</span>
-    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">publish</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">network</span>: <span class="ident">Network</span> <span class="op">=</span> <span class="ident">Network</span>::<span class="ident">from_name</span>(<span class="self">self</span>.<span class="ident">id</span>().<span class="ident">network</span>());
-        <span class="kw">let</span> <span class="ident">client</span>: <span class="ident">Client</span> <span class="op">=</span> <span class="ident">Client</span>::<span class="ident">from_network</span>(<span class="ident">network</span>)<span class="question-mark">?</span>;
-
-        <span class="self">self</span>.<span class="ident">publish_with_client</span>(<span class="kw-2">&amp;</span><span class="ident">client</span>).<span class="ident">await</span>
-    }
-
-    <span class="doccomment">/// Publishes the `IotaDocument` to the Tangle using the provided `Client`.</span>
-    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">publish_with_client</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">client</span>: <span class="kw-2">&amp;</span><span class="ident">Client</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">transaction</span>: <span class="kw">_</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">publish_document</span>(<span class="self">self</span>).<span class="ident">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">message_id</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">transaction_hash</span>(<span class="kw-2">&amp;</span><span class="ident">transaction</span>);
-
-        <span class="self">self</span>.<span class="ident">set_message_id</span>(<span class="ident">message_id</span>.<span class="ident">into</span>());
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Returns the Tangle address of the DID diff chain.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">diff_address</span>(<span class="ident">message_id</span>: <span class="kw-2">&amp;</span><span class="ident">MessageId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">message_id</span>.<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocument</span> {
-                <span class="ident">error</span>: <span class="string">&quot;Invalid Message Id&quot;</span>,
-            });
-        }
-
-        <span class="kw">let</span> <span class="ident">hash</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">IotaDID</span>::<span class="ident">encode_key</span>(<span class="ident">message_id</span>.<span class="ident">as_str</span>().<span class="ident">as_bytes</span>());
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trytes</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">utf8_to_trytes</span>(<span class="kw-2">&amp;</span><span class="ident">hash</span>);
-        <span class="ident">trytes</span>.<span class="ident">truncate</span>(<span class="ident">iota_constants</span>::<span class="ident">HASH_TRYTES_SIZE</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">trytes</span>)
-    }
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trytes</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">utf8_to_trytes</span>(<span class="kw-2">&amp;</span><span class="ident">hash</span>);
+    <span class="ident">trytes</span>.<span class="ident">truncate</span>(<span class="ident">iota_constants</span>::<span class="ident">HASH_TRYTES_SIZE</span>);
+    <span class="prelude-val">Ok</span>(<span class="ident">trytes</span>)
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FmtResult</span> {
-        <span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>, <span class="ident">f</span>)
-    }
+  <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FmtResult</span> {
+    <span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>, <span class="ident">f</span>)
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FmtResult</span> {
-        <span class="ident">Debug</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>, <span class="ident">f</span>)
-    }
+  <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FmtResult</span> {
+    <span class="ident">Debug</span>::<span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>, <span class="ident">f</span>)
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">__Document</span>;
+  <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">__Document</span>;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Target</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>
-    }
+  <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Target</span> {
+    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">document</span>
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">__Document</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">__Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">eq</span>(<span class="ident">other</span>)
-    }
+  <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">__Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">eq</span>(<span class="ident">other</span>)
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">__Document</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">other</span>: <span class="ident">__Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">document</span>: <span class="ident">other</span>,
-            <span class="ident">message_id</span>: <span class="ident">MessageId</span>::<span class="ident">NONE</span>,
-        }
+  <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">other</span>: <span class="ident">__Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="self">Self</span> {
+      <span class="ident">document</span>: <span class="ident">other</span>,
+      <span class="ident">message_id</span>: <span class="ident">MessageId</span>::<span class="ident">NONE</span>,
     }
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">IotaDocument</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">__Document</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">other</span>: <span class="ident">IotaDocument</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">other</span>.<span class="ident">document</span>
-    }
+  <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">other</span>: <span class="ident">IotaDocument</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="ident">other</span>.<span class="ident">document</span>
+  }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">Document</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">Document</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
+  <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">other</span>: <span class="ident">Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">Self</span>::<span class="ident">try_from_document</span>(<span class="ident">other</span>)
-    }
+  <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">other</span>: <span class="ident">Document</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="self">Self</span>::<span class="ident">try_from_document</span>(<span class="ident">other</span>)
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">TangleRef</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">fn</span> <span class="ident">message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">MessageId</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">message_id</span>
-    }
+  <span class="kw">fn</span> <span class="ident">message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">MessageId</span> {
+    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">message_id</span>
+  }
 
-    <span class="kw">fn</span> <span class="ident">set_message_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">message_id</span>: <span class="ident">MessageId</span>) {
-        <span class="self">self</span>.<span class="ident">message_id</span> <span class="op">=</span> <span class="ident">message_id</span>;
-    }
+  <span class="kw">fn</span> <span class="ident">set_message_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">message_id</span>: <span class="ident">MessageId</span>) {
+    <span class="self">self</span>.<span class="ident">message_id</span> <span class="op">=</span> <span class="ident">message_id</span>;
+  }
 
-    <span class="kw">fn</span> <span class="ident">previous_message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">MessageId</span> {
-        <span class="ident">IotaDocument</span>::<span class="ident">previous_message_id</span>(<span class="self">self</span>)
-    }
+  <span class="kw">fn</span> <span class="ident">previous_message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">MessageId</span> {
+    <span class="ident">IotaDocument</span>::<span class="ident">previous_message_id</span>(<span class="self">self</span>)
+  }
 
-    <span class="kw">fn</span> <span class="ident">set_previous_message_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">message_id</span>: <span class="ident">MessageId</span>) {
-        <span class="ident">IotaDocument</span>::<span class="ident">set_previous_message_id</span>(<span class="self">self</span>, <span class="ident">message_id</span>)
-    }
+  <span class="kw">fn</span> <span class="ident">set_previous_message_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">message_id</span>: <span class="ident">MessageId</span>) {
+    <span class="ident">IotaDocument</span>::<span class="ident">set_previous_message_id</span>(<span class="self">self</span>, <span class="ident">message_id</span>)
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">TrySignature</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">fn</span> <span class="ident">signature</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Signature</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">proof</span>()
-    }
+  <span class="kw">fn</span> <span class="ident">signature</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Signature</span><span class="op">&gt;</span> {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">proof</span>()
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">TrySignatureMut</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">fn</span> <span class="ident">signature_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Signature</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">proof_mut</span>()
-    }
+  <span class="kw">fn</span> <span class="ident">signature_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Signature</span><span class="op">&gt;</span> {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">proof_mut</span>()
+  }
 }
 
 <span class="kw">impl</span> <span class="ident">SetSignature</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">fn</span> <span class="ident">set_signature</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">signature</span>: <span class="ident">Signature</span>) {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">set_proof</span>(<span class="ident">signature</span>)
-    }
+  <span class="kw">fn</span> <span class="ident">set_signature</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">signature</span>: <span class="ident">Signature</span>) {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">set_proof</span>(<span class="ident">signature</span>)
+  }
 }
 
-<span class="kw">impl</span> <span class="ident">ResolveMethod</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
-    <span class="kw">fn</span> <span class="ident">resolve_method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">resolve</span>(<span class="ident">query</span>)
-    }
+<span class="kw">impl</span> <span class="ident">ResolveMethod</span><span class="op">&lt;</span>()<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IotaDocument</span> {
+  <span class="kw">fn</span> <span class="ident">resolve_method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">resolve</span>(<span class="ident">query</span>)
+  }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "identity_iota";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["MethodQuery","Specifies the  conditions of a DID document method resolution query."]]});

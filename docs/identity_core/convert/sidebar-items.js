@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["as_json",""],["serde_into",""]],"trait":[["AsJson",""],["FromJson",""],["SerdeInto",""],["ToJson",""]]});
+initSidebarItems({"mod":[["json",""],["serde_into",""]],"trait":[["AsJson","A convenience-trait for types that can be converted to and from JSON."],["FromJson","A convenience-trait for types that can be deserialized from JSON."],["SerdeInto","An escape-hatch for converting between types that represent the same JSON structure."],["ToJson","A convenience-trait for types that can be serialized as JSON."]]});

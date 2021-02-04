@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["MethodWrap","A queried `Method` with additional metadata about the query resolution."]]});

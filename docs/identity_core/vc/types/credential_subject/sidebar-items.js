@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["CredentialSubject","An entity who is the target of a set of claims."]]});

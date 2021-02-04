@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Subject","An entity who is the target of a set of claims."]]});
