@@ -1,0 +1,4 @@
+(function() {var implementors = {};
+implementors["identity_core"] = [{"text":"impl FromStr for Timestamp","synthetic":false,"types":[]},{"text":"impl FromStr for Url","synthetic":false,"types":[]}];
+implementors["identity_iota"] = [{"text":"impl FromStr for IotaDID","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

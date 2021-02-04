@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["chain",""],["client",""],["crypto","Re-export `identity_core::crypto`; in the future this will be `crypto.rs`."],["did",""],["error",""],["tangle",""],["utils",""],["vc",""]]});

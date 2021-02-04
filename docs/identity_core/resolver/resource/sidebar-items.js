@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["PrimaryResource",""],["Resource",""],["SecondaryResource",""]]});

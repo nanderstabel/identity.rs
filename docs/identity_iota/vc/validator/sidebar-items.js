@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CredentialValidation",""],["CredentialValidator",""],["DocumentValidation",""],["PresentationValidation",""]]});

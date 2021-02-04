@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["InnerValue","Inner value of the `DiffHashMap` type."]],"struct":[["DiffHashMap","A `DiffHashMap` type which represents a Diffed `HashMap`.  By default this value is transparent to `serde`."]]});

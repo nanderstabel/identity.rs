@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["key_impl",""],["key_pair",""]],"struct":[["KeyPair","A convenience for storing a pair of public/secret keys"],["PublicKey",""],["SecretKey",""]]});

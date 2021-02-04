@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["message",""],["message_id",""],["message_index",""],["traits",""]],"struct":[["Message",""],["MessageId",""],["MessageIndex",""]],"trait":[["TangleRef",""]]});

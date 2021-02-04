@@ -1,0 +1,4 @@
+(function() {var implementors = {};
+implementors["identity_core"] = [{"text":"impl&lt;'_&gt; TryFrom&lt;&amp;'_ str&gt; for Timestamp","synthetic":false,"types":[]},{"text":"impl TryFrom&lt;String&gt; for Timestamp","synthetic":false,"types":[]}];
+implementors["identity_iota"] = [{"text":"impl TryFrom&lt;DID&gt; for IotaDID","synthetic":false,"types":[]},{"text":"impl&lt;'a&gt; TryFrom&lt;&amp;'a DID&gt; for &amp;'a IotaDID","synthetic":false,"types":[]},{"text":"impl TryFrom&lt;Document&lt;BTreeMap&lt;String, Value&gt;, BTreeMap&lt;String, Value&gt;, BTreeMap&lt;String, Value&gt;&gt;&gt; for IotaDocument","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

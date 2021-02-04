@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["did",""],["did_segments",""],["document",""],["document_builder",""],["document_diff",""],["document_properties",""]],"struct":[["DocumentDiff",""],["IotaDID",""],["IotaDocument",""],["IotaDocumentBuilder",""],["Properties",""],["Segments",""]]});

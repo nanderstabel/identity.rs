@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["KeyPair","A convenience for storing a pair of public/secret keys"],["PublicKey",""],["SecretKey",""]]});

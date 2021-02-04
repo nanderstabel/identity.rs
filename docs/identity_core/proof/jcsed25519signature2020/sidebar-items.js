@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["PUBLIC_KEY_BYTES",""],["SECRET_KEY_BYTES",""],["SIGNATURE_NAME",""],["SIGNATURE_SIZE",""]],"fn":[["ed25519_sign",""],["ed25519_verify",""],["pubkey",""],["seckey",""]],"struct":[["JcsEd25519Signature2020",""]]});

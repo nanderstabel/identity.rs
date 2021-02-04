@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Error","The main crate Error type; uses `thiserror`."]],"type":[["Result","The main crate result type derived from the `anyhow::Result` type."]]});
