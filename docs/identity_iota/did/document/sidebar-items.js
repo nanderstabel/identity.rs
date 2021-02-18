@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["AUTH_QUERY",""],["ERR_AMIM",""],["ERR_AMMF",""],["ERR_AMNS",""]],"struct":[["IotaDocument",""]],"type":[["Properties",""],["__Document",""]]});

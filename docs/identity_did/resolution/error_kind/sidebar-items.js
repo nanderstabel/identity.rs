@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["ErrorKind","Types of errors that be returned from a DID resolution process."]]});

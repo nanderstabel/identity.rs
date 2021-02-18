@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Url","A parsed URL."]]});

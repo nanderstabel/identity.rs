@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["DiffMethodData",""],["DiffMethodRef",""]],"mod":[["did_key",""],["document",""],["method",""],["method_data",""],["method_ref",""],["method_type",""],["ordered_set",""],["service",""]],"struct":[["DiffDocument",""],["DiffMethod",""],["DiffService",""]]});

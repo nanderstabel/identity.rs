@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["MethodScope","Verification method group used to refine the scope of a method query."]]});

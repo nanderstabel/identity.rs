@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["DocumentMetadata","Metadata associated with a resolved DID Document."]]});

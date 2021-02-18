@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["credential","The core types used to create Verifiable Credentials"],["error","Errors that may occur when working with Verifiable Credentials."],["presentation","The core types used to create Verifiable Presentations"]]});

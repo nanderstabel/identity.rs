@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Network",""]],"mod":[["client",""],["client_builder",""],["network",""],["resolver",""],["txn_printer",""]],"struct":[["Client",""],["ClientBuilder","A `ClientBuilder` is used to generated a customized `Client`."],["TxnPrinter",""]]});

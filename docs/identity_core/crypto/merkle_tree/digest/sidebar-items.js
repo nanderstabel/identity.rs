@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["Digest","The `Digest` trait specifies an interface common for digest functions."],["DigestExt","An extension of the [`Digest`] trait for Merkle tree construction."]]});

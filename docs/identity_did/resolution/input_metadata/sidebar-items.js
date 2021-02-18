@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["MIME_DID","The content type of a JSON DID Document."],["MIME_DID_LD","The content type of a JSON-LD DID Document."]],"struct":[["InputMetadata","Input options used to configure a DID resolution process."]]});

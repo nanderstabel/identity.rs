@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Presentation","A `Presentation` represents a bundle of one or more `VerifiableCredential`s."]]});

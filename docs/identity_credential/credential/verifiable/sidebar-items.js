@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["VerifiableCredential","A `VerifiableCredential` represents a `Credential` with an associated digital proof."]]});

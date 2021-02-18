@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["SerdeInto","An escape-hatch for converting between types that represent the same JSON structure."]]});

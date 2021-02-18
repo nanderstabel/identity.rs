@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["DiffOption","A `DiffOption<T>` type which represents a Diffed `Option<T>`.  By default this value is untagged for `serde`. It also converts `to` and `from` Option when serialized/deserialized"]]});

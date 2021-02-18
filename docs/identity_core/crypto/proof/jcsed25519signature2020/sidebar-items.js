@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["PUBLIC_KEY_BYTES",""],["SECRET_KEY_BYTES",""],["SIGNATURE_NAME",""],["SIGNATURE_SIZE",""]],"fn":[["ed25519_sign",""],["ed25519_verify",""],["parse_public",""],["parse_secret",""],["parse_signature",""]],"struct":[["JcsEd25519Signature2020","An implementation of the JCS Ed25519 Signature 2020 signature suite for Linked Data Proofs."]]});

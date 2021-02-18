@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["core","Core Traits and Types"],["credential","Verifiable Credentials"],["crypto","Cryptographic Utilities"],["did","Decentralized Identifiers"],["iota","IOTA Tangle DID Method"]]});

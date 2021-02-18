@@ -1,4 +1,0 @@
-(function() {var implementors = {};
-implementors["identity_credential"] = [{"text":"impl LazyStatic for BASE_CONTEXT","synthetic":false,"types":[]}];
-implementors["identity_iota"] = [{"text":"impl LazyStatic for EXPLORER_MAIN","synthetic":false,"types":[]},{"text":"impl LazyStatic for EXPLORER_DEV","synthetic":false,"types":[]},{"text":"impl LazyStatic for EXPLORER_COM","synthetic":false,"types":[]},{"text":"impl LazyStatic for NODE_MAIN","synthetic":false,"types":[]},{"text":"impl LazyStatic for NODE_DEV","synthetic":false,"types":[]},{"text":"impl LazyStatic for NODE_COM","synthetic":false,"types":[]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

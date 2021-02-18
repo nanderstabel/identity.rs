@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["MTree","A Merkle tree designed for static data."]]});

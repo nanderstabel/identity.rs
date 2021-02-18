@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["did","didAn implementation of DID Identifiers for the Rust programming language."],["diff",""],["document",""],["error","Errors that may occur when working with Decentralized Identifiers."],["resolution","Types and traits for DID Document resolution."],["service",""],["utils",""],["verifiable",""],["verification",""]]});

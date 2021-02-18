@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["OrderedSet","An ordered set based on a `Vec<T>`."]]});
