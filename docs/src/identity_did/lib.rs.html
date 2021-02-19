@@ -35,11 +35,37 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="doccomment">//! Types and traits for working with Decentralized Identifiers.</span>
+<span class="doccomment">//! Agnostic implementation of the Decentralized Identifiers (DID) standard from W3C.</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! Decentralized Identifiers (DID) is a proposed standard from the World Wide Web Consortium (W3C) to enable a verifiable and decentralized identity.</span>
+<span class="doccomment">//! The standard provides a unique identifier (DID), which can be used to look up more information about the associated identity in the form of a DID Document.</span>
+<span class="doccomment">//! The DID Document contains public keys, to prove control over the identity, and service endpoints which are URI&#39;s that can be resolved to find more public information about the identity.</span>
+<span class="doccomment">//! Often the DID Documents are stored on an Distributed Ledger Technology (DLT) such as Bitcoin, Ethereum and IOTA, but this is not a requirement.</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! This is an agnostic implementation of the [DID specifications v1.0 Working Draft 20200731](https://www.w3.org/TR/2020/WD-did-core-20200731/).</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! It has been implemented in the following DID Methods:</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! - [IOTA Identity](https://github.com/iotaledger/identity.rs/tree/dev/identity-iota): Developed and maintained by the IOTA Foundation, utilizing the IOTA Tangle.</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! See [our documentation portal](https://identity.docs.iota.org/overview/did.html) for additional documentations, conceptual explainations and usage examples. </span>
 
 <span class="attribute">#![<span class="ident">warn</span>(
   <span class="ident">rust_2018_idioms</span>,
