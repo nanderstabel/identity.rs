@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["SignatureValue","A [`SignatureData`] wrapper with a visiblity toggle."]]});

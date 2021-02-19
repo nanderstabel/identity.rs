@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Signature","A DID Document digital signature."]]});

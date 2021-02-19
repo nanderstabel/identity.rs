@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["MethodRef","A reference to a verification method, either a `DID` or embedded `Method`."]]});

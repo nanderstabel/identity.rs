@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BASE_CONTEXT",""],["Credential","A `Credential` represents a set of claims describing an entity."]]});

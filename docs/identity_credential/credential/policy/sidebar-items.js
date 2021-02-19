@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Policy","Information used to express obligations, prohibitions, and permissions about a `Credential` or `Presentation`."]]});

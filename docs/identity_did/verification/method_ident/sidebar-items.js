@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["MethodIdent","Index or identifier used to identify the target verification method of a `MethodQuery`."]]});
