@@ -165,7 +165,7 @@
 
   <span class="doccomment">/// Creates a new [`Timestamp`] with the current date and time.</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-    <span class="self">Self</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">to_rfc3339</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>(<span class="ident">Utc</span>::<span class="ident">now</span>()))).<span class="ident">unwrap</span>()
+    <span class="self">Self</span>(<span class="ident">Utc</span>::<span class="ident">now</span>())
   }
 
   <span class="doccomment">/// Returns the [`Timestamp`] as a Unix timestamp.</span>

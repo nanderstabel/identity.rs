@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["chain",""],["client",""],["credential",""],["did",""],["error",""],["tangle",""],["utils",""]]});
+initSidebarItems({"macro":[["did","Creates a new IOTA DID from a `public` key and optional `network`/`shard`."],["try_did","A fallible version of the `did` macro."]],"mod":[["chain",""],["client",""],["credential",""],["did",""],["error",""],["tangle",""],["utils",""]]});

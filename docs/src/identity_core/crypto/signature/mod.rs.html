@@ -18,10 +18,6 @@
 <span id="15">15</span>
 <span id="16">16</span>
 <span id="17">17</span>
-<span id="18">18</span>
-<span id="19">19</span>
-<span id="20">20</span>
-<span id="21">21</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -29,19 +25,15 @@
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">module_inception</span>)]</span>
 
 <span class="kw">mod</span> <span class="ident">signature</span>;
-<span class="kw">mod</span> <span class="ident">signature_data</span>;
-<span class="kw">mod</span> <span class="ident">signature_options</span>;
 <span class="kw">mod</span> <span class="ident">signature_value</span>;
 <span class="kw">mod</span> <span class="ident">traits</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">Signature</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature_data</span>::<span class="ident">SignatureData</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature_options</span>::<span class="ident">SignatureOptions</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature_value</span>::<span class="ident">SignatureValue</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traits</span>::<span class="ident">SetSignature</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traits</span>::<span class="ident">SigName</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traits</span>::<span class="ident">SigSign</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traits</span>::<span class="ident">SigVerify</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traits</span>::<span class="ident">SignatureName</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traits</span>::<span class="ident">SignatureSign</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traits</span>::<span class="ident">SignatureVerify</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traits</span>::<span class="ident">TrySignature</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traits</span>::<span class="ident">TrySignatureMut</span>;
 </pre></div>

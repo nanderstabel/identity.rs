@@ -154,23 +154,51 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
 
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Display</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">FmtError</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">FmtResult</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">convert</span>::<span class="ident">ToJson</span>;
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">chain</span>::<span class="ident">AuthChain</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">chain</span>::<span class="ident">DiffChain</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">Document</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DocumentDiff</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">IotaDID</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">IotaDocument</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tangle</span>::<span class="ident">MessageId</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DocumentChain</span> {
-  <span class="ident">auth_chain</span>: <span class="ident">AuthChain</span>,
+  <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;diff&quot;</span>)]</span>
   <span class="ident">diff_chain</span>: <span class="ident">DiffChain</span>,
-  <span class="ident">document</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IotaDocument</span><span class="op">&gt;</span>,
+  <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;auth&quot;</span>)]</span>
+  <span class="ident">auth_chain</span>: <span class="ident">AuthChain</span>,
+  <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;latest&quot;</span>, <span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>)]</span>
+  <span class="ident">document</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Document</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DocumentChain</span> {
@@ -178,8 +206,8 @@
     <span class="ident">diff</span>.<span class="ident">current_message_id</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">auth</span>.<span class="ident">current_message_id</span>())
   }
 
-  <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">__fold</span>(<span class="ident">auth_chain</span>: <span class="kw-2">&amp;</span><span class="ident">AuthChain</span>, <span class="ident">diff_chain</span>: <span class="kw-2">&amp;</span><span class="ident">DiffChain</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IotaDocument</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span>: <span class="ident">IotaDocument</span> <span class="op">=</span> <span class="ident">auth_chain</span>.<span class="ident">current</span>.<span class="ident">clone</span>();
+  <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">__fold</span>(<span class="ident">auth_chain</span>: <span class="kw-2">&amp;</span><span class="ident">AuthChain</span>, <span class="ident">diff_chain</span>: <span class="kw-2">&amp;</span><span class="ident">DiffChain</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Document</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span>: <span class="ident">Document</span> <span class="op">=</span> <span class="ident">auth_chain</span>.<span class="ident">current</span>.<span class="ident">clone</span>();
 
     <span class="kw">for</span> <span class="ident">diff</span> <span class="kw">in</span> <span class="ident">diff_chain</span>.<span class="ident">iter</span>() {
       <span class="ident">this</span>.<span class="ident">merge</span>(<span class="ident">diff</span>)<span class="question-mark">?</span>;
@@ -199,7 +227,7 @@
 
   <span class="doccomment">/// Creates a new `DocumentChain` from given the `AuthChain` and `DiffChain`.</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_diff_chain</span>(<span class="ident">auth_chain</span>: <span class="ident">AuthChain</span>, <span class="ident">diff_chain</span>: <span class="ident">DiffChain</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">document</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IotaDocument</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">diff_chain</span>.<span class="ident">is_empty</span>() {
+    <span class="kw">let</span> <span class="ident">document</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Document</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">diff_chain</span>.<span class="ident">is_empty</span>() {
       <span class="prelude-val">None</span>
     } <span class="kw">else</span> {
       <span class="prelude-val">Some</span>(<span class="self">Self</span>::<span class="ident">__fold</span>(<span class="kw-2">&amp;</span><span class="ident">auth_chain</span>, <span class="kw-2">&amp;</span><span class="ident">diff_chain</span>)<span class="question-mark">?</span>)
@@ -213,7 +241,7 @@
   }
 
   <span class="doccomment">/// Returns a reference to the DID identifying the document chain.</span>
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">IotaDID</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DID</span> {
     <span class="self">self</span>.<span class="ident">auth_chain</span>.<span class="ident">current</span>.<span class="ident">id</span>()
   }
 
@@ -237,7 +265,7 @@
     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">diff_chain</span>
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fold</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IotaDocument</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fold</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Document</span><span class="op">&gt;</span> {
     <span class="kw">for</span> <span class="ident">diff</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">diff_chain</span>.<span class="ident">iter</span>() {
       <span class="self">self</span>.<span class="ident">auth_chain</span>.<span class="ident">current</span>.<span class="ident">merge</span>(<span class="ident">diff</span>)<span class="question-mark">?</span>;
     }
@@ -246,12 +274,12 @@
   }
 
   <span class="doccomment">/// Returns a reference to the latest document in the chain.</span>
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">IotaDocument</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Document</span> {
     <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">auth_chain</span>.<span class="ident">current</span>())
   }
 
   <span class="doccomment">/// Returns a mutable reference to the latest document in the chain.</span>
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">IotaDocument</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Document</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">document</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">document</span>.<span class="ident">as_mut</span>() {
       <span class="ident">document</span>
     } <span class="kw">else</span> {
@@ -274,7 +302,7 @@
   <span class="doccomment">/// # Errors</span>
   <span class="doccomment">///</span>
   <span class="doccomment">/// Fails if the document is not a valid auth document.</span>
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_push_auth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">document</span>: <span class="ident">IotaDocument</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_push_auth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">document</span>: <span class="ident">Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="ident">auth_chain</span>.<span class="ident">try_push</span>(<span class="ident">document</span>)<span class="question-mark">?</span>;
     <span class="self">self</span>.<span class="ident">diff_chain</span>.<span class="ident">clear</span>();
 
@@ -291,7 +319,7 @@
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_push_diff</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">diff</span>: <span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="ident">diff_chain</span>.<span class="ident">check_validity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">auth_chain</span>, <span class="kw-2">&amp;</span><span class="ident">diff</span>)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">document</span>: <span class="ident">IotaDocument</span> <span class="op">=</span> <span class="self">self</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">document</span>: <span class="ident">Document</span> <span class="op">=</span> <span class="self">self</span>
       .<span class="ident">document</span>
       .<span class="ident">take</span>()
       .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">auth_chain</span>.<span class="ident">current</span>().<span class="ident">clone</span>());
@@ -306,6 +334,16 @@
     }
 
     <span class="prelude-val">Ok</span>(())
+  }
+}
+
+<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">DocumentChain</span> {
+  <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FmtResult</span> {
+    <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">alternate</span>() {
+      <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">to_json_pretty</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FmtError</span>)<span class="question-mark">?</span>)
+    } <span class="kw">else</span> {
+      <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">to_json</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FmtError</span>)<span class="question-mark">?</span>)
+    }
   }
 }
 </pre></div>

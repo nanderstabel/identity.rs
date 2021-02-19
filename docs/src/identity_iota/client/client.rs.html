@@ -251,6 +251,11 @@
 <span id="248">248</span>
 <span id="249">249</span>
 <span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -271,9 +276,9 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">client</span>::<span class="ident">ClientBuilder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">client</span>::<span class="ident">Network</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">client</span>::<span class="ident">TxnPrinter</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">Document</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DocumentDiff</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">IotaDID</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">IotaDocument</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tangle</span>::<span class="ident">Message</span>;
@@ -364,11 +369,12 @@
     <span class="ident">txn_hash_trytes</span>(<span class="ident">transaction</span>)
   }
 
-  <span class="doccomment">/// Publishes an `IotaDocument` to the Tangle.</span>
+  <span class="doccomment">/// Publishes an DID Document to the Tangle; returns the `MessageId` of</span>
+  <span class="doccomment">/// the bundled transaction.</span>
   <span class="doccomment">///</span>
   <span class="doccomment">/// Note: The only validation performed is to ensure the correct Tangle</span>
   <span class="doccomment">/// network is selected.</span>
-  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">publish_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">IotaDocument</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BundledTransaction</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">publish_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MessageId</span><span class="op">&gt;</span> {
     <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Publish Document: {}&quot;</span>, <span class="ident">document</span>.<span class="ident">id</span>());
     <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Tangle Address: {}&quot;</span>, <span class="ident">document</span>.<span class="ident">id</span>().<span class="ident">address</span>());
 
@@ -376,31 +382,34 @@
 
     <span class="kw">let</span> <span class="ident">address</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">id</span>().<span class="ident">address</span>();
     <span class="kw">let</span> <span class="ident">transfer</span>: <span class="ident">Transfer</span> <span class="op">=</span> <span class="ident">create_transfer</span>(<span class="kw-2">&amp;</span><span class="ident">address</span>, <span class="ident">document</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">bundled</span>: <span class="ident">BundledTransaction</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">send_transfer</span>(<span class="ident">transfer</span>).<span class="ident">await</span><span class="question-mark">?</span>;
 
-    <span class="self">self</span>.<span class="ident">send_transfer</span>(<span class="ident">transfer</span>).<span class="ident">await</span>
+    <span class="prelude-val">Ok</span>(<span class="ident">txn_hash_trytes</span>(<span class="kw-2">&amp;</span><span class="ident">bundled</span>).<span class="ident">into</span>())
   }
 
-  <span class="doccomment">/// Publishes a `DocumentDiff` to the Tangle.</span>
+  <span class="doccomment">/// Publishes a `DocumentDiff` to the Tangle; returns the `MessageId` of</span>
+  <span class="doccomment">/// the bundled transaction.</span>
   <span class="doccomment">///</span>
   <span class="doccomment">/// Note: The only validation performed is to ensure the correct Tangle</span>
   <span class="doccomment">/// network is selected.</span>
-  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">publish_diff</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">message_id</span>: <span class="kw-2">&amp;</span><span class="ident">MessageId</span>, <span class="ident">diff</span>: <span class="kw-2">&amp;</span><span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BundledTransaction</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">publish_diff</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">message_id</span>: <span class="kw-2">&amp;</span><span class="ident">MessageId</span>, <span class="ident">diff</span>: <span class="kw-2">&amp;</span><span class="ident">DocumentDiff</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MessageId</span><span class="op">&gt;</span> {
     <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Publish Diff: {}&quot;</span>, <span class="ident">diff</span>.<span class="ident">id</span>());
-    <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Tangle Address: {}&quot;</span>, <span class="ident">IotaDocument</span>::<span class="ident">diff_address</span>(<span class="ident">message_id</span>)<span class="question-mark">?</span>);
+    <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Tangle Address: {}&quot;</span>, <span class="ident">Document</span>::<span class="ident">diff_address</span>(<span class="ident">message_id</span>)<span class="question-mark">?</span>);
 
     <span class="self">self</span>.<span class="ident">check_network</span>(<span class="ident">diff</span>.<span class="ident">id</span>())<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">address</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">IotaDocument</span>::<span class="ident">diff_address</span>(<span class="ident">message_id</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">address</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">Document</span>::<span class="ident">diff_address</span>(<span class="ident">message_id</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">transfer</span>: <span class="ident">Transfer</span> <span class="op">=</span> <span class="ident">create_transfer</span>(<span class="kw-2">&amp;</span><span class="ident">address</span>, <span class="ident">diff</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">bundled</span>: <span class="ident">BundledTransaction</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">send_transfer</span>(<span class="ident">transfer</span>).<span class="ident">await</span><span class="question-mark">?</span>;
 
-    <span class="self">self</span>.<span class="ident">send_transfer</span>(<span class="ident">transfer</span>).<span class="ident">await</span>
+    <span class="prelude-val">Ok</span>(<span class="ident">txn_hash_trytes</span>(<span class="kw-2">&amp;</span><span class="ident">bundled</span>).<span class="ident">into</span>())
   }
 
-  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">read_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">IotaDID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IotaDocument</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">read_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">DID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Document</span><span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="ident">read_document_chain</span>(<span class="ident">did</span>).<span class="ident">await</span>.<span class="ident">and_then</span>(<span class="ident">DocumentChain</span>::<span class="ident">fold</span>)
   }
 
-  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">read_document_chain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">IotaDID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DocumentChain</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">read_document_chain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">DID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DocumentChain</span><span class="op">&gt;</span> {
     <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Read Document Chain: {}&quot;</span>, <span class="ident">did</span>);
     <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Auth Chain Address: {}&quot;</span>, <span class="ident">did</span>.<span class="ident">address</span>());
 
@@ -414,7 +423,7 @@
       <span class="ident">DiffChain</span>::<span class="ident">new</span>()
     } <span class="kw">else</span> {
       <span class="comment">// Fetch all messages for the diff chain.</span>
-      <span class="kw">let</span> <span class="ident">address</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">IotaDocument</span>::<span class="ident">diff_address</span>(<span class="ident">auth</span>.<span class="ident">current_message_id</span>())<span class="question-mark">?</span>;
+      <span class="kw">let</span> <span class="ident">address</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">Document</span>::<span class="ident">diff_address</span>(<span class="ident">auth</span>.<span class="ident">current_message_id</span>())<span class="question-mark">?</span>;
       <span class="kw">let</span> <span class="ident">messages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Message</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read_messages</span>(<span class="kw-2">&amp;</span><span class="ident">address</span>).<span class="ident">await</span><span class="question-mark">?</span>;
 
       <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Tangle Messages: {:?}&quot;</span>, <span class="ident">messages</span>);
@@ -425,6 +434,7 @@
     <span class="ident">DocumentChain</span>::<span class="ident">with_diff_chain</span>(<span class="ident">auth</span>, <span class="ident">diff</span>)
   }
 
+  <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
   <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">read_messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Message</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">address</span>: <span class="ident">Address</span> <span class="op">=</span> <span class="ident">create_address_from_trits</span>(<span class="ident">address</span>)<span class="question-mark">?</span>;
 
@@ -460,7 +470,7 @@
       .<span class="ident">collect</span>()
   }
 
-  <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">send_transfer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">transfer</span>: <span class="ident">Transfer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BundledTransaction</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">send_transfer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">transfer</span>: <span class="ident">Transfer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BundledTransaction</span><span class="op">&gt;</span> {
     <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Sending Transfer: {:?}&quot;</span>, <span class="ident">transfer</span>.<span class="ident">message</span>);
 
     <span class="self">self</span>
@@ -474,7 +484,7 @@
       .<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">InvalidBundleTail</span>)
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_network</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">IotaDID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+  <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">check_network</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">DID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">network</span>.<span class="ident">matches_did</span>(<span class="ident">did</span>) {
       <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">InvalidDIDNetwork</span>);
     }

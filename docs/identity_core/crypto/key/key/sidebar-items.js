@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Public",""],["Secret",""]],"mod":[["private",""]],"struct":[["Key","A cryptographic key."]],"type":[["PublicKey","A cryptographic key with `Public` components."],["SecretKey","A cryptographic key with `Secret` components."]]});
+initSidebarItems({"struct":[["PublicKey","A public key object."],["SecretKey","A secret key object."]]});

@@ -79,19 +79,30 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
 
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">Deref</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">DerefMut</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Object</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">SetSignature</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">Signature</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">TrySignature</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">TrySignatureMut</span>;
 
+<span class="doccomment">/// A generic container for a set of properties (`T`) and a</span>
+<span class="doccomment">/// [`digital signature`][`Signature`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Properties</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> ()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Properties</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> <span class="ident">Object</span><span class="op">&gt;</span> {
   <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">properties</span>: <span class="ident">T</span>,
   <span class="comment">// TODO: Support multiple signatures (?)</span>
@@ -100,6 +111,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Properties</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+  <span class="doccomment">/// Creates a new [`Properties`] object.</span>
   <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">properties</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
     <span class="self">Self</span> {
       <span class="ident">properties</span>,
@@ -107,6 +119,7 @@
     }
   }
 
+  <span class="doccomment">/// Creates a new [`Properties`] object with the given `proof`.</span>
   <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_proof</span>(<span class="ident">properties</span>: <span class="ident">T</span>, <span class="ident">proof</span>: <span class="ident">Signature</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
     <span class="self">Self</span> {
       <span class="ident">properties</span>,
@@ -114,14 +127,17 @@
     }
   }
 
+  <span class="doccomment">/// Returns a reference to the [`proof`][`Signature`] object.</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proof</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Signature</span><span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="ident">proof</span>.<span class="ident">as_ref</span>()
   }
 
+  <span class="doccomment">/// Returns a mutable reference to the [`proof`][`Signature`] object.</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proof_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Signature</span><span class="op">&gt;</span> {
     <span class="self">self</span>.<span class="ident">proof</span>.<span class="ident">as_mut</span>()
   }
 
+  <span class="doccomment">/// Sets the value of the [`proof`][`Signature`] object.</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_proof</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">signature</span>: <span class="ident">Signature</span>) {
     <span class="self">self</span>.<span class="ident">proof</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">signature</span>);
   }

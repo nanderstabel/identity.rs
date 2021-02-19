@@ -118,9 +118,9 @@
 <span class="kw">use</span> <span class="ident">iota</span>::<span class="ident">transaction</span>::<span class="ident">bundled</span>::<span class="ident">BundledTransactionField</span>;
 <span class="kw">use</span> <span class="ident">iota</span>::<span class="ident">transaction</span>::<span class="ident">bundled</span>::<span class="ident">Timestamp</span>;
 
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">Document</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DocumentDiff</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">IotaDID</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">IotaDocument</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tangle</span>::<span class="ident">MessageId</span>;
@@ -188,11 +188,11 @@
     <span class="ident">MessageId</span>::<span class="ident">new</span>(<span class="ident">encode_trits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tail_hash</span>))
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_extract_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">IotaDID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IotaDocument</span><span class="op">&gt;</span> {
-    <span class="macro">try_extract</span><span class="macro">!</span>(<span class="ident">IotaDocument</span>, <span class="self">self</span>, <span class="ident">did</span>)
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_extract_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">DID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Document</span><span class="op">&gt;</span> {
+    <span class="macro">try_extract</span><span class="macro">!</span>(<span class="ident">Document</span>, <span class="self">self</span>, <span class="ident">did</span>)
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_extract_diff</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">IotaDID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DocumentDiff</span><span class="op">&gt;</span> {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_extract_diff</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">DID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DocumentDiff</span><span class="op">&gt;</span> {
     <span class="macro">try_extract</span><span class="macro">!</span>(<span class="ident">DocumentDiff</span>, <span class="self">self</span>, <span class="ident">did</span>)
   }
 }

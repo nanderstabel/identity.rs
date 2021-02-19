@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["jcsed25519signature2020",""]]});
+initSidebarItems({"mod":[["jcs_ed25519",""]]});

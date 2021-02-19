@@ -28,32 +28,54 @@
 <span id="25">25</span>
 <span id="26">26</span>
 <span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">BitSet</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Object</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">convert</span>::<span class="ident">FromJson</span>;
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="prelude-ty">Result</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodQuery</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodWrap</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">Method</span>;
 
-<span class="comment">// =============================================================================</span>
-<span class="comment">// =============================================================================</span>
-
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ResolveMethod</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">resolve_method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">M</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-
-  <span class="kw">fn</span> <span class="ident">try_resolve_method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">M</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="self">self</span>.<span class="ident">resolve_method</span>(<span class="ident">query</span>).<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">QueryMethodNotFound</span>)
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Revocation</span> {
+  <span class="doccomment">/// Returns a [`set`][`BitSet`] of Merkle Key Collection revocation flags.</span>
+  <span class="kw">fn</span> <span class="ident">revocation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitSet</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
   }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">M</span><span class="op">&gt;</span> <span class="ident">ResolveMethod</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>
+<span class="kw">impl</span> <span class="ident">Revocation</span> <span class="kw">for</span> () {}
+
+<span class="kw">impl</span> <span class="ident">Revocation</span> <span class="kw">for</span> <span class="ident">Object</span> {
+  <span class="kw">fn</span> <span class="ident">revocation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitSet</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="self">self</span>
+      .<span class="ident">get</span>(<span class="string">&quot;revocation&quot;</span>)
+      .<span class="ident">cloned</span>()
+      .<span class="ident">map</span>(<span class="ident">BitSet</span>::<span class="ident">from_json_value</span>)
+      .<span class="ident">transpose</span>()
+      .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+  }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Revocation</span> <span class="kw">for</span> <span class="ident">Method</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-  <span class="ident">T</span>: <span class="ident">ResolveMethod</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>,
+  <span class="ident">T</span>: <span class="ident">Revocation</span>,
 {
-  <span class="kw">fn</span> <span class="ident">resolve_method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">M</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">resolve_method</span>(<span class="ident">query</span>)
+  <span class="kw">fn</span> <span class="ident">revocation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitSet</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="self">self</span>.<span class="ident">properties</span>().<span class="ident">revocation</span>()
   }
 }
 </pre></div>

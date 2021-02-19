@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["BLAKE2B_256_LEN",""]],"struct":[["DID","A DID URL adhering to the IOTA DID method specification."]]});

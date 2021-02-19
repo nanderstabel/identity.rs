@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["ResolveMethod",""]]});
+initSidebarItems({"trait":[["Revocation",""]]});

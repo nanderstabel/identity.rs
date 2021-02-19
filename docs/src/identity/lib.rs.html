@@ -140,6 +140,13 @@
 <span id="137">137</span>
 <span id="138">138</span>
 <span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -150,45 +157,49 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Example</span>
 <span class="doccomment">//! ```</span>
-<span class="doccomment">//! use identity::iota::Client;</span>
-<span class="doccomment">//! use identity::iota::IotaDocument;</span>
 <span class="doccomment">//! use identity::crypto::KeyPair;</span>
+<span class="doccomment">//! use identity::iota::Client;</span>
+<span class="doccomment">//! use identity::iota::Document;</span>
+<span class="doccomment">//! use identity::iota::Network;</span>
 <span class="doccomment">//! use identity::iota::Result;</span>
+<span class="doccomment">//! use identity::iota::TangleRef;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! #[smol_potat::main]</span>
 <span class="doccomment">//! async fn main() -&gt; Result&lt;()&gt; {</span>
-<span class="doccomment">//! </span>
 <span class="doccomment">//!   // Create a client to interact with the IOTA Tangle.</span>
 <span class="doccomment">//!   let client: Client = Client::new()?;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!   // Create a DID Document (an identity).</span>
-<span class="doccomment">//!   let (mut document, keypair): (IotaDocument, KeyPair) = IotaDocument::builder()</span>
-<span class="doccomment">//!     .authentication_tag(&quot;key-1&quot;)</span>
-<span class="doccomment">//!     .did_network(client.network().as_str())</span>
-<span class="doccomment">//!     .build()?;</span>
+<span class="doccomment">//!   let keypair: KeyPair = KeyPair::new_ed25519()?;</span>
+<span class="doccomment">//!   let mut document: Document = Document::from_keypair(&amp;keypair)?;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!   // Sign the DID Document with the default authentication key.</span>
 <span class="doccomment">//!   document.sign(keypair.secret())?;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!   // Use the client to publish the DID Document to the IOTA Tangle.</span>
-<span class="doccomment">//!   let transaction: _ = client.publish_document(&amp;document).await?;</span>
-<span class="doccomment">//! </span>
+<span class="doccomment">//!   document.publish(&amp;client).await?;</span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//!   // Print the DID Document transaction link.</span>
-<span class="doccomment">//!   println!(&quot;DID Document Transaction &gt; {}&quot;, client.transaction_url(&amp;transaction));</span>
+<span class="doccomment">//!   let network: Network = document.id().into();</span>
+<span class="doccomment">//!   let explore: String = format!(&quot;{}/transaction/{}&quot;, network.explorer_url(), document.message_id());</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!   println!(&quot;DID Document Transaction &gt; {}&quot;, explore);</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!   Ok(())</span>
 <span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! ```</span>
-<span class="doccomment">//! </span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//! **Output**: Example DID Document in the [Tangle Explorer](https://explorer.iota.org/mainnet/transaction/LESUXJUMJCOWGHU9CQQUIHCIPYELOBMHZT9CHCYHJPO9BONQ9IQIFJSREYNOCTYCTQYBHBMBBWJJZ9999).</span>
-<span class="doccomment">//! </span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//! # Documentation &amp; Community Resources</span>
 <span class="doccomment">//! - [identity.rs](https://github.com/iotaledger/identity.rs): Rust source code of this library on GitHub.</span>
-<span class="doccomment">//! - [Identity Documentation Pages](https://identity.docs.iota.org/welcome.html): Supplementing documentation with simple examples on library usage to get you started.</span>
-<span class="doccomment">//! - [More Examples](https://github.com/iotaledger/identity.rs/tree/dev/examples): Practical examples to get started with the library.</span>
-<span class="doccomment">//! - [IOTA Identity Experience Team Website](https://iota-community.github.io/X-Team_IOTA_Identity/): Website of aforementioned team.</span>
-<span class="doccomment">//! </span>
+<span class="doccomment">//! - [Identity Documentation Pages](https://identity.docs.iota.org/welcome.html): Supplementing documentation with</span>
+<span class="doccomment">//!   simple examples on library usage to get you started.</span>
+<span class="doccomment">//! - [More Examples](https://github.com/iotaledger/identity.rs/tree/dev/examples): Practical examples to get started</span>
+<span class="doccomment">//!   with the library.</span>
+<span class="doccomment">//! - [IOTA Identity Experience Team Website](https://iota-community.github.io/X-Team_IOTA_Identity/): Website of</span>
+<span class="doccomment">//!   aforementioned team.</span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//! # Structure (Temporary)</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! - Resources</span>
@@ -196,9 +207,7 @@
 <span class="doccomment">//!   - X-Team</span>
 <span class="doccomment">//! - Simple Example</span>
 <span class="doccomment">//! - Architecture/Overview</span>
-<span class="doccomment">//! - Get </span>
-<span class="doccomment">//! </span>
-<span class="doccomment">//! </span>
+<span class="doccomment">//! - Get</span>
 
 <span class="attribute">#![<span class="ident">warn</span>(
   <span class="ident">rust_2018_idioms</span>,
@@ -211,7 +220,7 @@
   <span class="ident">clippy</span>::<span class="ident">missing_safety_doc</span>,
   <span class="ident">clippy</span>::<span class="ident">missing_errors_doc</span>
 )]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">core</span> {
   <span class="doccomment">//! Core Traits and Types</span>
@@ -235,7 +244,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;credential&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;credential&quot;</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;credential&quot;</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">credential</span> {
   <span class="doccomment">//! Verifiable Credentials</span>
   <span class="doccomment">//!</span>
@@ -247,7 +256,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;identifier&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;identifier&quot;</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;identifier&quot;</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">did</span> {
   <span class="doccomment">//! Decentralized Identifiers</span>
   <span class="doccomment">//!</span>
@@ -268,7 +277,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;iota&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;iota&quot;</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;iota&quot;</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">iota</span> {
   <span class="doccomment">//! IOTA Tangle DID Method</span>
 
@@ -278,7 +287,12 @@
   <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">identity_iota</span>::<span class="ident">did</span>::<span class="kw-2">*</span>;
   <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">identity_iota</span>::<span class="ident">error</span>::<span class="kw-2">*</span>;
   <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">identity_iota</span>::<span class="ident">tangle</span>::<span class="kw-2">*</span>;
-  <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">identity_iota</span>::<span class="ident">utils</span>::<span class="kw-2">*</span>;
+
+  <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
+  <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">identity_iota</span>::<span class="ident">did</span>;
+
+  <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
+  <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">identity_iota</span>::<span class="ident">try_did</span>;
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "identity";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

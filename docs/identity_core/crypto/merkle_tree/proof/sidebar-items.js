@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Proof","An inclusion proof that allows proving the existence of data in a `Merkle tree`."]]});
+initSidebarItems({"struct":[["Proof","An Merkle tree inclusion proof that allows proving the existence of a particular leaf in a Merkle tree."]]});

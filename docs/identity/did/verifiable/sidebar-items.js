@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["LdSuite",""],["Properties",""]],"trait":[["ResolveMethod",""]]});
+initSidebarItems({"struct":[["DocumentSigner",""],["DocumentVerifier",""],["Properties","A generic container for a set of properties (`T`) and a [`digital signature`][`Signature`]."]],"trait":[["Revocation",""]]});

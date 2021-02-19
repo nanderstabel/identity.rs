@@ -74,6 +74,11 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -99,25 +104,30 @@
   <span class="ident">QueryMethodNotFound</span>,
 
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Document Property: `id`&quot;</span>)]</span>
-  <span class="ident">InvalidDocumentId</span>,
+  <span class="ident">BuilderInvalidDocumentId</span>,
 
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Service Property: `id`&quot;</span>)]</span>
-  <span class="ident">InvalidServiceId</span>,
+  <span class="ident">BuilderInvalidServiceId</span>,
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Service Property: `type`&quot;</span>)]</span>
-  <span class="ident">InvalidServiceType</span>,
+  <span class="ident">BuilderInvalidServiceType</span>,
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Service Property: `service_endpoint`&quot;</span>)]</span>
-  <span class="ident">InvalidServiceEndpoint</span>,
+  <span class="ident">BuilderInvalidServiceEndpoint</span>,
 
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Verification Method Property: `id`&quot;</span>)]</span>
-  <span class="ident">InvalidMethodId</span>,
-  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Verification Method Fragment&quot;</span>)]</span>
-  <span class="ident">InvalidMethodIdFragment</span>,
+  <span class="ident">BuilderInvalidMethodId</span>,
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Verification Method Property: `controller`&quot;</span>)]</span>
-  <span class="ident">InvalidMethodController</span>,
+  <span class="ident">BuilderInvalidMethodController</span>,
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Verification Method Property: `type`&quot;</span>)]</span>
-  <span class="ident">InvalidMethodType</span>,
+  <span class="ident">BuilderInvalidMethodType</span>,
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Verification Method Property: `data`&quot;</span>)]</span>
-  <span class="ident">InvalidMethodData</span>,
+  <span class="ident">BuilderInvalidMethodData</span>,
+
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Verification Method Fragment&quot;</span>)]</span>
+  <span class="ident">InvalidMethodFragment</span>,
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Verification Method Type&quot;</span>)]</span>
+  <span class="ident">InvalidMethodType</span>,
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Verification Method - Duplicate&quot;</span>)]</span>
+  <span class="ident">InvalidMethodDuplicate</span>,
 
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Unknown Method Scope&quot;</span>)]</span>
   <span class="ident">UnknownMethodScope</span>,

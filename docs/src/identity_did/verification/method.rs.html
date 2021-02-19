@@ -128,6 +128,13 @@
 <span id="125">125</span>
 <span id="126">126</span>
 <span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -137,6 +144,7 @@
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">FmtResult</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">iter</span>::<span class="ident">once</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Object</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">convert</span>::<span class="ident">ToJson</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
 
@@ -145,11 +153,12 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodBuilder</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodData</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodRef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodType</span>;
 
 <span class="doccomment">/// A DID Document Verification Method</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Method</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> ()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Method</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> <span class="ident">Object</span><span class="op">&gt;</span> {
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">id</span>: <span class="ident">DID</span>,
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">controller</span>: <span class="ident">DID</span>,
   <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>)]</span>
@@ -171,10 +180,10 @@
   <span class="doccomment">/// Returns a new `Method` based on the `MethodBuilder` configuration.</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_builder</span>(<span class="ident">builder</span>: <span class="ident">MethodBuilder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
     <span class="prelude-val">Ok</span>(<span class="ident">Method</span> {
-      <span class="ident">id</span>: <span class="ident">builder</span>.<span class="ident">id</span>.<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">InvalidMethodId</span>)<span class="question-mark">?</span>,
-      <span class="ident">controller</span>: <span class="ident">builder</span>.<span class="ident">controller</span>.<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">InvalidMethodController</span>)<span class="question-mark">?</span>,
-      <span class="ident">key_type</span>: <span class="ident">builder</span>.<span class="ident">key_type</span>.<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">InvalidMethodType</span>)<span class="question-mark">?</span>,
-      <span class="ident">key_data</span>: <span class="ident">builder</span>.<span class="ident">key_data</span>.<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">InvalidMethodData</span>)<span class="question-mark">?</span>,
+      <span class="ident">id</span>: <span class="ident">builder</span>.<span class="ident">id</span>.<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">BuilderInvalidMethodId</span>)<span class="question-mark">?</span>,
+      <span class="ident">controller</span>: <span class="ident">builder</span>.<span class="ident">controller</span>.<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">BuilderInvalidMethodController</span>)<span class="question-mark">?</span>,
+      <span class="ident">key_type</span>: <span class="ident">builder</span>.<span class="ident">key_type</span>.<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">BuilderInvalidMethodType</span>)<span class="question-mark">?</span>,
+      <span class="ident">key_data</span>: <span class="ident">builder</span>.<span class="ident">key_data</span>.<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">BuilderInvalidMethodData</span>)<span class="question-mark">?</span>,
       <span class="ident">properties</span>: <span class="ident">builder</span>.<span class="ident">properties</span>,
     })
   }
@@ -233,8 +242,13 @@
     <span class="self">self</span>
       .<span class="ident">id</span>
       .<span class="ident">fragment</span>()
-      .<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">InvalidMethodIdFragment</span>)
+      .<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">InvalidMethodFragment</span>)
       .<span class="ident">map</span>(<span class="op">|</span><span class="ident">fragment</span><span class="op">|</span> <span class="ident">once</span>(<span class="string">&#39;#&#39;</span>).<span class="ident">chain</span>(<span class="ident">fragment</span>.<span class="ident">chars</span>()).<span class="ident">collect</span>())
+  }
+
+  <span class="doccomment">/// Creates a new [`MethodRef`] from `self`.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_ref</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MethodRef</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="self">self</span>)
   }
 }
 

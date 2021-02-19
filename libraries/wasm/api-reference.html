@@ -168,22 +168,34 @@
 <dl>
 <dt><a href="#DID">DID</a></dt>
 <dd></dd>
-<dt><a href="#Doc">Doc</a></dt>
+<dt><a href="#Document">Document</a></dt>
 <dd></dd>
-<dt><a href="#Key">Key</a></dt>
+<dt><a href="#KeyCollection">KeyCollection</a></dt>
 <dd></dd>
-<dt><a href="#NewDoc">NewDoc</a></dt>
+<dt><a href="#KeyPair">KeyPair</a></dt>
 <dd></dd>
-<dt><a href="#PubKey">PubKey</a></dt>
+<dt><a href="#Method">Method</a></dt>
+<dd></dd>
+<dt><a href="#NewDocument">NewDocument</a></dt>
 <dd></dd>
 <dt><a href="#VerifiableCredential">VerifiableCredential</a></dt>
 <dd></dd>
 <dt><a href="#VerifiablePresentation">VerifiablePresentation</a></dt>
 <dd></dd>
 </dl>
+<h2><a class="header" href="#members" id="members">Members</a></h2>
+<dl>
+<dt><a href="#Digest">Digest</a></dt>
+<dd></dd>
+<dt><a href="#KeyType">KeyType</a></dt>
+<dd></dd>
+</dl>
 <h2><a class="header" href="#functions" id="functions">Functions</a></h2>
 <dl>
-<dt><a href="#publish">publish(doc, params)</a> ⇒ <code>any</code></dt>
+<dt><a href="#start">start()</a></dt>
+<dd><p>Initializes the console error panic hook for better error messages</p>
+</dd>
+<dt><a href="#publish">publish(document, params)</a> ⇒ <code>any</code></dt>
 <dd><p>Publishes a DID Document to the Tangle, params looks like { node: &quot;<a href="http://localhost:14265&quot;">http://localhost:14265&quot;</a>, network: &quot;main&quot; }</p>
 </dd>
 <dt><a href="#resolve">resolve(did, params)</a> ⇒ <code>any</code></dt>
@@ -195,9 +207,6 @@
 <dt><a href="#checkPresentation">checkPresentation(data, params)</a> ⇒ <code>any</code></dt>
 <dd><p>Validates a presentation with the DID Document from the Tangle, params looks like { node: &quot;<a href="http://localhost:14265&quot;">http://localhost:14265&quot;</a>, network: &quot;main&quot; }</p>
 </dd>
-<dt><a href="#start">start()</a></dt>
-<dd><p>Initializes the console error panic hook for better error messages</p>
-</dd>
 </dl>
 <p><a name="DID"></a></p>
 <h2><a class="header" href="#did" id="did">DID</a></h2>
@@ -205,7 +214,7 @@
 <ul>
 <li><a href="#DID">DID</a>
 <ul>
-<li><a href="#new_DID_new">new DID(key, network)</a></li>
+<li><a href="#new_DID_new">new DID(key, network, shard)</a></li>
 <li><em>instance</em>
 <ul>
 <li><a href="#DID+network">.network</a> ⇒ <code>string</code></li>
@@ -217,7 +226,7 @@
 </li>
 <li><em>static</em>
 <ul>
-<li><a href="#DID.fromBase58Key">.fromBase58Key(key, network)</a> ⇒ <a href="#DID"><code>DID</code></a></li>
+<li><a href="#DID.fromBase58">.fromBase58(key, network, shard)</a> ⇒ <a href="#DID"><code>DID</code></a></li>
 <li><a href="#DID.parse">.parse(input)</a> ⇒ <a href="#DID"><code>DID</code></a></li>
 </ul>
 </li>
@@ -225,11 +234,12 @@
 </li>
 </ul>
 <p><a name="new_DID_new"></a></p>
-<h3><a class="header" href="#new-didkey-network" id="new-didkey-network">new DID(key, network)</a></h3>
-<p>Creates a new <code>DID</code> from a <code>Key</code> object.</p>
+<h3><a class="header" href="#new-didkey-network-shard" id="new-didkey-network-shard">new DID(key, network, shard)</a></h3>
+<p>Creates a new <code>DID</code> from a <code>KeyPair</code> object.</p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>key</td><td><a href="#Key"><code>Key</code></a></td></tr>
+<tr><td>key</td><td><a href="#KeyPair"><code>KeyPair</code></a></td></tr>
 <tr><td>network</td><td><code>string</code> | <code>undefined</code></td></tr>
+<tr><td>shard</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
 <p><a name="DID+network"></a></p>
 <h3><a class="header" href="#didnetwork--string" id="didnetwork--string">did.network ⇒ <code>string</code></a></h3>
@@ -251,13 +261,14 @@
 <h3><a class="header" href="#didtostring--string" id="didtostring--string">did.toString() ⇒ <code>string</code></a></h3>
 <p>Returns the <code>DID</code> object as a string.</p>
 <p><strong>Kind</strong>: instance method of <a href="#DID"><code>DID</code></a><br />
-<a name="DID.fromBase58Key"></a></p>
-<h3><a class="header" href="#didfrombase58keykey-network--a-hrefdiddida" id="didfrombase58keykey-network--a-hrefdiddida">DID.fromBase58Key(key, network) ⇒ <a href="#DID"><code>DID</code></a></a></h3>
+<a name="DID.fromBase58"></a></p>
+<h3><a class="header" href="#didfrombase58key-network-shard--a-hrefdiddida" id="didfrombase58key-network-shard--a-hrefdiddida">DID.fromBase58(key, network, shard) ⇒ <a href="#DID"><code>DID</code></a></a></h3>
 <p>Creates a new <code>DID</code> from a base58-encoded public key.</p>
 <p><strong>Kind</strong>: static method of <a href="#DID"><code>DID</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>key</td><td><code>string</code></td></tr>
 <tr><td>network</td><td><code>string</code> | <code>undefined</code></td></tr>
+<tr><td>shard</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
 <p><a name="DID.parse"></a></p>
 <h3><a class="header" href="#didparseinput--a-hrefdiddida" id="didparseinput--a-hrefdiddida">DID.parse(input) ⇒ <a href="#DID"><code>DID</code></a></a></h3>
@@ -266,382 +277,448 @@
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>input</td><td><code>string</code></td></tr>
 </tbody></table>
-<p><a name="Doc"></a></p>
-<h2><a class="header" href="#doc" id="doc">Doc</a></h2>
+<p><a name="Document"></a></p>
+<h2><a class="header" href="#document" id="document">Document</a></h2>
 <p><strong>Kind</strong>: global class</p>
 <ul>
-<li><a href="#Doc">Doc</a>
+<li><a href="#Document">Document</a>
 <ul>
-<li><a href="#new_Doc_new">new Doc(authentication)</a></li>
+<li><a href="#new_Document_new">new Document(type_, tag)</a></li>
 <li><em>instance</em>
 <ul>
-<li><a href="#Doc+id">.id</a> ⇒ <code>string</code></li>
-<li><a href="#Doc+authChain">.authChain</a> ⇒ <code>string</code></li>
-<li><a href="#Doc+diffChain">.diffChain</a> ⇒ <code>string</code></li>
-<li><a href="#Doc+proof">.proof</a> ⇒ <code>any</code></li>
-<li><a href="#Doc+sign">.sign(key)</a> ⇒ <code>any</code></li>
-<li><a href="#Doc+verify">.verify()</a> ⇒ <code>boolean</code></li>
-<li><a href="#Doc+diff">.diff(other, key, prev_msg)</a> ⇒ <code>any</code></li>
-<li><a href="#Doc+verifyDiff">.verifyDiff(diff)</a> ⇒ <code>boolean</code></li>
-<li><a href="#Doc+updateService">.updateService(did, url, service_type)</a></li>
-<li><a href="#Doc+clearServices">.clearServices()</a></li>
-<li><a href="#Doc+updateAuth">.updateAuth(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="#Doc+clearAuth">.clearAuth()</a></li>
-<li><a href="#Doc+updateAssert">.updateAssert(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="#Doc+clearAssert">.clearAssert()</a></li>
-<li><a href="#Doc+updateVerification">.updateVerification(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="#Doc+clearVerification">.clearVerification()</a></li>
-<li><a href="#Doc+updateDelegation">.updateDelegation(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="#Doc+clearDelegation">.clearDelegation()</a></li>
-<li><a href="#Doc+updateInvocation">.updateInvocation(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="#Doc+clearInvocation">.clearInvocation()</a></li>
-<li><a href="#Doc+updateAgreement">.updateAgreement(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="#Doc+clearAgreement">.clearAgreement()</a></li>
-<li><a href="#Doc+resolveKey">.resolveKey(ident, scope)</a> ⇒ <a href="#PubKey"><code>PubKey</code></a></li>
-<li><a href="#Doc+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
+<li><a href="#Document+id">.id</a> ⇒ <a href="#DID"><code>DID</code></a></li>
+<li><a href="#Document+proof">.proof</a> ⇒ <code>any</code></li>
+<li><a href="#Document+insertMethod">.insertMethod(method, scope)</a> ⇒ <code>boolean</code></li>
+<li><a href="#Document+removeMethod">.removeMethod(did)</a></li>
+<li><a href="#Document+sign">.sign(key)</a></li>
+<li><a href="#Document+verify">.verify()</a> ⇒ <code>boolean</code></li>
+<li><a href="#Document+signCredential">.signCredential(data, args)</a> ⇒ <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></li>
+<li><a href="#Document+signPresentation">.signPresentation(data, args)</a> ⇒ <a href="#VerifiablePresentation"><code>VerifiablePresentation</code></a></li>
+<li><a href="#Document+signData">.signData(data, args)</a> ⇒ <code>any</code></li>
+<li><a href="#Document+verifyData">.verifyData(data)</a> ⇒ <code>boolean</code></li>
+<li><a href="#Document+resolveKey">.resolveKey(query)</a> ⇒ <a href="#Method"><code>Method</code></a></li>
+<li><a href="#Document+revokeMerkleKey">.revokeMerkleKey(query, index)</a> ⇒ <code>boolean</code></li>
+<li><a href="#Document+diff">.diff(other, message, key)</a> ⇒ <code>any</code></li>
+<li><a href="#Document+merge">.merge(diff)</a></li>
+<li><a href="#Document+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
 </ul>
 </li>
 <li><em>static</em>
 <ul>
-<li><a href="#Doc.generateRandom">.generateRandom(key_type, network, tag)</a> ⇒ <a href="#NewDoc"><code>NewDoc</code></a></li>
-<li><a href="#Doc.generateEd25519">.generateEd25519(network, tag)</a> ⇒ <a href="#NewDoc"><code>NewDoc</code></a></li>
-<li><a href="#Doc.fromJSON">.fromJSON(json)</a> ⇒ <a href="#Doc"><code>Doc</code></a></li>
+<li><a href="#Document.fromKeyPair">.fromKeyPair(key)</a> ⇒ <a href="#Document"><code>Document</code></a></li>
+<li><a href="#Document.fromAuthentication">.fromAuthentication(method)</a> ⇒ <a href="#Document"><code>Document</code></a></li>
+<li><a href="#Document.fromJSON">.fromJSON(json)</a> ⇒ <a href="#Document"><code>Document</code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<p><a name="new_Doc_new"></a></p>
-<h3><a class="header" href="#new-docauthentication" id="new-docauthentication">new Doc(authentication)</a></h3>
+<p><a name="new_Document_new"></a></p>
+<h3><a class="header" href="#new-documenttype_-tag" id="new-documenttype_-tag">new Document(type_, tag)</a></h3>
+<p>Creates a new DID Document from the given KeyPair.</p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>authentication</td><td><a href="#PubKey"><code>PubKey</code></a></td></tr>
+<tr><td>type_</td><td><code>number</code></td></tr>
+<tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="Doc+id"></a></p>
-<h3><a class="header" href="#docid--string" id="docid--string">doc.id ⇒ <code>string</code></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+authChain"></a></p>
-<h3><a class="header" href="#docauthchain--string" id="docauthchain--string">doc.authChain ⇒ <code>string</code></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+diffChain"></a></p>
-<h3><a class="header" href="#docdiffchain--string" id="docdiffchain--string">doc.diffChain ⇒ <code>string</code></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+proof"></a></p>
-<h3><a class="header" href="#docproof--any" id="docproof--any">doc.proof ⇒ <code>any</code></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+sign"></a></p>
-<h3><a class="header" href="#docsignkey--any" id="docsignkey--any">doc.sign(key) ⇒ <code>any</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
+<p><a name="Document+id"></a></p>
+<h3><a class="header" href="#documentid--a-hrefdiddida" id="documentid--a-hrefdiddida">document.id ⇒ <a href="#DID"><code>DID</code></a></a></h3>
+<p>Returns the DID Document <code>id</code>.</p>
+<p><strong>Kind</strong>: instance property of <a href="#Document"><code>Document</code></a><br />
+<a name="Document+proof"></a></p>
+<h3><a class="header" href="#documentproof--any" id="documentproof--any">document.proof ⇒ <code>any</code></a></h3>
+<p>Returns the DID Document <code>proof</code> object.</p>
+<p><strong>Kind</strong>: instance property of <a href="#Document"><code>Document</code></a><br />
+<a name="Document+insertMethod"></a></p>
+<h3><a class="header" href="#documentinsertmethodmethod-scope--boolean" id="documentinsertmethodmethod-scope--boolean">document.insertMethod(method, scope) ⇒ <code>boolean</code></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>key</td><td><a href="#Key"><code>Key</code></a></td></tr>
+<tr><td>method</td><td><a href="#Method"><code>Method</code></a></td></tr>
+<tr><td>scope</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="Doc+verify"></a></p>
-<h3><a class="header" href="#docverify--boolean" id="docverify--boolean">doc.verify() ⇒ <code>boolean</code></a></h3>
+<p><a name="Document+removeMethod"></a></p>
+<h3><a class="header" href="#documentremovemethoddid" id="documentremovemethoddid">document.removeMethod(did)</a></h3>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>did</td><td><a href="#DID"><code>DID</code></a></td></tr>
+</tbody></table>
+<p><a name="Document+sign"></a></p>
+<h3><a class="header" href="#documentsignkey" id="documentsignkey">document.sign(key)</a></h3>
+<p>Signs the DID Document with the default authentication method.</p>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>key</td><td><a href="#KeyPair"><code>KeyPair</code></a></td></tr>
+</tbody></table>
+<p><a name="Document+verify"></a></p>
+<h3><a class="header" href="#documentverify--boolean" id="documentverify--boolean">document.verify() ⇒ <code>boolean</code></a></h3>
 <p>Verify the signature with the authentication_key</p>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+diff"></a></p>
-<h3><a class="header" href="#docdiffother-key-prev_msg--any" id="docdiffother-key-prev_msg--any">doc.diff(other, key, prev_msg) ⇒ <code>any</code></a></h3>
-<p>Generate the difference between two DID Documents and sign it</p>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a><br />
+<a name="Document+signCredential"></a></p>
+<h3><a class="header" href="#documentsigncredentialdata-args--a-hrefverifiablecredentialverifiablecredentiala" id="documentsigncredentialdata-args--a-hrefverifiablecredentialverifiablecredentiala">document.signCredential(data, args) ⇒ <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>other</td><td><a href="#Doc"><code>Doc</code></a></td></tr>
-<tr><td>key</td><td><a href="#Key"><code>Key</code></a></td></tr>
-<tr><td>prev_msg</td><td><code>string</code></td></tr>
+<tr><td>data</td><td><code>any</code></td></tr>
+<tr><td>args</td><td><code>any</code></td></tr>
 </tbody></table>
-<p><a name="Doc+verifyDiff"></a></p>
-<h3><a class="header" href="#docverifydiffdiff--boolean" id="docverifydiffdiff--boolean">doc.verifyDiff(diff) ⇒ <code>boolean</code></a></h3>
-<p>Verify the signature in a diff with the authentication_key</p>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
+<p><a name="Document+signPresentation"></a></p>
+<h3><a class="header" href="#documentsignpresentationdata-args--a-hrefverifiablepresentationverifiablepresentationa" id="documentsignpresentationdata-args--a-hrefverifiablepresentationverifiablepresentationa">document.signPresentation(data, args) ⇒ <a href="#VerifiablePresentation"><code>VerifiablePresentation</code></a></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>data</td><td><code>any</code></td></tr>
+<tr><td>args</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="Document+signData"></a></p>
+<h3><a class="header" href="#documentsigndatadata-args--any" id="documentsigndatadata-args--any">document.signData(data, args) ⇒ <code>any</code></a></h3>
+<p>Creates a signature for the given <code>data</code> with the specified DID Document
+Verification Method.</p>
+<p>An additional <code>proof</code> property is required if using a Merkle Key
+Collection verification Method.</p>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>data</td><td><code>any</code></td></tr>
+<tr><td>args</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="Document+verifyData"></a></p>
+<h3><a class="header" href="#documentverifydatadata--boolean" id="documentverifydatadata--boolean">document.verifyData(data) ⇒ <code>boolean</code></a></h3>
+<p>Verifies the authenticity of <code>data</code> using the target verification method.</p>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>data</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="Document+resolveKey"></a></p>
+<h3><a class="header" href="#documentresolvekeyquery--a-hrefmethodmethoda" id="documentresolvekeyquery--a-hrefmethodmethoda">document.resolveKey(query) ⇒ <a href="#Method"><code>Method</code></a></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>query</td><td><code>string</code></td></tr>
+</tbody></table>
+<p><a name="Document+revokeMerkleKey"></a></p>
+<h3><a class="header" href="#documentrevokemerklekeyquery-index--boolean" id="documentrevokemerklekeyquery-index--boolean">document.revokeMerkleKey(query, index) ⇒ <code>boolean</code></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>query</td><td><code>string</code></td></tr>
+<tr><td>index</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="Document+diff"></a></p>
+<h3><a class="header" href="#documentdiffother-message-key--any" id="documentdiffother-message-key--any">document.diff(other, message, key) ⇒ <code>any</code></a></h3>
+<p>Generate the difference between two DID Documents and sign it</p>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>other</td><td><a href="#Document"><code>Document</code></a></td></tr>
+<tr><td>message</td><td><code>string</code></td></tr>
+<tr><td>key</td><td><a href="#KeyPair"><code>KeyPair</code></a></td></tr>
+</tbody></table>
+<p><a name="Document+merge"></a></p>
+<h3><a class="header" href="#documentmergediff" id="documentmergediff">document.merge(diff)</a></h3>
+<p>Verifies the <code>diff</code> signature and merges the changes into <code>self</code>.</p>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>diff</td><td><code>string</code></td></tr>
 </tbody></table>
-<p><a name="Doc+updateService"></a></p>
-<h3><a class="header" href="#docupdateservicedid-url-service_type" id="docupdateservicedid-url-service_type">doc.updateService(did, url, service_type)</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
+<p><a name="Document+toJSON"></a></p>
+<h3><a class="header" href="#documenttojson--any" id="documenttojson--any">document.toJSON() ⇒ <code>any</code></a></h3>
+<p>Serializes a <code>Document</code> object as a JSON object.</p>
+<p><strong>Kind</strong>: instance method of <a href="#Document"><code>Document</code></a><br />
+<a name="Document.fromKeyPair"></a></p>
+<h3><a class="header" href="#documentfromkeypairkey--a-hrefdocumentdocumenta" id="documentfromkeypairkey--a-hrefdocumentdocumenta">Document.fromKeyPair(key) ⇒ <a href="#Document"><code>Document</code></a></a></h3>
+<p>Creates a new DID Document from the given KeyPair.</p>
+<p><strong>Kind</strong>: static method of <a href="#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>did</td><td><a href="#DID"><code>DID</code></a></td></tr>
-<tr><td>url</td><td><code>string</code></td></tr>
-<tr><td>service_type</td><td><code>string</code></td></tr>
+<tr><td>key</td><td><a href="#KeyPair"><code>KeyPair</code></a></td></tr>
 </tbody></table>
-<p><a name="Doc+clearServices"></a></p>
-<h3><a class="header" href="#docclearservices" id="docclearservices">doc.clearServices()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateAuth"></a></p>
-<h3><a class="header" href="#docupdateauthpublic_key--boolean" id="docupdateauthpublic_key--boolean">doc.updateAuth(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
+<p><a name="Document.fromAuthentication"></a></p>
+<h3><a class="header" href="#documentfromauthenticationmethod--a-hrefdocumentdocumenta" id="documentfromauthenticationmethod--a-hrefdocumentdocumenta">Document.fromAuthentication(method) ⇒ <a href="#Document"><code>Document</code></a></a></h3>
+<p>Creates a new DID Document from the given verification [<code>method</code>][<code>Method</code>].</p>
+<p><strong>Kind</strong>: static method of <a href="#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="#PubKey"><code>PubKey</code></a></td></tr>
+<tr><td>method</td><td><a href="#Method"><code>Method</code></a></td></tr>
 </tbody></table>
-<p><a name="Doc+clearAuth"></a></p>
-<h3><a class="header" href="#docclearauth" id="docclearauth">doc.clearAuth()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateAssert"></a></p>
-<h3><a class="header" href="#docupdateassertpublic_key--boolean" id="docupdateassertpublic_key--boolean">doc.updateAssert(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="#PubKey"><code>PubKey</code></a></td></tr>
-</tbody></table>
-<p><a name="Doc+clearAssert"></a></p>
-<h3><a class="header" href="#docclearassert" id="docclearassert">doc.clearAssert()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateVerification"></a></p>
-<h3><a class="header" href="#docupdateverificationpublic_key--boolean" id="docupdateverificationpublic_key--boolean">doc.updateVerification(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="#PubKey"><code>PubKey</code></a></td></tr>
-</tbody></table>
-<p><a name="Doc+clearVerification"></a></p>
-<h3><a class="header" href="#docclearverification" id="docclearverification">doc.clearVerification()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateDelegation"></a></p>
-<h3><a class="header" href="#docupdatedelegationpublic_key--boolean" id="docupdatedelegationpublic_key--boolean">doc.updateDelegation(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="#PubKey"><code>PubKey</code></a></td></tr>
-</tbody></table>
-<p><a name="Doc+clearDelegation"></a></p>
-<h3><a class="header" href="#doccleardelegation" id="doccleardelegation">doc.clearDelegation()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateInvocation"></a></p>
-<h3><a class="header" href="#docupdateinvocationpublic_key--boolean" id="docupdateinvocationpublic_key--boolean">doc.updateInvocation(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="#PubKey"><code>PubKey</code></a></td></tr>
-</tbody></table>
-<p><a name="Doc+clearInvocation"></a></p>
-<h3><a class="header" href="#docclearinvocation" id="docclearinvocation">doc.clearInvocation()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateAgreement"></a></p>
-<h3><a class="header" href="#docupdateagreementpublic_key--boolean" id="docupdateagreementpublic_key--boolean">doc.updateAgreement(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="#PubKey"><code>PubKey</code></a></td></tr>
-</tbody></table>
-<p><a name="Doc+clearAgreement"></a></p>
-<h3><a class="header" href="#docclearagreement" id="docclearagreement">doc.clearAgreement()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc+resolveKey"></a></p>
-<h3><a class="header" href="#docresolvekeyident-scope--a-hrefpubkeypubkeya" id="docresolvekeyident-scope--a-hrefpubkeypubkeya">doc.resolveKey(ident, scope) ⇒ <a href="#PubKey"><code>PubKey</code></a></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>ident</td><td><code>any</code></td></tr>
-<tr><td>scope</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
-<p><a name="Doc+toJSON"></a></p>
-<h3><a class="header" href="#doctojson--any" id="doctojson--any">doc.toJSON() ⇒ <code>any</code></a></h3>
-<p>Serializes a <code>Doc</code> object as a JSON object.</p>
-<p><strong>Kind</strong>: instance method of <a href="#Doc"><code>Doc</code></a><br />
-<a name="Doc.generateRandom"></a></p>
-<h3><a class="header" href="#docgeneraterandomkey_type-network-tag--a-hrefnewdocnewdoca" id="docgeneraterandomkey_type-network-tag--a-hrefnewdocnewdoca">Doc.generateRandom(key_type, network, tag) ⇒ <a href="#NewDoc"><code>NewDoc</code></a></a></h3>
-<p>Generates a keypair and DID Document, supported key_type is &quot;Ed25519VerificationKey2018&quot;</p>
-<p><strong>Kind</strong>: static method of <a href="#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>key_type</td><td><code>string</code></td></tr>
-<tr><td>network</td><td><code>string</code> | <code>undefined</code></td></tr>
-<tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
-<p><a name="Doc.generateEd25519"></a></p>
-<h3><a class="header" href="#docgenerateed25519network-tag--a-hrefnewdocnewdoca" id="docgenerateed25519network-tag--a-hrefnewdocnewdoca">Doc.generateEd25519(network, tag) ⇒ <a href="#NewDoc"><code>NewDoc</code></a></a></h3>
-<p>Generates an Ed25519 keypair and DID Document</p>
-<p><strong>Kind</strong>: static method of <a href="#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>network</td><td><code>string</code> | <code>undefined</code></td></tr>
-<tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
-<p><a name="Doc.fromJSON"></a></p>
-<h3><a class="header" href="#docfromjsonjson--a-hrefdocdoca" id="docfromjsonjson--a-hrefdocdoca">Doc.fromJSON(json) ⇒ <a href="#Doc"><code>Doc</code></a></a></h3>
-<p>Deserializes a <code>Doc</code> object from a JSON object.</p>
-<p><strong>Kind</strong>: static method of <a href="#Doc"><code>Doc</code></a></p>
+<p><a name="Document.fromJSON"></a></p>
+<h3><a class="header" href="#documentfromjsonjson--a-hrefdocumentdocumenta" id="documentfromjsonjson--a-hrefdocumentdocumenta">Document.fromJSON(json) ⇒ <a href="#Document"><code>Document</code></a></a></h3>
+<p>Deserializes a <code>Document</code> object from a JSON object.</p>
+<p><strong>Kind</strong>: static method of <a href="#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>json</td><td><code>any</code></td></tr>
 </tbody></table>
-<p><a name="Key"></a></p>
-<h2><a class="header" href="#key" id="key">Key</a></h2>
+<p><a name="KeyCollection"></a></p>
+<h2><a class="header" href="#keycollection" id="keycollection">KeyCollection</a></h2>
 <p><strong>Kind</strong>: global class</p>
 <ul>
-<li><a href="#Key">Key</a>
+<li><a href="#KeyCollection">KeyCollection</a>
 <ul>
-<li><a href="#new_Key_new">new Key(key_type)</a></li>
+<li><a href="#new_KeyCollection_new">new KeyCollection(type_, count)</a></li>
 <li><em>instance</em>
 <ul>
-<li><a href="#Key+public">.public</a> ⇒ <code>string</code></li>
-<li><a href="#Key+private">.private</a> ⇒ <code>string</code></li>
-<li><a href="#Key+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
+<li><a href="#KeyCollection+length">.length</a> ⇒ <code>number</code></li>
+<li><a href="#KeyCollection+isEmpty">.isEmpty()</a> ⇒ <code>boolean</code></li>
+<li><a href="#KeyCollection+keypair">.keypair(index)</a> ⇒ <a href="#KeyPair"><code>KeyPair</code></a> | <code>undefined</code></li>
+<li><a href="#KeyCollection+public">.public(index)</a> ⇒ <code>string</code> | <code>undefined</code></li>
+<li><a href="#KeyCollection+secret">.secret(index)</a> ⇒ <code>string</code> | <code>undefined</code></li>
+<li><a href="#KeyCollection+merkleRoot">.merkleRoot(digest)</a> ⇒ <code>string</code></li>
+<li><a href="#KeyCollection+merkleProof">.merkleProof(digest, index)</a> ⇒ <code>string</code> | <code>undefined</code></li>
+<li><a href="#KeyCollection+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
 </ul>
 </li>
 <li><em>static</em>
 <ul>
-<li><a href="#Key.generateEd25519">.generateEd25519()</a> ⇒ <a href="#Key"><code>Key</code></a></li>
-<li><a href="#Key.fromBase58">.fromBase58(public_key, private_key)</a> ⇒ <a href="#Key"><code>Key</code></a></li>
-<li><a href="#Key.fromJSON">.fromJSON(json)</a> ⇒ <a href="#Key"><code>Key</code></a></li>
+<li><a href="#KeyCollection.fromJSON">.fromJSON(json)</a> ⇒ <a href="#KeyCollection"><code>KeyCollection</code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<p><a name="new_Key_new"></a></p>
-<h3><a class="header" href="#new-keykey_type" id="new-keykey_type">new Key(key_type)</a></h3>
-<p>Generates a new <code>Key</code> object.</p>
+<p><a name="new_KeyCollection_new"></a></p>
+<h3><a class="header" href="#new-keycollectiontype_-count" id="new-keycollectiontype_-count">new KeyCollection(type_, count)</a></h3>
+<p>Creates a new <code>KeyCollection</code> with the specified key type.</p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>key_type</td><td><code>string</code></td></tr>
+<tr><td>type_</td><td><code>number</code></td></tr>
+<tr><td>count</td><td><code>number</code></td></tr>
 </tbody></table>
-<p><a name="Key+public"></a></p>
-<h3><a class="header" href="#keypublic--string" id="keypublic--string">key.public ⇒ <code>string</code></a></h3>
+<p><a name="KeyCollection+length"></a></p>
+<h3><a class="header" href="#keycollectionlength--number" id="keycollectionlength--number">keyCollection.length ⇒ <code>number</code></a></h3>
+<p>Returns the number of keys in the collection.</p>
+<p><strong>Kind</strong>: instance property of <a href="#KeyCollection"><code>KeyCollection</code></a><br />
+<a name="KeyCollection+isEmpty"></a></p>
+<h3><a class="header" href="#keycollectionisempty--boolean" id="keycollectionisempty--boolean">keyCollection.isEmpty() ⇒ <code>boolean</code></a></h3>
+<p>Returns <code>true</code> if the collection contains no keys.</p>
+<p><strong>Kind</strong>: instance method of <a href="#KeyCollection"><code>KeyCollection</code></a><br />
+<a name="KeyCollection+keypair"></a></p>
+<h3><a class="header" href="#keycollectionkeypairindex--a-hrefkeypairkeypaira--undefined" id="keycollectionkeypairindex--a-hrefkeypairkeypaira--undefined">keyCollection.keypair(index) ⇒ <a href="#KeyPair"><code>KeyPair</code></a> | <code>undefined</code></a></h3>
+<p>Returns the keypair at the specified <code>index</code>.</p>
+<p><strong>Kind</strong>: instance method of <a href="#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>index</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyCollection+public"></a></p>
+<h3><a class="header" href="#keycollectionpublicindex--string--undefined" id="keycollectionpublicindex--string--undefined">keyCollection.public(index) ⇒ <code>string</code> | <code>undefined</code></a></h3>
+<p>Returns the public key at the specified <code>index</code> as a base58-encoded string.</p>
+<p><strong>Kind</strong>: instance method of <a href="#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>index</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyCollection+secret"></a></p>
+<h3><a class="header" href="#keycollectionsecretindex--string--undefined" id="keycollectionsecretindex--string--undefined">keyCollection.secret(index) ⇒ <code>string</code> | <code>undefined</code></a></h3>
+<p>Returns the secret key at the specified <code>index</code> as a base58-encoded string.</p>
+<p><strong>Kind</strong>: instance method of <a href="#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>index</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyCollection+merkleRoot"></a></p>
+<h3><a class="header" href="#keycollectionmerklerootdigest--string" id="keycollectionmerklerootdigest--string">keyCollection.merkleRoot(digest) ⇒ <code>string</code></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>digest</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyCollection+merkleProof"></a></p>
+<h3><a class="header" href="#keycollectionmerkleproofdigest-index--string--undefined" id="keycollectionmerkleproofdigest-index--string--undefined">keyCollection.merkleProof(digest, index) ⇒ <code>string</code> | <code>undefined</code></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>digest</td><td><code>number</code></td></tr>
+<tr><td>index</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyCollection+toJSON"></a></p>
+<h3><a class="header" href="#keycollectiontojson--any" id="keycollectiontojson--any">keyCollection.toJSON() ⇒ <code>any</code></a></h3>
+<p>Serializes a <code>KeyCollection</code> object as a JSON object.</p>
+<p><strong>Kind</strong>: instance method of <a href="#KeyCollection"><code>KeyCollection</code></a><br />
+<a name="KeyCollection.fromJSON"></a></p>
+<h3><a class="header" href="#keycollectionfromjsonjson--a-hrefkeycollectionkeycollectiona" id="keycollectionfromjsonjson--a-hrefkeycollectionkeycollectiona">KeyCollection.fromJSON(json) ⇒ <a href="#KeyCollection"><code>KeyCollection</code></a></a></h3>
+<p>Deserializes a <code>KeyCollection</code> object from a JSON object.</p>
+<p><strong>Kind</strong>: static method of <a href="#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>json</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="KeyPair"></a></p>
+<h2><a class="header" href="#keypair" id="keypair">KeyPair</a></h2>
+<p><strong>Kind</strong>: global class</p>
+<ul>
+<li><a href="#KeyPair">KeyPair</a>
+<ul>
+<li><a href="#new_KeyPair_new">new KeyPair(type_)</a></li>
+<li><em>instance</em>
+<ul>
+<li><a href="#KeyPair+public">.public</a> ⇒ <code>string</code></li>
+<li><a href="#KeyPair+secret">.secret</a> ⇒ <code>string</code></li>
+<li><a href="#KeyPair+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
+</ul>
+</li>
+<li><em>static</em>
+<ul>
+<li><a href="#KeyPair.fromBase58">.fromBase58(type_, public_key, secret_key)</a> ⇒ <a href="#KeyPair"><code>KeyPair</code></a></li>
+<li><a href="#KeyPair.fromJSON">.fromJSON(json)</a> ⇒ <a href="#KeyPair"><code>KeyPair</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><a name="new_KeyPair_new"></a></p>
+<h3><a class="header" href="#new-keypairtype_" id="new-keypairtype_">new KeyPair(type_)</a></h3>
+<p>Generates a new <code>KeyPair</code> object.</p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>type_</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyPair+public"></a></p>
+<h3><a class="header" href="#keypairpublic--string" id="keypairpublic--string">keyPair.public ⇒ <code>string</code></a></h3>
 <p>Returns the public key as a base58-encoded string.</p>
-<p><strong>Kind</strong>: instance property of <a href="#Key"><code>Key</code></a><br />
-<a name="Key+private"></a></p>
-<h3><a class="header" href="#keyprivate--string" id="keyprivate--string">key.private ⇒ <code>string</code></a></h3>
-<p>Returns the private key as a base58-encoded string.</p>
-<p><strong>Kind</strong>: instance property of <a href="#Key"><code>Key</code></a><br />
-<a name="Key+toJSON"></a></p>
-<h3><a class="header" href="#keytojson--any" id="keytojson--any">key.toJSON() ⇒ <code>any</code></a></h3>
-<p>Serializes a <code>Key</code> object as a JSON object.</p>
-<p><strong>Kind</strong>: instance method of <a href="#Key"><code>Key</code></a><br />
-<a name="Key.generateEd25519"></a></p>
-<h3><a class="header" href="#keygenerateed25519--a-hrefkeykeya" id="keygenerateed25519--a-hrefkeykeya">Key.generateEd25519() ⇒ <a href="#Key"><code>Key</code></a></a></h3>
-<p>Generates a new <code>Key</code> object suitable for ed25519 signatures.</p>
-<p><strong>Kind</strong>: static method of <a href="#Key"><code>Key</code></a><br />
-<a name="Key.fromBase58"></a></p>
-<h3><a class="header" href="#keyfrombase58public_key-private_key--a-hrefkeykeya" id="keyfrombase58public_key-private_key--a-hrefkeykeya">Key.fromBase58(public_key, private_key) ⇒ <a href="#Key"><code>Key</code></a></a></h3>
-<p>Parses a <code>Key</code> object from base58-encoded public/private keys.</p>
-<p><strong>Kind</strong>: static method of <a href="#Key"><code>Key</code></a></p>
+<p><strong>Kind</strong>: instance property of <a href="#KeyPair"><code>KeyPair</code></a><br />
+<a name="KeyPair+secret"></a></p>
+<h3><a class="header" href="#keypairsecret--string" id="keypairsecret--string">keyPair.secret ⇒ <code>string</code></a></h3>
+<p>Returns the secret key as a base58-encoded string.</p>
+<p><strong>Kind</strong>: instance property of <a href="#KeyPair"><code>KeyPair</code></a><br />
+<a name="KeyPair+toJSON"></a></p>
+<h3><a class="header" href="#keypairtojson--any" id="keypairtojson--any">keyPair.toJSON() ⇒ <code>any</code></a></h3>
+<p>Serializes a <code>KeyPair</code> object as a JSON object.</p>
+<p><strong>Kind</strong>: instance method of <a href="#KeyPair"><code>KeyPair</code></a><br />
+<a name="KeyPair.fromBase58"></a></p>
+<h3><a class="header" href="#keypairfrombase58type_-public_key-secret_key--a-hrefkeypairkeypaira" id="keypairfrombase58type_-public_key-secret_key--a-hrefkeypairkeypaira">KeyPair.fromBase58(type_, public_key, secret_key) ⇒ <a href="#KeyPair"><code>KeyPair</code></a></a></h3>
+<p>Parses a <code>KeyPair</code> object from base58-encoded public/secret keys.</p>
+<p><strong>Kind</strong>: static method of <a href="#KeyPair"><code>KeyPair</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>type_</td><td><code>number</code></td></tr>
 <tr><td>public_key</td><td><code>string</code></td></tr>
-<tr><td>private_key</td><td><code>string</code></td></tr>
+<tr><td>secret_key</td><td><code>string</code></td></tr>
 </tbody></table>
-<p><a name="Key.fromJSON"></a></p>
-<h3><a class="header" href="#keyfromjsonjson--a-hrefkeykeya" id="keyfromjsonjson--a-hrefkeykeya">Key.fromJSON(json) ⇒ <a href="#Key"><code>Key</code></a></a></h3>
-<p>Deserializes a <code>Key</code> object from a JSON object.</p>
-<p><strong>Kind</strong>: static method of <a href="#Key"><code>Key</code></a></p>
+<p><a name="KeyPair.fromJSON"></a></p>
+<h3><a class="header" href="#keypairfromjsonjson--a-hrefkeypairkeypaira" id="keypairfromjsonjson--a-hrefkeypairkeypaira">KeyPair.fromJSON(json) ⇒ <a href="#KeyPair"><code>KeyPair</code></a></a></h3>
+<p>Deserializes a <code>KeyPair</code> object from a JSON object.</p>
+<p><strong>Kind</strong>: static method of <a href="#KeyPair"><code>KeyPair</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>json</td><td><code>any</code></td></tr>
 </tbody></table>
-<p><a name="NewDoc"></a></p>
-<h2><a class="header" href="#newdoc" id="newdoc">NewDoc</a></h2>
+<p><a name="Method"></a></p>
+<h2><a class="header" href="#method" id="method">Method</a></h2>
 <p><strong>Kind</strong>: global class</p>
 <ul>
-<li><a href="#NewDoc">NewDoc</a>
+<li><a href="#Method">Method</a>
 <ul>
-<li><a href="#NewDoc+key">.key</a> ⇒ <a href="#Key"><code>Key</code></a></li>
-<li><a href="#NewDoc+doc">.doc</a> ⇒ <a href="#Doc"><code>Doc</code></a></li>
-</ul>
-</li>
-</ul>
-<p><a name="NewDoc+key"></a></p>
-<h3><a class="header" href="#newdockey--a-hrefkeykeya" id="newdockey--a-hrefkeykeya">newDoc.key ⇒ <a href="#Key"><code>Key</code></a></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="#NewDoc"><code>NewDoc</code></a><br />
-<a name="NewDoc+doc"></a></p>
-<h3><a class="header" href="#newdocdoc--a-hrefdocdoca" id="newdocdoc--a-hrefdocdoca">newDoc.doc ⇒ <a href="#Doc"><code>Doc</code></a></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="#NewDoc"><code>NewDoc</code></a><br />
-<a name="PubKey"></a></p>
-<h2><a class="header" href="#pubkey" id="pubkey">PubKey</a></h2>
-<p><strong>Kind</strong>: global class</p>
-<ul>
-<li><a href="#PubKey">PubKey</a>
-<ul>
-<li><a href="#new_PubKey_new">new PubKey(did, key_type, key_data, tag)</a></li>
+<li><a href="#new_Method_new">new Method(key, tag)</a></li>
 <li><em>instance</em>
 <ul>
-<li><a href="#PubKey+id">.id</a> ⇒ <a href="#DID"><code>DID</code></a></li>
-<li><a href="#PubKey+controller">.controller</a> ⇒ <a href="#DID"><code>DID</code></a></li>
-<li><a href="#PubKey+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
+<li><a href="#Method+id">.id</a> ⇒ <a href="#DID"><code>DID</code></a></li>
+<li><a href="#Method+controller">.controller</a> ⇒ <a href="#DID"><code>DID</code></a></li>
+<li><a href="#Method+type">.type</a> ⇒ <code>string</code></li>
+<li><a href="#Method+data">.data</a> ⇒ <code>any</code></li>
+<li><a href="#Method+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
 </ul>
 </li>
 <li><em>static</em>
 <ul>
-<li><a href="#PubKey.generateEd25519">.generateEd25519(did, key_data, tag)</a> ⇒ <a href="#PubKey"><code>PubKey</code></a></li>
-<li><a href="#PubKey.fromJSON">.fromJSON(json)</a> ⇒ <a href="#PubKey"><code>PubKey</code></a></li>
+<li><a href="#Method.fromDID">.fromDID(did, key, tag)</a> ⇒ <a href="#Method"><code>Method</code></a></li>
+<li><a href="#Method.createMerkleKey">.createMerkleKey(digest, did, keys, tag)</a> ⇒ <a href="#Method"><code>Method</code></a></li>
+<li><a href="#Method.fromJSON">.fromJSON(value)</a> ⇒ <a href="#Method"><code>Method</code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<p><a name="new_PubKey_new"></a></p>
-<h3><a class="header" href="#new-pubkeydid-key_type-key_data-tag" id="new-pubkeydid-key_type-key_data-tag">new PubKey(did, key_type, key_data, tag)</a></h3>
+<p><a name="new_Method_new"></a></p>
+<h3><a class="header" href="#new-methodkey-tag" id="new-methodkey-tag">new Method(key, tag)</a></h3>
+<p>Creates a new <code>Method</code> object from the given <code>key</code>.</p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>did</td><td><a href="#DID"><code>DID</code></a></td></tr>
-<tr><td>key_type</td><td><code>string</code></td></tr>
-<tr><td>key_data</td><td><code>string</code></td></tr>
+<tr><td>key</td><td><a href="#KeyPair"><code>KeyPair</code></a></td></tr>
 <tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="PubKey+id"></a></p>
-<h3><a class="header" href="#pubkeyid--a-hrefdiddida" id="pubkeyid--a-hrefdiddida">pubKey.id ⇒ <a href="#DID"><code>DID</code></a></a></h3>
-<p>Returns the <code>id</code> DID of the <code>PubKey</code> object.</p>
-<p><strong>Kind</strong>: instance property of <a href="#PubKey"><code>PubKey</code></a><br />
-<a name="PubKey+controller"></a></p>
-<h3><a class="header" href="#pubkeycontroller--a-hrefdiddida" id="pubkeycontroller--a-hrefdiddida">pubKey.controller ⇒ <a href="#DID"><code>DID</code></a></a></h3>
-<p>Returns the <code>controller</code> DID of the <code>PubKey</code> object.</p>
-<p><strong>Kind</strong>: instance property of <a href="#PubKey"><code>PubKey</code></a><br />
-<a name="PubKey+toJSON"></a></p>
-<h3><a class="header" href="#pubkeytojson--any" id="pubkeytojson--any">pubKey.toJSON() ⇒ <code>any</code></a></h3>
-<p>Serializes a <code>PubKey</code> object as a JSON object.</p>
-<p><strong>Kind</strong>: instance method of <a href="#PubKey"><code>PubKey</code></a><br />
-<a name="PubKey.generateEd25519"></a></p>
-<h3><a class="header" href="#pubkeygenerateed25519did-key_data-tag--a-hrefpubkeypubkeya" id="pubkeygenerateed25519did-key_data-tag--a-hrefpubkeypubkeya">PubKey.generateEd25519(did, key_data, tag) ⇒ <a href="#PubKey"><code>PubKey</code></a></a></h3>
-<p>Generates a new <code>PubKey</code> object suitable for ed25519 signatures.</p>
-<p><strong>Kind</strong>: static method of <a href="#PubKey"><code>PubKey</code></a></p>
+<p><a name="Method+id"></a></p>
+<h3><a class="header" href="#methodid--a-hrefdiddida" id="methodid--a-hrefdiddida">method.id ⇒ <a href="#DID"><code>DID</code></a></a></h3>
+<p>Returns the <code>id</code> DID of the <code>Method</code> object.</p>
+<p><strong>Kind</strong>: instance property of <a href="#Method"><code>Method</code></a><br />
+<a name="Method+controller"></a></p>
+<h3><a class="header" href="#methodcontroller--a-hrefdiddida" id="methodcontroller--a-hrefdiddida">method.controller ⇒ <a href="#DID"><code>DID</code></a></a></h3>
+<p>Returns the <code>controller</code> DID of the <code>Method</code> object.</p>
+<p><strong>Kind</strong>: instance property of <a href="#Method"><code>Method</code></a><br />
+<a name="Method+type"></a></p>
+<h3><a class="header" href="#methodtype--string" id="methodtype--string">method.type ⇒ <code>string</code></a></h3>
+<p>Returns the <code>Method</code> type.</p>
+<p><strong>Kind</strong>: instance property of <a href="#Method"><code>Method</code></a><br />
+<a name="Method+data"></a></p>
+<h3><a class="header" href="#methoddata--any" id="methoddata--any">method.data ⇒ <code>any</code></a></h3>
+<p>Returns the <code>Method</code> public key data.</p>
+<p><strong>Kind</strong>: instance property of <a href="#Method"><code>Method</code></a><br />
+<a name="Method+toJSON"></a></p>
+<h3><a class="header" href="#methodtojson--any" id="methodtojson--any">method.toJSON() ⇒ <code>any</code></a></h3>
+<p>Serializes a <code>Method</code> object as a JSON object.</p>
+<p><strong>Kind</strong>: instance method of <a href="#Method"><code>Method</code></a><br />
+<a name="Method.fromDID"></a></p>
+<h3><a class="header" href="#methodfromdiddid-key-tag--a-hrefmethodmethoda" id="methodfromdiddid-key-tag--a-hrefmethodmethoda">Method.fromDID(did, key, tag) ⇒ <a href="#Method"><code>Method</code></a></a></h3>
+<p>Creates a new <code>Method</code> object from the given <code>did</code> and <code>key</code>.</p>
+<p><strong>Kind</strong>: static method of <a href="#Method"><code>Method</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>did</td><td><a href="#DID"><code>DID</code></a></td></tr>
-<tr><td>key_data</td><td><code>string</code></td></tr>
+<tr><td>key</td><td><a href="#KeyPair"><code>KeyPair</code></a></td></tr>
 <tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="PubKey.fromJSON"></a></p>
-<h3><a class="header" href="#pubkeyfromjsonjson--a-hrefpubkeypubkeya" id="pubkeyfromjsonjson--a-hrefpubkeypubkeya">PubKey.fromJSON(json) ⇒ <a href="#PubKey"><code>PubKey</code></a></a></h3>
-<p>Deserializes a <code>PubKey</code> object from a JSON object.</p>
-<p><strong>Kind</strong>: static method of <a href="#PubKey"><code>PubKey</code></a></p>
+<p><a name="Method.createMerkleKey"></a></p>
+<h3><a class="header" href="#methodcreatemerklekeydigest-did-keys-tag--a-hrefmethodmethoda" id="methodcreatemerklekeydigest-did-keys-tag--a-hrefmethodmethoda">Method.createMerkleKey(digest, did, keys, tag) ⇒ <a href="#Method"><code>Method</code></a></a></h3>
+<p>Creates a new Merkle Key Collection Method from the given key collection.</p>
+<p><strong>Kind</strong>: static method of <a href="#Method"><code>Method</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>json</td><td><code>any</code></td></tr>
+<tr><td>digest</td><td><code>number</code></td></tr>
+<tr><td>did</td><td><a href="#DID"><code>DID</code></a></td></tr>
+<tr><td>keys</td><td><a href="#KeyCollection"><code>KeyCollection</code></a></td></tr>
+<tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="VerifiableCredential"></a></p>
+<p><a name="Method.fromJSON"></a></p>
+<h3><a class="header" href="#methodfromjsonvalue--a-hrefmethodmethoda" id="methodfromjsonvalue--a-hrefmethodmethoda">Method.fromJSON(value) ⇒ <a href="#Method"><code>Method</code></a></a></h3>
+<p>Deserializes a <code>Method</code> object from a JSON object.</p>
+<p><strong>Kind</strong>: static method of <a href="#Method"><code>Method</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>value</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="NewDocument"></a></p>
+<h2><a class="header" href="#newdocument" id="newdocument">NewDocument</a></h2>
+<p><strong>Kind</strong>: global class</p>
+<ul>
+<li><a href="#NewDocument">NewDocument</a>
+<ul>
+<li><a href="#NewDocument+key">.key</a> ⇒ <a href="#KeyPair"><code>KeyPair</code></a></li>
+<li><a href="#NewDocument+doc">.doc</a> ⇒ <a href="#Document"><code>Document</code></a></li>
+</ul>
+</li>
+</ul>
+<p><a name="NewDocument+key"></a></p>
+<h3><a class="header" href="#newdocumentkey--a-hrefkeypairkeypaira" id="newdocumentkey--a-hrefkeypairkeypaira">newDocument.key ⇒ <a href="#KeyPair"><code>KeyPair</code></a></a></h3>
+<p><strong>Kind</strong>: instance property of <a href="#NewDocument"><code>NewDocument</code></a><br />
+<a name="NewDocument+doc"></a></p>
+<h3><a class="header" href="#newdocumentdoc--a-hrefdocumentdocumenta" id="newdocumentdoc--a-hrefdocumentdocumenta">newDocument.doc ⇒ <a href="#Document"><code>Document</code></a></a></h3>
+<p><strong>Kind</strong>: instance property of <a href="#NewDocument"><code>NewDocument</code></a><br />
+<a name="VerifiableCredential"></a></p>
 <h2><a class="header" href="#verifiablecredential" id="verifiablecredential">VerifiableCredential</a></h2>
 <p><strong>Kind</strong>: global class</p>
 <ul>
 <li><a href="#VerifiableCredential">VerifiableCredential</a>
 <ul>
-<li><a href="#new_VerifiableCredential_new">new VerifiableCredential(issuer_doc, issuer_key, subject_data, credential_type, credential_id)</a></li>
 <li><em>instance</em>
 <ul>
-<li><a href="#VerifiableCredential+sign">.sign(issuer, key)</a></li>
-<li><a href="#VerifiableCredential+verify">.verify(issuer)</a> ⇒ <code>boolean</code></li>
 <li><a href="#VerifiableCredential+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
 </ul>
 </li>
 <li><em>static</em>
 <ul>
+<li><a href="#VerifiableCredential.extend">.extend(value)</a> ⇒ <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></li>
+<li><a href="#VerifiableCredential.issue">.issue(issuer_doc, subject_data, credential_type, credential_id)</a> ⇒ <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></li>
 <li><a href="#VerifiableCredential.fromJSON">.fromJSON(json)</a> ⇒ <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<p><a name="new_VerifiableCredential_new"></a></p>
-<h3><a class="header" href="#new-verifiablecredentialissuer_doc-issuer_key-subject_data-credential_type-credential_id" id="new-verifiablecredentialissuer_doc-issuer_key-subject_data-credential_type-credential_id">new VerifiableCredential(issuer_doc, issuer_key, subject_data, credential_type, credential_id)</a></h3>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>issuer_doc</td><td><a href="#Doc"><code>Doc</code></a></td></tr>
-<tr><td>issuer_key</td><td><a href="#Key"><code>Key</code></a></td></tr>
-<tr><td>subject_data</td><td><code>any</code></td></tr>
-<tr><td>credential_type</td><td><code>string</code> | <code>undefined</code></td></tr>
-<tr><td>credential_id</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
-<p><a name="VerifiableCredential+sign"></a></p>
-<h3><a class="header" href="#verifiablecredentialsignissuer-key" id="verifiablecredentialsignissuer-key">verifiableCredential.sign(issuer, key)</a></h3>
-<p>Signs the credential with the given issuer <code>Doc</code> and <code>Key</code> object.</p>
-<p><strong>Kind</strong>: instance method of <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>issuer</td><td><a href="#Doc"><code>Doc</code></a></td></tr>
-<tr><td>key</td><td><a href="#Key"><code>Key</code></a></td></tr>
-</tbody></table>
-<p><a name="VerifiableCredential+verify"></a></p>
-<h3><a class="header" href="#verifiablecredentialverifyissuer--boolean" id="verifiablecredentialverifyissuer--boolean">verifiableCredential.verify(issuer) ⇒ <code>boolean</code></a></h3>
-<p>Verifies the credential signature against the issuer <code>Doc</code>.</p>
-<p><strong>Kind</strong>: instance method of <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>issuer</td><td><a href="#Doc"><code>Doc</code></a></td></tr>
-</tbody></table>
 <p><a name="VerifiableCredential+toJSON"></a></p>
 <h3><a class="header" href="#verifiablecredentialtojson--any" id="verifiablecredentialtojson--any">verifiableCredential.toJSON() ⇒ <code>any</code></a></h3>
 <p>Serializes a <code>VerifiableCredential</code> object as a JSON object.</p>
 <p><strong>Kind</strong>: instance method of <a href="#VerifiableCredential"><code>VerifiableCredential</code></a><br />
-<a name="VerifiableCredential.fromJSON"></a></p>
+<a name="VerifiableCredential.extend"></a></p>
+<h3><a class="header" href="#verifiablecredentialextendvalue--a-hrefverifiablecredentialverifiablecredentiala" id="verifiablecredentialextendvalue--a-hrefverifiablecredentialverifiablecredentiala">VerifiableCredential.extend(value) ⇒ <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></a></h3>
+<p><strong>Kind</strong>: static method of <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>value</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="VerifiableCredential.issue"></a></p>
+<h3><a class="header" href="#verifiablecredentialissueissuer_doc-subject_data-credential_type-credential_id--a-hrefverifiablecredentialverifiablecredentiala" id="verifiablecredentialissueissuer_doc-subject_data-credential_type-credential_id--a-hrefverifiablecredentialverifiablecredentiala">VerifiableCredential.issue(issuer_doc, subject_data, credential_type, credential_id) ⇒ <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></a></h3>
+<p><strong>Kind</strong>: static method of <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>issuer_doc</td><td><a href="#Document"><code>Document</code></a></td></tr>
+<tr><td>subject_data</td><td><code>any</code></td></tr>
+<tr><td>credential_type</td><td><code>string</code> | <code>undefined</code></td></tr>
+<tr><td>credential_id</td><td><code>string</code> | <code>undefined</code></td></tr>
+</tbody></table>
+<p><a name="VerifiableCredential.fromJSON"></a></p>
 <h3><a class="header" href="#verifiablecredentialfromjsonjson--a-hrefverifiablecredentialverifiablecredentiala" id="verifiablecredentialfromjsonjson--a-hrefverifiablecredentialverifiablecredentiala">VerifiableCredential.fromJSON(json) ⇒ <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></a></h3>
 <p>Deserializes a <code>VerifiableCredential</code> object from a JSON object.</p>
 <p><strong>Kind</strong>: static method of <a href="#VerifiableCredential"><code>VerifiableCredential</code></a></p>
@@ -654,11 +731,9 @@
 <ul>
 <li><a href="#VerifiablePresentation">VerifiablePresentation</a>
 <ul>
-<li><a href="#new_VerifiablePresentation_new">new VerifiablePresentation(holder_doc, holder_key, credential_data, presentation_type, presentation_id)</a></li>
+<li><a href="#new_VerifiablePresentation_new">new VerifiablePresentation(holder_doc, credential_data, presentation_type, presentation_id)</a></li>
 <li><em>instance</em>
 <ul>
-<li><a href="#VerifiablePresentation+sign">.sign(holder, key)</a></li>
-<li><a href="#VerifiablePresentation+verify">.verify(holder)</a> ⇒ <code>boolean</code></li>
 <li><a href="#VerifiablePresentation+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
 </ul>
 </li>
@@ -671,28 +746,12 @@
 </li>
 </ul>
 <p><a name="new_VerifiablePresentation_new"></a></p>
-<h3><a class="header" href="#new-verifiablepresentationholder_doc-holder_key-credential_data-presentation_type-presentation_id" id="new-verifiablepresentationholder_doc-holder_key-credential_data-presentation_type-presentation_id">new VerifiablePresentation(holder_doc, holder_key, credential_data, presentation_type, presentation_id)</a></h3>
+<h3><a class="header" href="#new-verifiablepresentationholder_doc-credential_data-presentation_type-presentation_id" id="new-verifiablepresentationholder_doc-credential_data-presentation_type-presentation_id">new VerifiablePresentation(holder_doc, credential_data, presentation_type, presentation_id)</a></h3>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>holder_doc</td><td><a href="#Doc"><code>Doc</code></a></td></tr>
-<tr><td>holder_key</td><td><a href="#Key"><code>Key</code></a></td></tr>
+<tr><td>holder_doc</td><td><a href="#Document"><code>Document</code></a></td></tr>
 <tr><td>credential_data</td><td><code>any</code></td></tr>
 <tr><td>presentation_type</td><td><code>string</code> | <code>undefined</code></td></tr>
 <tr><td>presentation_id</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
-<p><a name="VerifiablePresentation+sign"></a></p>
-<h3><a class="header" href="#verifiablepresentationsignholder-key" id="verifiablepresentationsignholder-key">verifiablePresentation.sign(holder, key)</a></h3>
-<p>Signs the presentation with the given holder <code>Doc</code> and <code>Key</code> object.</p>
-<p><strong>Kind</strong>: instance method of <a href="#VerifiablePresentation"><code>VerifiablePresentation</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>holder</td><td><a href="#Doc"><code>Doc</code></a></td></tr>
-<tr><td>key</td><td><a href="#Key"><code>Key</code></a></td></tr>
-</tbody></table>
-<p><a name="VerifiablePresentation+verify"></a></p>
-<h3><a class="header" href="#verifiablepresentationverifyholder--boolean" id="verifiablepresentationverifyholder--boolean">verifiablePresentation.verify(holder) ⇒ <code>boolean</code></a></h3>
-<p>Verifies the presentation signature against the holder <code>Doc</code>.</p>
-<p><strong>Kind</strong>: instance method of <a href="#VerifiablePresentation"><code>VerifiablePresentation</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>holder</td><td><a href="#Doc"><code>Doc</code></a></td></tr>
 </tbody></table>
 <p><a name="VerifiablePresentation+toJSON"></a></p>
 <h3><a class="header" href="#verifiablepresentationtojson--any" id="verifiablepresentationtojson--any">verifiablePresentation.toJSON() ⇒ <code>any</code></a></h3>
@@ -705,12 +764,22 @@
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>json</td><td><code>any</code></td></tr>
 </tbody></table>
-<p><a name="publish"></a></p>
-<h2><a class="header" href="#publishdoc-params--any" id="publishdoc-params--any">publish(doc, params) ⇒ <code>any</code></a></h2>
+<p><a name="Digest"></a></p>
+<h2><a class="header" href="#digest" id="digest">Digest</a></h2>
+<p><strong>Kind</strong>: global variable<br />
+<a name="KeyType"></a></p>
+<h2><a class="header" href="#keytype" id="keytype">KeyType</a></h2>
+<p><strong>Kind</strong>: global variable<br />
+<a name="start"></a></p>
+<h2><a class="header" href="#start" id="start">start()</a></h2>
+<p>Initializes the console error panic hook for better error messages</p>
+<p><strong>Kind</strong>: global function<br />
+<a name="publish"></a></p>
+<h2><a class="header" href="#publishdocument-params--any" id="publishdocument-params--any">publish(document, params) ⇒ <code>any</code></a></h2>
 <p>Publishes a DID Document to the Tangle, params looks like { node: &quot;http://localhost:14265&quot;, network: &quot;main&quot; }</p>
 <p><strong>Kind</strong>: global function</p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>doc</td><td><code>any</code></td></tr>
+<tr><td>document</td><td><code>any</code></td></tr>
 <tr><td>params</td><td><code>any</code></td></tr>
 </tbody></table>
 <p><a name="resolve"></a></p>
@@ -737,10 +806,6 @@
 <tr><td>data</td><td><code>string</code></td></tr>
 <tr><td>params</td><td><code>any</code></td></tr>
 </tbody></table>
-<p><a name="start"></a></p>
-<h2><a class="header" href="#start" id="start">start()</a></h2>
-<p>Initializes the console error panic hook for better error messages</p>
-<p><strong>Kind</strong>: global function  </p>
 
                     </main>
 

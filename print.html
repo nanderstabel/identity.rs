@@ -284,32 +284,34 @@ document.publish_with_client(&amp;client).await?;
 <h1><a class="header" href="#getting-started-with-wasm" id="getting-started-with-wasm">Getting Started with WASM</a></h1>
 <h1><a class="header" href="#iota-identity-wasm" id="iota-identity-wasm">IOTA Identity WASM</a></h1>
 <blockquote>
-<p>This is the alpha version of the official WASM binding to IOTA's Identity API.</p>
+<p>This is the alpha version of the official WASM bindings for <a href="https://github.com/iotaledger/identity.rs">IOTA Identity</a>.</p>
 </blockquote>
 <h2><a class="header" href="#a-hreflibrarieswasmdocsapi-referencehtmlapi-referencea" id="a-hreflibrarieswasmdocsapi-referencehtmlapi-referencea"><a href="libraries/wasm/docs/api-reference.html">API Reference</a></a></h2>
 <h2><a class="header" href="#install-the-library" id="install-the-library">Install the library:</a></h2>
-<pre><code class="language-bash">$ npm install iota-identity-wasm-test
+<pre><code class="language-bash">$ npm install @iota/identity-wasm
 // or using yarn
-$ yarn add iota-identity-wasm-test
+$ yarn add @iota/identity-wasm
 </code></pre>
 <h2><a class="header" href="#nodejs-setup" id="nodejs-setup">NodeJS Setup</a></h2>
-<pre><code class="language-js">const identity = require('iota-identity-wasm-test/node')
+<pre><code class="language-js">const identity = require('@iota/identity-wasm/node')
 
-// Generate Keypair
-const alice_keypair = identity.Key.generateEd25519()
-console.log(&quot;alice_keypair: &quot;, alice_keypair)
+// Generate a new KeyPair
+const key = new identity.KeyPair(identity.KeyType.Ed25519)
 
-// Create the DIDs
-let alice_did = new identity.DID(alice_keypair)
-console.log(&quot;alice_did and IOTA address: &quot;, alice_did.toString(), alice_did.address)
+// Create a new DID Document with the KeyPair as the default authentication method
+const doc = identity.Document.fromKeyPair(key)
 
-// Create the public key
-let alice_pubkey = identity.PubKey.generateEd25519(alice_did, alice_keypair.public)
-console.log(&quot;alice_pubkey: &quot;, alice_pubkey);
+// Sign the DID Document with the sceret key
+doc.sign(key)
 
-// Create the DID Documents
-let alice_document = new identity.Doc(alice_pubkey)
-console.log(&quot;alice_document: &quot;, alice_document)
+// Publish the DID Document to the IOTA Tangle
+identity.publish(doc.toJSON(), { node: &quot;https://nodes.thetangle.org:443&quot; })
+  .then((message) =&gt; {
+    console.log(&quot;Tangle Message Id: &quot;, message)
+    console.log(&quot;Tangle Message Url&quot;, `https://explorer.iota.org/mainnet/transaction/${message}`)
+  }).catch((error) =&gt; {
+    console.error(&quot;Error: &quot;, error)
+  })
 </code></pre>
 <h2><a class="header" href="#web-setup" id="web-setup">Web Setup</a></h2>
 <p>The library loads the WASM file with an HTTP GET request, so the .wasm file must be copied to the root of the dist folder.</p>
@@ -329,11 +331,11 @@ import copy from 'rollup-plugin-copy'
 
 // Add the copy plugin to the `plugins` array of your rollup config:
 copy({
-    targets: [{
-        src: 'node_modules/iota-identity-wasm-test/web/iota_identity_wasm_bg.wasm',
-        dest: 'public',
-        rename: 'iota_identity_wasm_bg.wasm'
-    }]
+  targets: [{
+    src: 'node_modules/@iota/identity-wasm/web/identity_wasm_bg.wasm',
+    dest: 'public',
+    rename: 'identity_wasm_bg.wasm'
+  }]
 })
 </code></pre>
 <h3><a class="header" href="#webpack" id="webpack">Webpack</a></h3>
@@ -350,39 +352,38 @@ const CopyWebPlugin= require('copy-webpack-plugin');
 // Add the copy plugin to the `plugins` array of your webpack config:
 
 new CopyWebPlugin({
-    patterns: [
-        {
-          from: 'node_modules/iota-identity-wasm-test/web/iota_identity_wasm_bg.wasm',
-          to: 'iota_identity_wasm_bg.wasm'
-        }
-    ]
+  patterns: [
+    {
+      from: 'node_modules/@iota/identity-wasm/web/identity_wasm_bg.wasm',
+      to: 'identity_wasm_bg.wasm'
+    }
+  ]
 }),
 </code></pre>
 <h3><a class="header" href="#usage" id="usage">Usage</a></h3>
-<pre><code class="language-js">import * as identity from &quot;iota-identity-wasm-test/web/&quot;;
-
+<pre><code class="language-js">import * as identity from &quot;@iota/identity-wasm/web&quot;;
 
 identity.init().then(() =&gt; {
-    let keyPair = identity.Key.ed25519();
-    console.log(&quot;keyPair&quot;, keyPair);
-    let did = new identity.DID(keyPair);
-    console.log(&quot;did&quot;, did);
+  const key = new identity.KeyPair(identity.KeyType.Ed25519)
+  const doc = identity.Document.fromKeyPair(key)
+  console.log(&quot;Key Pair&quot;, key)
+  console.log(&quot;DID Document: &quot;, doc)
 });
 
 // or
 
 (async () =&gt; {
-    await identity.init()
-    let keyPair = identity.Key.ed25519();
-    console.log(&quot;keyPair&quot;, keyPair);
-    let did = new identity.DID(keyPair);
-    console.log(&quot;did&quot;, did);
- })();
+  await identity.init()
+  const key = new identity.KeyPair(identity.KeyType.Ed25519)
+  const doc = identity.Document.fromKeyPair(key)
+  console.log(&quot;Key Pair&quot;, key)
+  console.log(&quot;DID Document: &quot;, doc)
+})()
 
-// Default path is &quot;iota_identity_wasm_bg.wasm&quot;, but you can override it like this
- await identity.init(&quot;./static/iota_identity_wasm_bg.wasm&quot;);
+// Default path is &quot;identity_wasm_bg.wasm&quot;, but you can override it like this
+await identity.init(&quot;./static/identity_wasm_bg.wasm&quot;);
 </code></pre>
-<p><code>identity.init().then(() =&gt; {</code> or <code>await identity.init()</code> is required to load the wasm file (from the server if not available, because of that it will only be slow for the first time)</p>
+<p><code>identity.init().then(&lt;callback&gt;)</code> or <code>await identity.init()</code> is required to load the wasm file (from the server if not available, because of that it will only be slow for the first time)</p>
 <h1><a class="header" href="#coming-soon-2" id="coming-soon-2">Coming Soon!</a></h1>
 <blockquote>
 <p>TODO!</p>
@@ -392,22 +393,34 @@ identity.init().then(() =&gt; {
 <dl>
 <dt><a href="libraries/wasm/api-reference.html#DID">DID</a></dt>
 <dd></dd>
-<dt><a href="libraries/wasm/api-reference.html#Doc">Doc</a></dt>
+<dt><a href="libraries/wasm/api-reference.html#Document">Document</a></dt>
 <dd></dd>
-<dt><a href="libraries/wasm/api-reference.html#Key">Key</a></dt>
+<dt><a href="libraries/wasm/api-reference.html#KeyCollection">KeyCollection</a></dt>
 <dd></dd>
-<dt><a href="libraries/wasm/api-reference.html#NewDoc">NewDoc</a></dt>
+<dt><a href="libraries/wasm/api-reference.html#KeyPair">KeyPair</a></dt>
 <dd></dd>
-<dt><a href="libraries/wasm/api-reference.html#PubKey">PubKey</a></dt>
+<dt><a href="libraries/wasm/api-reference.html#Method">Method</a></dt>
+<dd></dd>
+<dt><a href="libraries/wasm/api-reference.html#NewDocument">NewDocument</a></dt>
 <dd></dd>
 <dt><a href="libraries/wasm/api-reference.html#VerifiableCredential">VerifiableCredential</a></dt>
 <dd></dd>
 <dt><a href="libraries/wasm/api-reference.html#VerifiablePresentation">VerifiablePresentation</a></dt>
 <dd></dd>
 </dl>
+<h2><a class="header" href="#members" id="members">Members</a></h2>
+<dl>
+<dt><a href="libraries/wasm/api-reference.html#Digest">Digest</a></dt>
+<dd></dd>
+<dt><a href="libraries/wasm/api-reference.html#KeyType">KeyType</a></dt>
+<dd></dd>
+</dl>
 <h2><a class="header" href="#functions" id="functions">Functions</a></h2>
 <dl>
-<dt><a href="libraries/wasm/api-reference.html#publish">publish(doc, params)</a> ⇒ <code>any</code></dt>
+<dt><a href="libraries/wasm/api-reference.html#start">start()</a></dt>
+<dd><p>Initializes the console error panic hook for better error messages</p>
+</dd>
+<dt><a href="libraries/wasm/api-reference.html#publish">publish(document, params)</a> ⇒ <code>any</code></dt>
 <dd><p>Publishes a DID Document to the Tangle, params looks like { node: &quot;<a href="http://localhost:14265&quot;">http://localhost:14265&quot;</a>, network: &quot;main&quot; }</p>
 </dd>
 <dt><a href="libraries/wasm/api-reference.html#resolve">resolve(did, params)</a> ⇒ <code>any</code></dt>
@@ -419,9 +432,6 @@ identity.init().then(() =&gt; {
 <dt><a href="libraries/wasm/api-reference.html#checkPresentation">checkPresentation(data, params)</a> ⇒ <code>any</code></dt>
 <dd><p>Validates a presentation with the DID Document from the Tangle, params looks like { node: &quot;<a href="http://localhost:14265&quot;">http://localhost:14265&quot;</a>, network: &quot;main&quot; }</p>
 </dd>
-<dt><a href="libraries/wasm/api-reference.html#start">start()</a></dt>
-<dd><p>Initializes the console error panic hook for better error messages</p>
-</dd>
 </dl>
 <p><a name="DID"></a></p>
 <h2><a class="header" href="#did" id="did">DID</a></h2>
@@ -429,7 +439,7 @@ identity.init().then(() =&gt; {
 <ul>
 <li><a href="libraries/wasm/api-reference.html#DID">DID</a>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#new_DID_new">new DID(key, network)</a></li>
+<li><a href="libraries/wasm/api-reference.html#new_DID_new">new DID(key, network, shard)</a></li>
 <li><em>instance</em>
 <ul>
 <li><a href="libraries/wasm/api-reference.html#DID+network">.network</a> ⇒ <code>string</code></li>
@@ -441,7 +451,7 @@ identity.init().then(() =&gt; {
 </li>
 <li><em>static</em>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#DID.fromBase58Key">.fromBase58Key(key, network)</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#DID.fromBase58">.fromBase58(key, network, shard)</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
 <li><a href="libraries/wasm/api-reference.html#DID.parse">.parse(input)</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
 </ul>
 </li>
@@ -449,11 +459,12 @@ identity.init().then(() =&gt; {
 </li>
 </ul>
 <p><a name="new_DID_new"></a></p>
-<h3><a class="header" href="#new-didkey-network" id="new-didkey-network">new DID(key, network)</a></h3>
-<p>Creates a new <code>DID</code> from a <code>Key</code> object.</p>
+<h3><a class="header" href="#new-didkey-network-shard" id="new-didkey-network-shard">new DID(key, network, shard)</a></h3>
+<p>Creates a new <code>DID</code> from a <code>KeyPair</code> object.</p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></td></tr>
+<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></td></tr>
 <tr><td>network</td><td><code>string</code> | <code>undefined</code></td></tr>
+<tr><td>shard</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
 <p><a name="DID+network"></a></p>
 <h3><a class="header" href="#didnetwork--string" id="didnetwork--string">did.network ⇒ <code>string</code></a></h3>
@@ -475,13 +486,14 @@ identity.init().then(() =&gt; {
 <h3><a class="header" href="#didtostring--string" id="didtostring--string">did.toString() ⇒ <code>string</code></a></h3>
 <p>Returns the <code>DID</code> object as a string.</p>
 <p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a><br />
-<a name="DID.fromBase58Key"></a></p>
-<h3><a class="header" href="#didfrombase58keykey-network--a-hreflibrarieswasmapi-referencehtmldiddida" id="didfrombase58keykey-network--a-hreflibrarieswasmapi-referencehtmldiddida">DID.fromBase58Key(key, network) ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></a></h3>
+<a name="DID.fromBase58"></a></p>
+<h3><a class="header" href="#didfrombase58key-network-shard--a-hreflibrarieswasmapi-referencehtmldiddida" id="didfrombase58key-network-shard--a-hreflibrarieswasmapi-referencehtmldiddida">DID.fromBase58(key, network, shard) ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></a></h3>
 <p>Creates a new <code>DID</code> from a base58-encoded public key.</p>
 <p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>key</td><td><code>string</code></td></tr>
 <tr><td>network</td><td><code>string</code> | <code>undefined</code></td></tr>
+<tr><td>shard</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
 <p><a name="DID.parse"></a></p>
 <h3><a class="header" href="#didparseinput--a-hreflibrarieswasmapi-referencehtmldiddida" id="didparseinput--a-hreflibrarieswasmapi-referencehtmldiddida">DID.parse(input) ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></a></h3>
@@ -490,382 +502,448 @@ identity.init().then(() =&gt; {
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>input</td><td><code>string</code></td></tr>
 </tbody></table>
-<p><a name="Doc"></a></p>
-<h2><a class="header" href="#doc" id="doc">Doc</a></h2>
+<p><a name="Document"></a></p>
+<h2><a class="header" href="#document" id="document">Document</a></h2>
 <p><strong>Kind</strong>: global class</p>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#Doc">Doc</a>
+<li><a href="libraries/wasm/api-reference.html#Document">Document</a>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#new_Doc_new">new Doc(authentication)</a></li>
+<li><a href="libraries/wasm/api-reference.html#new_Document_new">new Document(type_, tag)</a></li>
 <li><em>instance</em>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#Doc+id">.id</a> ⇒ <code>string</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+authChain">.authChain</a> ⇒ <code>string</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+diffChain">.diffChain</a> ⇒ <code>string</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+proof">.proof</a> ⇒ <code>any</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+sign">.sign(key)</a> ⇒ <code>any</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+verify">.verify()</a> ⇒ <code>boolean</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+diff">.diff(other, key, prev_msg)</a> ⇒ <code>any</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+verifyDiff">.verifyDiff(diff)</a> ⇒ <code>boolean</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+updateService">.updateService(did, url, service_type)</a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+clearServices">.clearServices()</a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+updateAuth">.updateAuth(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+clearAuth">.clearAuth()</a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+updateAssert">.updateAssert(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+clearAssert">.clearAssert()</a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+updateVerification">.updateVerification(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+clearVerification">.clearVerification()</a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+updateDelegation">.updateDelegation(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+clearDelegation">.clearDelegation()</a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+updateInvocation">.updateInvocation(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+clearInvocation">.clearInvocation()</a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+updateAgreement">.updateAgreement(public_key)</a> ⇒ <code>boolean</code></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+clearAgreement">.clearAgreement()</a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+resolveKey">.resolveKey(ident, scope)</a> ⇒ <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
+<li><a href="libraries/wasm/api-reference.html#Document+id">.id</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Document+proof">.proof</a> ⇒ <code>any</code></li>
+<li><a href="libraries/wasm/api-reference.html#Document+insertMethod">.insertMethod(method, scope)</a> ⇒ <code>boolean</code></li>
+<li><a href="libraries/wasm/api-reference.html#Document+removeMethod">.removeMethod(did)</a></li>
+<li><a href="libraries/wasm/api-reference.html#Document+sign">.sign(key)</a></li>
+<li><a href="libraries/wasm/api-reference.html#Document+verify">.verify()</a> ⇒ <code>boolean</code></li>
+<li><a href="libraries/wasm/api-reference.html#Document+signCredential">.signCredential(data, args)</a> ⇒ <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Document+signPresentation">.signPresentation(data, args)</a> ⇒ <a href="libraries/wasm/api-reference.html#VerifiablePresentation"><code>VerifiablePresentation</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Document+signData">.signData(data, args)</a> ⇒ <code>any</code></li>
+<li><a href="libraries/wasm/api-reference.html#Document+verifyData">.verifyData(data)</a> ⇒ <code>boolean</code></li>
+<li><a href="libraries/wasm/api-reference.html#Document+resolveKey">.resolveKey(query)</a> ⇒ <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Document+revokeMerkleKey">.revokeMerkleKey(query, index)</a> ⇒ <code>boolean</code></li>
+<li><a href="libraries/wasm/api-reference.html#Document+diff">.diff(other, message, key)</a> ⇒ <code>any</code></li>
+<li><a href="libraries/wasm/api-reference.html#Document+merge">.merge(diff)</a></li>
+<li><a href="libraries/wasm/api-reference.html#Document+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
 </ul>
 </li>
 <li><em>static</em>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#Doc.generateRandom">.generateRandom(key_type, network, tag)</a> ⇒ <a href="libraries/wasm/api-reference.html#NewDoc"><code>NewDoc</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc.generateEd25519">.generateEd25519(network, tag)</a> ⇒ <a href="libraries/wasm/api-reference.html#NewDoc"><code>NewDoc</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#Doc.fromJSON">.fromJSON(json)</a> ⇒ <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Document.fromKeyPair">.fromKeyPair(key)</a> ⇒ <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Document.fromAuthentication">.fromAuthentication(method)</a> ⇒ <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Document.fromJSON">.fromJSON(json)</a> ⇒ <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<p><a name="new_Doc_new"></a></p>
-<h3><a class="header" href="#new-docauthentication" id="new-docauthentication">new Doc(authentication)</a></h3>
+<p><a name="new_Document_new"></a></p>
+<h3><a class="header" href="#new-documenttype_-tag" id="new-documenttype_-tag">new Document(type_, tag)</a></h3>
+<p>Creates a new DID Document from the given KeyPair.</p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>authentication</td><td><a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></td></tr>
+<tr><td>type_</td><td><code>number</code></td></tr>
+<tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="Doc+id"></a></p>
-<h3><a class="header" href="#docid--string" id="docid--string">doc.id ⇒ <code>string</code></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+authChain"></a></p>
-<h3><a class="header" href="#docauthchain--string" id="docauthchain--string">doc.authChain ⇒ <code>string</code></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+diffChain"></a></p>
-<h3><a class="header" href="#docdiffchain--string" id="docdiffchain--string">doc.diffChain ⇒ <code>string</code></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+proof"></a></p>
-<h3><a class="header" href="#docproof--any" id="docproof--any">doc.proof ⇒ <code>any</code></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+sign"></a></p>
-<h3><a class="header" href="#docsignkey--any" id="docsignkey--any">doc.sign(key) ⇒ <code>any</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
+<p><a name="Document+id"></a></p>
+<h3><a class="header" href="#documentid--a-hreflibrarieswasmapi-referencehtmldiddida" id="documentid--a-hreflibrarieswasmapi-referencehtmldiddida">document.id ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></a></h3>
+<p>Returns the DID Document <code>id</code>.</p>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a><br />
+<a name="Document+proof"></a></p>
+<h3><a class="header" href="#documentproof--any" id="documentproof--any">document.proof ⇒ <code>any</code></a></h3>
+<p>Returns the DID Document <code>proof</code> object.</p>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a><br />
+<a name="Document+insertMethod"></a></p>
+<h3><a class="header" href="#documentinsertmethodmethod-scope--boolean" id="documentinsertmethodmethod-scope--boolean">document.insertMethod(method, scope) ⇒ <code>boolean</code></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></td></tr>
+<tr><td>method</td><td><a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></td></tr>
+<tr><td>scope</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="Doc+verify"></a></p>
-<h3><a class="header" href="#docverify--boolean" id="docverify--boolean">doc.verify() ⇒ <code>boolean</code></a></h3>
+<p><a name="Document+removeMethod"></a></p>
+<h3><a class="header" href="#documentremovemethoddid" id="documentremovemethoddid">document.removeMethod(did)</a></h3>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>did</td><td><a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></td></tr>
+</tbody></table>
+<p><a name="Document+sign"></a></p>
+<h3><a class="header" href="#documentsignkey" id="documentsignkey">document.sign(key)</a></h3>
+<p>Signs the DID Document with the default authentication method.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></td></tr>
+</tbody></table>
+<p><a name="Document+verify"></a></p>
+<h3><a class="header" href="#documentverify--boolean" id="documentverify--boolean">document.verify() ⇒ <code>boolean</code></a></h3>
 <p>Verify the signature with the authentication_key</p>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+diff"></a></p>
-<h3><a class="header" href="#docdiffother-key-prev_msg--any" id="docdiffother-key-prev_msg--any">doc.diff(other, key, prev_msg) ⇒ <code>any</code></a></h3>
-<p>Generate the difference between two DID Documents and sign it</p>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a><br />
+<a name="Document+signCredential"></a></p>
+<h3><a class="header" href="#documentsigncredentialdata-args--a-hreflibrarieswasmapi-referencehtmlverifiablecredentialverifiablecredentiala" id="documentsigncredentialdata-args--a-hreflibrarieswasmapi-referencehtmlverifiablecredentialverifiablecredentiala">document.signCredential(data, args) ⇒ <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>other</td><td><a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></td></tr>
-<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></td></tr>
-<tr><td>prev_msg</td><td><code>string</code></td></tr>
+<tr><td>data</td><td><code>any</code></td></tr>
+<tr><td>args</td><td><code>any</code></td></tr>
 </tbody></table>
-<p><a name="Doc+verifyDiff"></a></p>
-<h3><a class="header" href="#docverifydiffdiff--boolean" id="docverifydiffdiff--boolean">doc.verifyDiff(diff) ⇒ <code>boolean</code></a></h3>
-<p>Verify the signature in a diff with the authentication_key</p>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
+<p><a name="Document+signPresentation"></a></p>
+<h3><a class="header" href="#documentsignpresentationdata-args--a-hreflibrarieswasmapi-referencehtmlverifiablepresentationverifiablepresentationa" id="documentsignpresentationdata-args--a-hreflibrarieswasmapi-referencehtmlverifiablepresentationverifiablepresentationa">document.signPresentation(data, args) ⇒ <a href="libraries/wasm/api-reference.html#VerifiablePresentation"><code>VerifiablePresentation</code></a></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>data</td><td><code>any</code></td></tr>
+<tr><td>args</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="Document+signData"></a></p>
+<h3><a class="header" href="#documentsigndatadata-args--any" id="documentsigndatadata-args--any">document.signData(data, args) ⇒ <code>any</code></a></h3>
+<p>Creates a signature for the given <code>data</code> with the specified DID Document
+Verification Method.</p>
+<p>An additional <code>proof</code> property is required if using a Merkle Key
+Collection verification Method.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>data</td><td><code>any</code></td></tr>
+<tr><td>args</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="Document+verifyData"></a></p>
+<h3><a class="header" href="#documentverifydatadata--boolean" id="documentverifydatadata--boolean">document.verifyData(data) ⇒ <code>boolean</code></a></h3>
+<p>Verifies the authenticity of <code>data</code> using the target verification method.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>data</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="Document+resolveKey"></a></p>
+<h3><a class="header" href="#documentresolvekeyquery--a-hreflibrarieswasmapi-referencehtmlmethodmethoda" id="documentresolvekeyquery--a-hreflibrarieswasmapi-referencehtmlmethodmethoda">document.resolveKey(query) ⇒ <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>query</td><td><code>string</code></td></tr>
+</tbody></table>
+<p><a name="Document+revokeMerkleKey"></a></p>
+<h3><a class="header" href="#documentrevokemerklekeyquery-index--boolean" id="documentrevokemerklekeyquery-index--boolean">document.revokeMerkleKey(query, index) ⇒ <code>boolean</code></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>query</td><td><code>string</code></td></tr>
+<tr><td>index</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="Document+diff"></a></p>
+<h3><a class="header" href="#documentdiffother-message-key--any" id="documentdiffother-message-key--any">document.diff(other, message, key) ⇒ <code>any</code></a></h3>
+<p>Generate the difference between two DID Documents and sign it</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>other</td><td><a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></td></tr>
+<tr><td>message</td><td><code>string</code></td></tr>
+<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></td></tr>
+</tbody></table>
+<p><a name="Document+merge"></a></p>
+<h3><a class="header" href="#documentmergediff" id="documentmergediff">document.merge(diff)</a></h3>
+<p>Verifies the <code>diff</code> signature and merges the changes into <code>self</code>.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>diff</td><td><code>string</code></td></tr>
 </tbody></table>
-<p><a name="Doc+updateService"></a></p>
-<h3><a class="header" href="#docupdateservicedid-url-service_type" id="docupdateservicedid-url-service_type">doc.updateService(did, url, service_type)</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
+<p><a name="Document+toJSON"></a></p>
+<h3><a class="header" href="#documenttojson--any" id="documenttojson--any">document.toJSON() ⇒ <code>any</code></a></h3>
+<p>Serializes a <code>Document</code> object as a JSON object.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a><br />
+<a name="Document.fromKeyPair"></a></p>
+<h3><a class="header" href="#documentfromkeypairkey--a-hreflibrarieswasmapi-referencehtmldocumentdocumenta" id="documentfromkeypairkey--a-hreflibrarieswasmapi-referencehtmldocumentdocumenta">Document.fromKeyPair(key) ⇒ <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></a></h3>
+<p>Creates a new DID Document from the given KeyPair.</p>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>did</td><td><a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></td></tr>
-<tr><td>url</td><td><code>string</code></td></tr>
-<tr><td>service_type</td><td><code>string</code></td></tr>
+<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></td></tr>
 </tbody></table>
-<p><a name="Doc+clearServices"></a></p>
-<h3><a class="header" href="#docclearservices" id="docclearservices">doc.clearServices()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateAuth"></a></p>
-<h3><a class="header" href="#docupdateauthpublic_key--boolean" id="docupdateauthpublic_key--boolean">doc.updateAuth(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
+<p><a name="Document.fromAuthentication"></a></p>
+<h3><a class="header" href="#documentfromauthenticationmethod--a-hreflibrarieswasmapi-referencehtmldocumentdocumenta" id="documentfromauthenticationmethod--a-hreflibrarieswasmapi-referencehtmldocumentdocumenta">Document.fromAuthentication(method) ⇒ <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></a></h3>
+<p>Creates a new DID Document from the given verification [<code>method</code>][<code>Method</code>].</p>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></td></tr>
+<tr><td>method</td><td><a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></td></tr>
 </tbody></table>
-<p><a name="Doc+clearAuth"></a></p>
-<h3><a class="header" href="#docclearauth" id="docclearauth">doc.clearAuth()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateAssert"></a></p>
-<h3><a class="header" href="#docupdateassertpublic_key--boolean" id="docupdateassertpublic_key--boolean">doc.updateAssert(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></td></tr>
-</tbody></table>
-<p><a name="Doc+clearAssert"></a></p>
-<h3><a class="header" href="#docclearassert" id="docclearassert">doc.clearAssert()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateVerification"></a></p>
-<h3><a class="header" href="#docupdateverificationpublic_key--boolean" id="docupdateverificationpublic_key--boolean">doc.updateVerification(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></td></tr>
-</tbody></table>
-<p><a name="Doc+clearVerification"></a></p>
-<h3><a class="header" href="#docclearverification" id="docclearverification">doc.clearVerification()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateDelegation"></a></p>
-<h3><a class="header" href="#docupdatedelegationpublic_key--boolean" id="docupdatedelegationpublic_key--boolean">doc.updateDelegation(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></td></tr>
-</tbody></table>
-<p><a name="Doc+clearDelegation"></a></p>
-<h3><a class="header" href="#doccleardelegation" id="doccleardelegation">doc.clearDelegation()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateInvocation"></a></p>
-<h3><a class="header" href="#docupdateinvocationpublic_key--boolean" id="docupdateinvocationpublic_key--boolean">doc.updateInvocation(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></td></tr>
-</tbody></table>
-<p><a name="Doc+clearInvocation"></a></p>
-<h3><a class="header" href="#docclearinvocation" id="docclearinvocation">doc.clearInvocation()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+updateAgreement"></a></p>
-<h3><a class="header" href="#docupdateagreementpublic_key--boolean" id="docupdateagreementpublic_key--boolean">doc.updateAgreement(public_key) ⇒ <code>boolean</code></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>public_key</td><td><a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></td></tr>
-</tbody></table>
-<p><a name="Doc+clearAgreement"></a></p>
-<h3><a class="header" href="#docclearagreement" id="docclearagreement">doc.clearAgreement()</a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc+resolveKey"></a></p>
-<h3><a class="header" href="#docresolvekeyident-scope--a-hreflibrarieswasmapi-referencehtmlpubkeypubkeya" id="docresolvekeyident-scope--a-hreflibrarieswasmapi-referencehtmlpubkeypubkeya">doc.resolveKey(ident, scope) ⇒ <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></a></h3>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>ident</td><td><code>any</code></td></tr>
-<tr><td>scope</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
-<p><a name="Doc+toJSON"></a></p>
-<h3><a class="header" href="#doctojson--any" id="doctojson--any">doc.toJSON() ⇒ <code>any</code></a></h3>
-<p>Serializes a <code>Doc</code> object as a JSON object.</p>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a><br />
-<a name="Doc.generateRandom"></a></p>
-<h3><a class="header" href="#docgeneraterandomkey_type-network-tag--a-hreflibrarieswasmapi-referencehtmlnewdocnewdoca" id="docgeneraterandomkey_type-network-tag--a-hreflibrarieswasmapi-referencehtmlnewdocnewdoca">Doc.generateRandom(key_type, network, tag) ⇒ <a href="libraries/wasm/api-reference.html#NewDoc"><code>NewDoc</code></a></a></h3>
-<p>Generates a keypair and DID Document, supported key_type is &quot;Ed25519VerificationKey2018&quot;</p>
-<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>key_type</td><td><code>string</code></td></tr>
-<tr><td>network</td><td><code>string</code> | <code>undefined</code></td></tr>
-<tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
-<p><a name="Doc.generateEd25519"></a></p>
-<h3><a class="header" href="#docgenerateed25519network-tag--a-hreflibrarieswasmapi-referencehtmlnewdocnewdoca" id="docgenerateed25519network-tag--a-hreflibrarieswasmapi-referencehtmlnewdocnewdoca">Doc.generateEd25519(network, tag) ⇒ <a href="libraries/wasm/api-reference.html#NewDoc"><code>NewDoc</code></a></a></h3>
-<p>Generates an Ed25519 keypair and DID Document</p>
-<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>network</td><td><code>string</code> | <code>undefined</code></td></tr>
-<tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
-<p><a name="Doc.fromJSON"></a></p>
-<h3><a class="header" href="#docfromjsonjson--a-hreflibrarieswasmapi-referencehtmldocdoca" id="docfromjsonjson--a-hreflibrarieswasmapi-referencehtmldocdoca">Doc.fromJSON(json) ⇒ <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></a></h3>
-<p>Deserializes a <code>Doc</code> object from a JSON object.</p>
-<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></p>
+<p><a name="Document.fromJSON"></a></p>
+<h3><a class="header" href="#documentfromjsonjson--a-hreflibrarieswasmapi-referencehtmldocumentdocumenta" id="documentfromjsonjson--a-hreflibrarieswasmapi-referencehtmldocumentdocumenta">Document.fromJSON(json) ⇒ <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></a></h3>
+<p>Deserializes a <code>Document</code> object from a JSON object.</p>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>json</td><td><code>any</code></td></tr>
 </tbody></table>
-<p><a name="Key"></a></p>
-<h2><a class="header" href="#key" id="key">Key</a></h2>
+<p><a name="KeyCollection"></a></p>
+<h2><a class="header" href="#keycollection" id="keycollection">KeyCollection</a></h2>
 <p><strong>Kind</strong>: global class</p>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#Key">Key</a>
+<li><a href="libraries/wasm/api-reference.html#KeyCollection">KeyCollection</a>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#new_Key_new">new Key(key_type)</a></li>
+<li><a href="libraries/wasm/api-reference.html#new_KeyCollection_new">new KeyCollection(type_, count)</a></li>
 <li><em>instance</em>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#Key+public">.public</a> ⇒ <code>string</code></li>
-<li><a href="libraries/wasm/api-reference.html#Key+private">.private</a> ⇒ <code>string</code></li>
-<li><a href="libraries/wasm/api-reference.html#Key+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
+<li><a href="libraries/wasm/api-reference.html#KeyCollection+length">.length</a> ⇒ <code>number</code></li>
+<li><a href="libraries/wasm/api-reference.html#KeyCollection+isEmpty">.isEmpty()</a> ⇒ <code>boolean</code></li>
+<li><a href="libraries/wasm/api-reference.html#KeyCollection+keypair">.keypair(index)</a> ⇒ <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a> | <code>undefined</code></li>
+<li><a href="libraries/wasm/api-reference.html#KeyCollection+public">.public(index)</a> ⇒ <code>string</code> | <code>undefined</code></li>
+<li><a href="libraries/wasm/api-reference.html#KeyCollection+secret">.secret(index)</a> ⇒ <code>string</code> | <code>undefined</code></li>
+<li><a href="libraries/wasm/api-reference.html#KeyCollection+merkleRoot">.merkleRoot(digest)</a> ⇒ <code>string</code></li>
+<li><a href="libraries/wasm/api-reference.html#KeyCollection+merkleProof">.merkleProof(digest, index)</a> ⇒ <code>string</code> | <code>undefined</code></li>
+<li><a href="libraries/wasm/api-reference.html#KeyCollection+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
 </ul>
 </li>
 <li><em>static</em>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#Key.generateEd25519">.generateEd25519()</a> ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#Key.fromBase58">.fromBase58(public_key, private_key)</a> ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#Key.fromJSON">.fromJSON(json)</a> ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#KeyCollection.fromJSON">.fromJSON(json)</a> ⇒ <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<p><a name="new_Key_new"></a></p>
-<h3><a class="header" href="#new-keykey_type" id="new-keykey_type">new Key(key_type)</a></h3>
-<p>Generates a new <code>Key</code> object.</p>
+<p><a name="new_KeyCollection_new"></a></p>
+<h3><a class="header" href="#new-keycollectiontype_-count" id="new-keycollectiontype_-count">new KeyCollection(type_, count)</a></h3>
+<p>Creates a new <code>KeyCollection</code> with the specified key type.</p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>key_type</td><td><code>string</code></td></tr>
+<tr><td>type_</td><td><code>number</code></td></tr>
+<tr><td>count</td><td><code>number</code></td></tr>
 </tbody></table>
-<p><a name="Key+public"></a></p>
-<h3><a class="header" href="#keypublic--string" id="keypublic--string">key.public ⇒ <code>string</code></a></h3>
+<p><a name="KeyCollection+length"></a></p>
+<h3><a class="header" href="#keycollectionlength--number" id="keycollectionlength--number">keyCollection.length ⇒ <code>number</code></a></h3>
+<p>Returns the number of keys in the collection.</p>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a><br />
+<a name="KeyCollection+isEmpty"></a></p>
+<h3><a class="header" href="#keycollectionisempty--boolean" id="keycollectionisempty--boolean">keyCollection.isEmpty() ⇒ <code>boolean</code></a></h3>
+<p>Returns <code>true</code> if the collection contains no keys.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a><br />
+<a name="KeyCollection+keypair"></a></p>
+<h3><a class="header" href="#keycollectionkeypairindex--a-hreflibrarieswasmapi-referencehtmlkeypairkeypaira--undefined" id="keycollectionkeypairindex--a-hreflibrarieswasmapi-referencehtmlkeypairkeypaira--undefined">keyCollection.keypair(index) ⇒ <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a> | <code>undefined</code></a></h3>
+<p>Returns the keypair at the specified <code>index</code>.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>index</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyCollection+public"></a></p>
+<h3><a class="header" href="#keycollectionpublicindex--string--undefined" id="keycollectionpublicindex--string--undefined">keyCollection.public(index) ⇒ <code>string</code> | <code>undefined</code></a></h3>
+<p>Returns the public key at the specified <code>index</code> as a base58-encoded string.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>index</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyCollection+secret"></a></p>
+<h3><a class="header" href="#keycollectionsecretindex--string--undefined" id="keycollectionsecretindex--string--undefined">keyCollection.secret(index) ⇒ <code>string</code> | <code>undefined</code></a></h3>
+<p>Returns the secret key at the specified <code>index</code> as a base58-encoded string.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>index</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyCollection+merkleRoot"></a></p>
+<h3><a class="header" href="#keycollectionmerklerootdigest--string" id="keycollectionmerklerootdigest--string">keyCollection.merkleRoot(digest) ⇒ <code>string</code></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>digest</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyCollection+merkleProof"></a></p>
+<h3><a class="header" href="#keycollectionmerkleproofdigest-index--string--undefined" id="keycollectionmerkleproofdigest-index--string--undefined">keyCollection.merkleProof(digest, index) ⇒ <code>string</code> | <code>undefined</code></a></h3>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>digest</td><td><code>number</code></td></tr>
+<tr><td>index</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyCollection+toJSON"></a></p>
+<h3><a class="header" href="#keycollectiontojson--any" id="keycollectiontojson--any">keyCollection.toJSON() ⇒ <code>any</code></a></h3>
+<p>Serializes a <code>KeyCollection</code> object as a JSON object.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a><br />
+<a name="KeyCollection.fromJSON"></a></p>
+<h3><a class="header" href="#keycollectionfromjsonjson--a-hreflibrarieswasmapi-referencehtmlkeycollectionkeycollectiona" id="keycollectionfromjsonjson--a-hreflibrarieswasmapi-referencehtmlkeycollectionkeycollectiona">KeyCollection.fromJSON(json) ⇒ <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a></a></h3>
+<p>Deserializes a <code>KeyCollection</code> object from a JSON object.</p>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>json</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="KeyPair"></a></p>
+<h2><a class="header" href="#keypair" id="keypair">KeyPair</a></h2>
+<p><strong>Kind</strong>: global class</p>
+<ul>
+<li><a href="libraries/wasm/api-reference.html#KeyPair">KeyPair</a>
+<ul>
+<li><a href="libraries/wasm/api-reference.html#new_KeyPair_new">new KeyPair(type_)</a></li>
+<li><em>instance</em>
+<ul>
+<li><a href="libraries/wasm/api-reference.html#KeyPair+public">.public</a> ⇒ <code>string</code></li>
+<li><a href="libraries/wasm/api-reference.html#KeyPair+secret">.secret</a> ⇒ <code>string</code></li>
+<li><a href="libraries/wasm/api-reference.html#KeyPair+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
+</ul>
+</li>
+<li><em>static</em>
+<ul>
+<li><a href="libraries/wasm/api-reference.html#KeyPair.fromBase58">.fromBase58(type_, public_key, secret_key)</a> ⇒ <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#KeyPair.fromJSON">.fromJSON(json)</a> ⇒ <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><a name="new_KeyPair_new"></a></p>
+<h3><a class="header" href="#new-keypairtype_" id="new-keypairtype_">new KeyPair(type_)</a></h3>
+<p>Generates a new <code>KeyPair</code> object.</p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>type_</td><td><code>number</code></td></tr>
+</tbody></table>
+<p><a name="KeyPair+public"></a></p>
+<h3><a class="header" href="#keypairpublic--string" id="keypairpublic--string">keyPair.public ⇒ <code>string</code></a></h3>
 <p>Returns the public key as a base58-encoded string.</p>
-<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a><br />
-<a name="Key+private"></a></p>
-<h3><a class="header" href="#keyprivate--string" id="keyprivate--string">key.private ⇒ <code>string</code></a></h3>
-<p>Returns the private key as a base58-encoded string.</p>
-<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a><br />
-<a name="Key+toJSON"></a></p>
-<h3><a class="header" href="#keytojson--any" id="keytojson--any">key.toJSON() ⇒ <code>any</code></a></h3>
-<p>Serializes a <code>Key</code> object as a JSON object.</p>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a><br />
-<a name="Key.generateEd25519"></a></p>
-<h3><a class="header" href="#keygenerateed25519--a-hreflibrarieswasmapi-referencehtmlkeykeya" id="keygenerateed25519--a-hreflibrarieswasmapi-referencehtmlkeykeya">Key.generateEd25519() ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></a></h3>
-<p>Generates a new <code>Key</code> object suitable for ed25519 signatures.</p>
-<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a><br />
-<a name="Key.fromBase58"></a></p>
-<h3><a class="header" href="#keyfrombase58public_key-private_key--a-hreflibrarieswasmapi-referencehtmlkeykeya" id="keyfrombase58public_key-private_key--a-hreflibrarieswasmapi-referencehtmlkeykeya">Key.fromBase58(public_key, private_key) ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></a></h3>
-<p>Parses a <code>Key</code> object from base58-encoded public/private keys.</p>
-<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></p>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a><br />
+<a name="KeyPair+secret"></a></p>
+<h3><a class="header" href="#keypairsecret--string" id="keypairsecret--string">keyPair.secret ⇒ <code>string</code></a></h3>
+<p>Returns the secret key as a base58-encoded string.</p>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a><br />
+<a name="KeyPair+toJSON"></a></p>
+<h3><a class="header" href="#keypairtojson--any" id="keypairtojson--any">keyPair.toJSON() ⇒ <code>any</code></a></h3>
+<p>Serializes a <code>KeyPair</code> object as a JSON object.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a><br />
+<a name="KeyPair.fromBase58"></a></p>
+<h3><a class="header" href="#keypairfrombase58type_-public_key-secret_key--a-hreflibrarieswasmapi-referencehtmlkeypairkeypaira" id="keypairfrombase58type_-public_key-secret_key--a-hreflibrarieswasmapi-referencehtmlkeypairkeypaira">KeyPair.fromBase58(type_, public_key, secret_key) ⇒ <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></a></h3>
+<p>Parses a <code>KeyPair</code> object from base58-encoded public/secret keys.</p>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>type_</td><td><code>number</code></td></tr>
 <tr><td>public_key</td><td><code>string</code></td></tr>
-<tr><td>private_key</td><td><code>string</code></td></tr>
+<tr><td>secret_key</td><td><code>string</code></td></tr>
 </tbody></table>
-<p><a name="Key.fromJSON"></a></p>
-<h3><a class="header" href="#keyfromjsonjson--a-hreflibrarieswasmapi-referencehtmlkeykeya" id="keyfromjsonjson--a-hreflibrarieswasmapi-referencehtmlkeykeya">Key.fromJSON(json) ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></a></h3>
-<p>Deserializes a <code>Key</code> object from a JSON object.</p>
-<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></p>
+<p><a name="KeyPair.fromJSON"></a></p>
+<h3><a class="header" href="#keypairfromjsonjson--a-hreflibrarieswasmapi-referencehtmlkeypairkeypaira" id="keypairfromjsonjson--a-hreflibrarieswasmapi-referencehtmlkeypairkeypaira">KeyPair.fromJSON(json) ⇒ <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></a></h3>
+<p>Deserializes a <code>KeyPair</code> object from a JSON object.</p>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>json</td><td><code>any</code></td></tr>
 </tbody></table>
-<p><a name="NewDoc"></a></p>
-<h2><a class="header" href="#newdoc" id="newdoc">NewDoc</a></h2>
+<p><a name="Method"></a></p>
+<h2><a class="header" href="#method" id="method">Method</a></h2>
 <p><strong>Kind</strong>: global class</p>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#NewDoc">NewDoc</a>
+<li><a href="libraries/wasm/api-reference.html#Method">Method</a>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#NewDoc+key">.key</a> ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#NewDoc+doc">.doc</a> ⇒ <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></li>
-</ul>
-</li>
-</ul>
-<p><a name="NewDoc+key"></a></p>
-<h3><a class="header" href="#newdockey--a-hreflibrarieswasmapi-referencehtmlkeykeya" id="newdockey--a-hreflibrarieswasmapi-referencehtmlkeykeya">newDoc.key ⇒ <a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#NewDoc"><code>NewDoc</code></a><br />
-<a name="NewDoc+doc"></a></p>
-<h3><a class="header" href="#newdocdoc--a-hreflibrarieswasmapi-referencehtmldocdoca" id="newdocdoc--a-hreflibrarieswasmapi-referencehtmldocdoca">newDoc.doc ⇒ <a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></a></h3>
-<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#NewDoc"><code>NewDoc</code></a><br />
-<a name="PubKey"></a></p>
-<h2><a class="header" href="#pubkey" id="pubkey">PubKey</a></h2>
-<p><strong>Kind</strong>: global class</p>
-<ul>
-<li><a href="libraries/wasm/api-reference.html#PubKey">PubKey</a>
-<ul>
-<li><a href="libraries/wasm/api-reference.html#new_PubKey_new">new PubKey(did, key_type, key_data, tag)</a></li>
+<li><a href="libraries/wasm/api-reference.html#new_Method_new">new Method(key, tag)</a></li>
 <li><em>instance</em>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#PubKey+id">.id</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#PubKey+controller">.controller</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#PubKey+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
+<li><a href="libraries/wasm/api-reference.html#Method+id">.id</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Method+controller">.controller</a> ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Method+type">.type</a> ⇒ <code>string</code></li>
+<li><a href="libraries/wasm/api-reference.html#Method+data">.data</a> ⇒ <code>any</code></li>
+<li><a href="libraries/wasm/api-reference.html#Method+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
 </ul>
 </li>
 <li><em>static</em>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#PubKey.generateEd25519">.generateEd25519(did, key_data, tag)</a> ⇒ <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></li>
-<li><a href="libraries/wasm/api-reference.html#PubKey.fromJSON">.fromJSON(json)</a> ⇒ <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Method.fromDID">.fromDID(did, key, tag)</a> ⇒ <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Method.createMerkleKey">.createMerkleKey(digest, did, keys, tag)</a> ⇒ <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#Method.fromJSON">.fromJSON(value)</a> ⇒ <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<p><a name="new_PubKey_new"></a></p>
-<h3><a class="header" href="#new-pubkeydid-key_type-key_data-tag" id="new-pubkeydid-key_type-key_data-tag">new PubKey(did, key_type, key_data, tag)</a></h3>
+<p><a name="new_Method_new"></a></p>
+<h3><a class="header" href="#new-methodkey-tag" id="new-methodkey-tag">new Method(key, tag)</a></h3>
+<p>Creates a new <code>Method</code> object from the given <code>key</code>.</p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>did</td><td><a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></td></tr>
-<tr><td>key_type</td><td><code>string</code></td></tr>
-<tr><td>key_data</td><td><code>string</code></td></tr>
+<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></td></tr>
 <tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="PubKey+id"></a></p>
-<h3><a class="header" href="#pubkeyid--a-hreflibrarieswasmapi-referencehtmldiddida" id="pubkeyid--a-hreflibrarieswasmapi-referencehtmldiddida">pubKey.id ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></a></h3>
-<p>Returns the <code>id</code> DID of the <code>PubKey</code> object.</p>
-<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a><br />
-<a name="PubKey+controller"></a></p>
-<h3><a class="header" href="#pubkeycontroller--a-hreflibrarieswasmapi-referencehtmldiddida" id="pubkeycontroller--a-hreflibrarieswasmapi-referencehtmldiddida">pubKey.controller ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></a></h3>
-<p>Returns the <code>controller</code> DID of the <code>PubKey</code> object.</p>
-<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a><br />
-<a name="PubKey+toJSON"></a></p>
-<h3><a class="header" href="#pubkeytojson--any" id="pubkeytojson--any">pubKey.toJSON() ⇒ <code>any</code></a></h3>
-<p>Serializes a <code>PubKey</code> object as a JSON object.</p>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a><br />
-<a name="PubKey.generateEd25519"></a></p>
-<h3><a class="header" href="#pubkeygenerateed25519did-key_data-tag--a-hreflibrarieswasmapi-referencehtmlpubkeypubkeya" id="pubkeygenerateed25519did-key_data-tag--a-hreflibrarieswasmapi-referencehtmlpubkeypubkeya">PubKey.generateEd25519(did, key_data, tag) ⇒ <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></a></h3>
-<p>Generates a new <code>PubKey</code> object suitable for ed25519 signatures.</p>
-<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></p>
+<p><a name="Method+id"></a></p>
+<h3><a class="header" href="#methodid--a-hreflibrarieswasmapi-referencehtmldiddida" id="methodid--a-hreflibrarieswasmapi-referencehtmldiddida">method.id ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></a></h3>
+<p>Returns the <code>id</code> DID of the <code>Method</code> object.</p>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a><br />
+<a name="Method+controller"></a></p>
+<h3><a class="header" href="#methodcontroller--a-hreflibrarieswasmapi-referencehtmldiddida" id="methodcontroller--a-hreflibrarieswasmapi-referencehtmldiddida">method.controller ⇒ <a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></a></h3>
+<p>Returns the <code>controller</code> DID of the <code>Method</code> object.</p>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a><br />
+<a name="Method+type"></a></p>
+<h3><a class="header" href="#methodtype--string" id="methodtype--string">method.type ⇒ <code>string</code></a></h3>
+<p>Returns the <code>Method</code> type.</p>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a><br />
+<a name="Method+data"></a></p>
+<h3><a class="header" href="#methoddata--any" id="methoddata--any">method.data ⇒ <code>any</code></a></h3>
+<p>Returns the <code>Method</code> public key data.</p>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a><br />
+<a name="Method+toJSON"></a></p>
+<h3><a class="header" href="#methodtojson--any" id="methodtojson--any">method.toJSON() ⇒ <code>any</code></a></h3>
+<p>Serializes a <code>Method</code> object as a JSON object.</p>
+<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a><br />
+<a name="Method.fromDID"></a></p>
+<h3><a class="header" href="#methodfromdiddid-key-tag--a-hreflibrarieswasmapi-referencehtmlmethodmethoda" id="methodfromdiddid-key-tag--a-hreflibrarieswasmapi-referencehtmlmethodmethoda">Method.fromDID(did, key, tag) ⇒ <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></a></h3>
+<p>Creates a new <code>Method</code> object from the given <code>did</code> and <code>key</code>.</p>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>did</td><td><a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></td></tr>
-<tr><td>key_data</td><td><code>string</code></td></tr>
+<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></td></tr>
 <tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="PubKey.fromJSON"></a></p>
-<h3><a class="header" href="#pubkeyfromjsonjson--a-hreflibrarieswasmapi-referencehtmlpubkeypubkeya" id="pubkeyfromjsonjson--a-hreflibrarieswasmapi-referencehtmlpubkeypubkeya">PubKey.fromJSON(json) ⇒ <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></a></h3>
-<p>Deserializes a <code>PubKey</code> object from a JSON object.</p>
-<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#PubKey"><code>PubKey</code></a></p>
+<p><a name="Method.createMerkleKey"></a></p>
+<h3><a class="header" href="#methodcreatemerklekeydigest-did-keys-tag--a-hreflibrarieswasmapi-referencehtmlmethodmethoda" id="methodcreatemerklekeydigest-did-keys-tag--a-hreflibrarieswasmapi-referencehtmlmethodmethoda">Method.createMerkleKey(digest, did, keys, tag) ⇒ <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></a></h3>
+<p>Creates a new Merkle Key Collection Method from the given key collection.</p>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>json</td><td><code>any</code></td></tr>
+<tr><td>digest</td><td><code>number</code></td></tr>
+<tr><td>did</td><td><a href="libraries/wasm/api-reference.html#DID"><code>DID</code></a></td></tr>
+<tr><td>keys</td><td><a href="libraries/wasm/api-reference.html#KeyCollection"><code>KeyCollection</code></a></td></tr>
+<tr><td>tag</td><td><code>string</code> | <code>undefined</code></td></tr>
 </tbody></table>
-<p><a name="VerifiableCredential"></a></p>
+<p><a name="Method.fromJSON"></a></p>
+<h3><a class="header" href="#methodfromjsonvalue--a-hreflibrarieswasmapi-referencehtmlmethodmethoda" id="methodfromjsonvalue--a-hreflibrarieswasmapi-referencehtmlmethodmethoda">Method.fromJSON(value) ⇒ <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></a></h3>
+<p>Deserializes a <code>Method</code> object from a JSON object.</p>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#Method"><code>Method</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>value</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="NewDocument"></a></p>
+<h2><a class="header" href="#newdocument" id="newdocument">NewDocument</a></h2>
+<p><strong>Kind</strong>: global class</p>
+<ul>
+<li><a href="libraries/wasm/api-reference.html#NewDocument">NewDocument</a>
+<ul>
+<li><a href="libraries/wasm/api-reference.html#NewDocument+key">.key</a> ⇒ <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#NewDocument+doc">.doc</a> ⇒ <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></li>
+</ul>
+</li>
+</ul>
+<p><a name="NewDocument+key"></a></p>
+<h3><a class="header" href="#newdocumentkey--a-hreflibrarieswasmapi-referencehtmlkeypairkeypaira" id="newdocumentkey--a-hreflibrarieswasmapi-referencehtmlkeypairkeypaira">newDocument.key ⇒ <a href="libraries/wasm/api-reference.html#KeyPair"><code>KeyPair</code></a></a></h3>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#NewDocument"><code>NewDocument</code></a><br />
+<a name="NewDocument+doc"></a></p>
+<h3><a class="header" href="#newdocumentdoc--a-hreflibrarieswasmapi-referencehtmldocumentdocumenta" id="newdocumentdoc--a-hreflibrarieswasmapi-referencehtmldocumentdocumenta">newDocument.doc ⇒ <a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></a></h3>
+<p><strong>Kind</strong>: instance property of <a href="libraries/wasm/api-reference.html#NewDocument"><code>NewDocument</code></a><br />
+<a name="VerifiableCredential"></a></p>
 <h2><a class="header" href="#verifiablecredential" id="verifiablecredential">VerifiableCredential</a></h2>
 <p><strong>Kind</strong>: global class</p>
 <ul>
 <li><a href="libraries/wasm/api-reference.html#VerifiableCredential">VerifiableCredential</a>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#new_VerifiableCredential_new">new VerifiableCredential(issuer_doc, issuer_key, subject_data, credential_type, credential_id)</a></li>
 <li><em>instance</em>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#VerifiableCredential+sign">.sign(issuer, key)</a></li>
-<li><a href="libraries/wasm/api-reference.html#VerifiableCredential+verify">.verify(issuer)</a> ⇒ <code>boolean</code></li>
 <li><a href="libraries/wasm/api-reference.html#VerifiableCredential+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
 </ul>
 </li>
 <li><em>static</em>
 <ul>
+<li><a href="libraries/wasm/api-reference.html#VerifiableCredential.extend">.extend(value)</a> ⇒ <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></li>
+<li><a href="libraries/wasm/api-reference.html#VerifiableCredential.issue">.issue(issuer_doc, subject_data, credential_type, credential_id)</a> ⇒ <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></li>
 <li><a href="libraries/wasm/api-reference.html#VerifiableCredential.fromJSON">.fromJSON(json)</a> ⇒ <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<p><a name="new_VerifiableCredential_new"></a></p>
-<h3><a class="header" href="#new-verifiablecredentialissuer_doc-issuer_key-subject_data-credential_type-credential_id" id="new-verifiablecredentialissuer_doc-issuer_key-subject_data-credential_type-credential_id">new VerifiableCredential(issuer_doc, issuer_key, subject_data, credential_type, credential_id)</a></h3>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>issuer_doc</td><td><a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></td></tr>
-<tr><td>issuer_key</td><td><a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></td></tr>
-<tr><td>subject_data</td><td><code>any</code></td></tr>
-<tr><td>credential_type</td><td><code>string</code> | <code>undefined</code></td></tr>
-<tr><td>credential_id</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
-<p><a name="VerifiableCredential+sign"></a></p>
-<h3><a class="header" href="#verifiablecredentialsignissuer-key" id="verifiablecredentialsignissuer-key">verifiableCredential.sign(issuer, key)</a></h3>
-<p>Signs the credential with the given issuer <code>Doc</code> and <code>Key</code> object.</p>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>issuer</td><td><a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></td></tr>
-<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></td></tr>
-</tbody></table>
-<p><a name="VerifiableCredential+verify"></a></p>
-<h3><a class="header" href="#verifiablecredentialverifyissuer--boolean" id="verifiablecredentialverifyissuer--boolean">verifiableCredential.verify(issuer) ⇒ <code>boolean</code></a></h3>
-<p>Verifies the credential signature against the issuer <code>Doc</code>.</p>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>issuer</td><td><a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></td></tr>
-</tbody></table>
 <p><a name="VerifiableCredential+toJSON"></a></p>
 <h3><a class="header" href="#verifiablecredentialtojson--any" id="verifiablecredentialtojson--any">verifiableCredential.toJSON() ⇒ <code>any</code></a></h3>
 <p>Serializes a <code>VerifiableCredential</code> object as a JSON object.</p>
 <p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a><br />
-<a name="VerifiableCredential.fromJSON"></a></p>
+<a name="VerifiableCredential.extend"></a></p>
+<h3><a class="header" href="#verifiablecredentialextendvalue--a-hreflibrarieswasmapi-referencehtmlverifiablecredentialverifiablecredentiala" id="verifiablecredentialextendvalue--a-hreflibrarieswasmapi-referencehtmlverifiablecredentialverifiablecredentiala">VerifiableCredential.extend(value) ⇒ <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></a></h3>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>value</td><td><code>any</code></td></tr>
+</tbody></table>
+<p><a name="VerifiableCredential.issue"></a></p>
+<h3><a class="header" href="#verifiablecredentialissueissuer_doc-subject_data-credential_type-credential_id--a-hreflibrarieswasmapi-referencehtmlverifiablecredentialverifiablecredentiala" id="verifiablecredentialissueissuer_doc-subject_data-credential_type-credential_id--a-hreflibrarieswasmapi-referencehtmlverifiablecredentialverifiablecredentiala">VerifiableCredential.issue(issuer_doc, subject_data, credential_type, credential_id) ⇒ <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></a></h3>
+<p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></p>
+<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
+<tr><td>issuer_doc</td><td><a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></td></tr>
+<tr><td>subject_data</td><td><code>any</code></td></tr>
+<tr><td>credential_type</td><td><code>string</code> | <code>undefined</code></td></tr>
+<tr><td>credential_id</td><td><code>string</code> | <code>undefined</code></td></tr>
+</tbody></table>
+<p><a name="VerifiableCredential.fromJSON"></a></p>
 <h3><a class="header" href="#verifiablecredentialfromjsonjson--a-hreflibrarieswasmapi-referencehtmlverifiablecredentialverifiablecredentiala" id="verifiablecredentialfromjsonjson--a-hreflibrarieswasmapi-referencehtmlverifiablecredentialverifiablecredentiala">VerifiableCredential.fromJSON(json) ⇒ <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></a></h3>
 <p>Deserializes a <code>VerifiableCredential</code> object from a JSON object.</p>
 <p><strong>Kind</strong>: static method of <a href="libraries/wasm/api-reference.html#VerifiableCredential"><code>VerifiableCredential</code></a></p>
@@ -878,11 +956,9 @@ identity.init().then(() =&gt; {
 <ul>
 <li><a href="libraries/wasm/api-reference.html#VerifiablePresentation">VerifiablePresentation</a>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#new_VerifiablePresentation_new">new VerifiablePresentation(holder_doc, holder_key, credential_data, presentation_type, presentation_id)</a></li>
+<li><a href="libraries/wasm/api-reference.html#new_VerifiablePresentation_new">new VerifiablePresentation(holder_doc, credential_data, presentation_type, presentation_id)</a></li>
 <li><em>instance</em>
 <ul>
-<li><a href="libraries/wasm/api-reference.html#VerifiablePresentation+sign">.sign(holder, key)</a></li>
-<li><a href="libraries/wasm/api-reference.html#VerifiablePresentation+verify">.verify(holder)</a> ⇒ <code>boolean</code></li>
 <li><a href="libraries/wasm/api-reference.html#VerifiablePresentation+toJSON">.toJSON()</a> ⇒ <code>any</code></li>
 </ul>
 </li>
@@ -895,28 +971,12 @@ identity.init().then(() =&gt; {
 </li>
 </ul>
 <p><a name="new_VerifiablePresentation_new"></a></p>
-<h3><a class="header" href="#new-verifiablepresentationholder_doc-holder_key-credential_data-presentation_type-presentation_id" id="new-verifiablepresentationholder_doc-holder_key-credential_data-presentation_type-presentation_id">new VerifiablePresentation(holder_doc, holder_key, credential_data, presentation_type, presentation_id)</a></h3>
+<h3><a class="header" href="#new-verifiablepresentationholder_doc-credential_data-presentation_type-presentation_id" id="new-verifiablepresentationholder_doc-credential_data-presentation_type-presentation_id">new VerifiablePresentation(holder_doc, credential_data, presentation_type, presentation_id)</a></h3>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>holder_doc</td><td><a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></td></tr>
-<tr><td>holder_key</td><td><a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></td></tr>
+<tr><td>holder_doc</td><td><a href="libraries/wasm/api-reference.html#Document"><code>Document</code></a></td></tr>
 <tr><td>credential_data</td><td><code>any</code></td></tr>
 <tr><td>presentation_type</td><td><code>string</code> | <code>undefined</code></td></tr>
 <tr><td>presentation_id</td><td><code>string</code> | <code>undefined</code></td></tr>
-</tbody></table>
-<p><a name="VerifiablePresentation+sign"></a></p>
-<h3><a class="header" href="#verifiablepresentationsignholder-key" id="verifiablepresentationsignholder-key">verifiablePresentation.sign(holder, key)</a></h3>
-<p>Signs the presentation with the given holder <code>Doc</code> and <code>Key</code> object.</p>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#VerifiablePresentation"><code>VerifiablePresentation</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>holder</td><td><a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></td></tr>
-<tr><td>key</td><td><a href="libraries/wasm/api-reference.html#Key"><code>Key</code></a></td></tr>
-</tbody></table>
-<p><a name="VerifiablePresentation+verify"></a></p>
-<h3><a class="header" href="#verifiablepresentationverifyholder--boolean" id="verifiablepresentationverifyholder--boolean">verifiablePresentation.verify(holder) ⇒ <code>boolean</code></a></h3>
-<p>Verifies the presentation signature against the holder <code>Doc</code>.</p>
-<p><strong>Kind</strong>: instance method of <a href="libraries/wasm/api-reference.html#VerifiablePresentation"><code>VerifiablePresentation</code></a></p>
-<table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>holder</td><td><a href="libraries/wasm/api-reference.html#Doc"><code>Doc</code></a></td></tr>
 </tbody></table>
 <p><a name="VerifiablePresentation+toJSON"></a></p>
 <h3><a class="header" href="#verifiablepresentationtojson--any" id="verifiablepresentationtojson--any">verifiablePresentation.toJSON() ⇒ <code>any</code></a></h3>
@@ -929,12 +989,22 @@ identity.init().then(() =&gt; {
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
 <tr><td>json</td><td><code>any</code></td></tr>
 </tbody></table>
-<p><a name="publish"></a></p>
-<h2><a class="header" href="#publishdoc-params--any" id="publishdoc-params--any">publish(doc, params) ⇒ <code>any</code></a></h2>
+<p><a name="Digest"></a></p>
+<h2><a class="header" href="#digest" id="digest">Digest</a></h2>
+<p><strong>Kind</strong>: global variable<br />
+<a name="KeyType"></a></p>
+<h2><a class="header" href="#keytype" id="keytype">KeyType</a></h2>
+<p><strong>Kind</strong>: global variable<br />
+<a name="start"></a></p>
+<h2><a class="header" href="#start" id="start">start()</a></h2>
+<p>Initializes the console error panic hook for better error messages</p>
+<p><strong>Kind</strong>: global function<br />
+<a name="publish"></a></p>
+<h2><a class="header" href="#publishdocument-params--any" id="publishdocument-params--any">publish(document, params) ⇒ <code>any</code></a></h2>
 <p>Publishes a DID Document to the Tangle, params looks like { node: &quot;http://localhost:14265&quot;, network: &quot;main&quot; }</p>
 <p><strong>Kind</strong>: global function</p>
 <table><thead><tr><th>Param</th><th>Type</th></tr></thead><tbody>
-<tr><td>doc</td><td><code>any</code></td></tr>
+<tr><td>document</td><td><code>any</code></td></tr>
 <tr><td>params</td><td><code>any</code></td></tr>
 </tbody></table>
 <p><a name="resolve"></a></p>
@@ -961,10 +1031,6 @@ identity.init().then(() =&gt; {
 <tr><td>data</td><td><code>string</code></td></tr>
 <tr><td>params</td><td><code>any</code></td></tr>
 </tbody></table>
-<p><a name="start"></a></p>
-<h2><a class="header" href="#start" id="start">start()</a></h2>
-<p>Initializes the console error panic hook for better error messages</p>
-<p><strong>Kind</strong>: global function  </p>
 <h1><a class="header" href="#coming-soon-3" id="coming-soon-3">Coming Soon!</a></h1>
 <blockquote>
 <p>TODO!</p>

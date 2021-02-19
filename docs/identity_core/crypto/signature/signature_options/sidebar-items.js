@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["SignatureOptions","Customizable properties of a DID Document signature."]]});

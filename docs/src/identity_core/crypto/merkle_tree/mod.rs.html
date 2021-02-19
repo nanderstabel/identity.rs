@@ -23,6 +23,8 @@
 <span id="20">20</span>
 <span id="21">21</span>
 <span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -31,20 +33,22 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! [WIKI]: https://en.wikipedia.org/wiki/Merkle_tree</span>
 
-<span class="kw">mod</span> <span class="ident">consts</span>;
 <span class="kw">mod</span> <span class="ident">digest</span>;
 <span class="kw">mod</span> <span class="ident">hash</span>;
-<span class="kw">mod</span> <span class="ident">math</span>;
 <span class="kw">mod</span> <span class="ident">merkle</span>;
 <span class="kw">mod</span> <span class="ident">node</span>;
 <span class="kw">mod</span> <span class="ident">proof</span>;
-<span class="kw">mod</span> <span class="ident">tree</span>;
+<span class="kw">mod</span> <span class="ident">serde</span>;
+<span class="kw">mod</span> <span class="ident">traits</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">digest</span>::<span class="ident">Digest</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">digest</span>::<span class="ident">DigestExt</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">digest</span>::<span class="ident">Output</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">hash</span>::<span class="ident">Hash</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">merkle</span>::<span class="ident">MTree</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">merkle</span>::<span class="ident">compute_merkle_proof</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">merkle</span>::<span class="ident">compute_merkle_root</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">node</span>::<span class="ident">Node</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">proof</span>::<span class="ident">Proof</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traits</span>::<span class="ident">AsLeaf</span>;
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../../";window.currentCrate = "identity_core";</script><script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script><script defer src="../../../../search-index.js"></script></body></html>

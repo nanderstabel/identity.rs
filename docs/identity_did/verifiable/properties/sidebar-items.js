@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Properties",""]]});
+initSidebarItems({"struct":[["Properties","A generic container for a set of properties (`T`) and a [`digital signature`][`Signature`]."]]});

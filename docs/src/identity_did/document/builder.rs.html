@@ -143,10 +143,12 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
+<span id="143">143</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
 
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Object</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Url</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DID</span>;
@@ -159,7 +161,7 @@
 
 <span class="doccomment">/// A `DocumentBuilder` is used to generate a customized `Document`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DocumentBuilder</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> (), <span class="ident">U</span> <span class="op">=</span> (), <span class="ident">V</span> <span class="op">=</span> ()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DocumentBuilder</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> <span class="ident">Object</span>, <span class="ident">U</span> <span class="op">=</span> <span class="ident">Object</span>, <span class="ident">V</span> <span class="op">=</span> <span class="ident">Object</span><span class="op">&gt;</span> {
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DID</span><span class="op">&gt;</span>,
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">controller</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DID</span><span class="op">&gt;</span>,
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">also_known_as</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span>,

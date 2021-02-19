@@ -41,6 +41,20 @@
 <span id="38">38</span>
 <span id="39">39</span>
 <span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -63,8 +77,14 @@
   <span class="ident">ClientError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">iota</span>::<span class="ident">client</span>::<span class="ident">error</span>::<span class="ident">Error</span>),
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;{0}&quot;</span>)]</span>
   <span class="ident">TernaryError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">iota</span>::<span class="ident">ternary</span>::<span class="ident">Error</span>),
-  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Document: {error}&quot;</span>)]</span>
-  <span class="ident">InvalidDocument</span> { <span class="ident">error</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> },
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Document - Missing Message Id&quot;</span>)]</span>
+  <span class="ident">InvalidDocumentMessageId</span>,
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Document - Authentication Authority Mismatch&quot;</span>)]</span>
+  <span class="ident">InvalidDocumentAuthAuthority</span>,
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Document - Authentication Missing Fragment&quot;</span>)]</span>
+  <span class="ident">InvalidDocumentAuthFragment</span>,
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Document - Authentication Type Not Supported&quot;</span>)]</span>
+  <span class="ident">InvalidDocumentAuthType</span>,
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid DID Network&quot;</span>)]</span>
   <span class="ident">InvalidDIDNetwork</span>,
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid Tryte Conversion&quot;</span>)]</span>
@@ -81,6 +101,14 @@
   <span class="ident">InvalidPresentationHolder</span>,
   <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Chain Error: {error}&quot;</span>)]</span>
   <span class="ident">ChainError</span> { <span class="ident">error</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> },
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Missing Verification Method Fragment&quot;</span>)]</span>
+  <span class="ident">MissingMethodFragment</span>,
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Authentication Method Not Found&quot;</span>)]</span>
+  <span class="ident">MissingAuthenticationMethod</span>,
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Cannot Remove Authentication Method&quot;</span>)]</span>
+  <span class="ident">CannotRemoveAuthMethod</span>,
+  <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Cannot Revoke Verification Method&quot;</span>)]</span>
+  <span class="ident">CannotRevokeMethod</span>,
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "identity_iota";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

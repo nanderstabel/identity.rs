@@ -109,6 +109,7 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
+<span id="109">109</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -116,6 +117,7 @@
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">FmtResult</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Object</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DID</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">Method</span>;
@@ -123,7 +125,7 @@
 <span class="doccomment">/// A reference to a verification method, either a `DID` or embedded `Method`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MethodRef</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> ()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MethodRef</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> <span class="ident">Object</span><span class="op">&gt;</span> {
   <span class="ident">Embed</span>(<span class="ident">Method</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
   <span class="ident">Refer</span>(<span class="ident">DID</span>),
 }

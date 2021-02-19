@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SignatureValue","A [`SignatureData`] wrapper with a visiblity toggle."]]});
+initSidebarItems({"enum":[["SignatureValue","A DID Document signature with a dynamic JSON field name."]]});

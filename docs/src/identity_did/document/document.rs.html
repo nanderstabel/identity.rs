@@ -435,6 +435,48 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -444,9 +486,9 @@
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">FmtError</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">FmtResult</span>;
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Object</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Url</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">convert</span>::<span class="ident">ToJson</span>;
-<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">crypto</span>::<span class="ident">SignatureOptions</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DID</span>;
@@ -456,17 +498,15 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">service</span>::<span class="ident">Service</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">DIDKey</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">OrderedSet</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verifiable</span>::<span class="ident">ResolveMethod</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">Method</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodQuery</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodRef</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodScope</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodWrap</span>;
 
 <span class="doccomment">/// A DID Document</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">rustfmt</span>::<span class="ident">skip</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Document</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> (), <span class="ident">U</span> <span class="op">=</span> (), <span class="ident">V</span> <span class="op">=</span> ()<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Document</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> <span class="ident">Object</span>, <span class="ident">U</span> <span class="op">=</span> <span class="ident">Object</span>, <span class="ident">V</span> <span class="op">=</span> <span class="ident">Object</span><span class="op">&gt;</span> {
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">id</span>: <span class="ident">DID</span>,
   <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>)]</span>
   <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">controller</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DID</span><span class="op">&gt;</span>,
@@ -501,7 +541,7 @@
   <span class="doccomment">/// Returns a new `Document` based on the `DocumentBuilder` configuration.</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_builder</span>(<span class="ident">builder</span>: <span class="ident">DocumentBuilder</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span>, <span class="ident">V</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
     <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-      <span class="ident">id</span>: <span class="ident">builder</span>.<span class="ident">id</span>.<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">InvalidDocumentId</span>)<span class="question-mark">?</span>,
+      <span class="ident">id</span>: <span class="ident">builder</span>.<span class="ident">id</span>.<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">BuilderInvalidDocumentId</span>)<span class="question-mark">?</span>,
       <span class="ident">controller</span>: <span class="ident">builder</span>.<span class="ident">controller</span>,
       <span class="ident">also_known_as</span>: <span class="ident">builder</span>.<span class="ident">also_known_as</span>,
       <span class="ident">verification_method</span>: <span class="ident">builder</span>.<span class="ident">verification_method</span>.<span class="ident">try_into</span>()<span class="question-mark">?</span>,
@@ -670,81 +710,158 @@
     })
   }
 
-  <span class="doccomment">/// Finds and returns the first verification `Method` matching the provided</span>
-  <span class="doccomment">///`MethodQuery`.</span>
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>
+  <span class="doccomment">/// Adds a new [`Method&lt;U&gt;`][`Method`] to the Document.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_method</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scope</span>: <span class="ident">MethodScope</span>, <span class="ident">method</span>: <span class="ident">Method</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">match</span> <span class="ident">scope</span> {
+      <span class="ident">MethodScope</span>::<span class="ident">VerificationMethod</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">verification_method</span>.<span class="ident">append</span>(<span class="ident">method</span>.<span class="ident">into</span>()),
+      <span class="ident">MethodScope</span>::<span class="ident">Authentication</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">authentication</span>.<span class="ident">append</span>(<span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="ident">method</span>).<span class="ident">into</span>()),
+      <span class="ident">MethodScope</span>::<span class="ident">AssertionMethod</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">assertion_method</span>.<span class="ident">append</span>(<span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="ident">method</span>).<span class="ident">into</span>()),
+      <span class="ident">MethodScope</span>::<span class="ident">KeyAgreement</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">key_agreement</span>.<span class="ident">append</span>(<span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="ident">method</span>).<span class="ident">into</span>()),
+      <span class="ident">MethodScope</span>::<span class="ident">CapabilityDelegation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">capability_delegation</span>.<span class="ident">append</span>(<span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="ident">method</span>).<span class="ident">into</span>()),
+      <span class="ident">MethodScope</span>::<span class="ident">CapabilityInvocation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">capability_invocation</span>.<span class="ident">append</span>(<span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="ident">method</span>).<span class="ident">into</span>()),
+    }
+  }
+
+  <span class="doccomment">/// Removes all references to the specified [`Method&lt;U&gt;`][`Method`].</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_method</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">did</span>: <span class="kw-2">&amp;</span><span class="ident">DID</span>) {
+    <span class="self">self</span>.<span class="ident">authentication</span>.<span class="ident">remove</span>(<span class="ident">did</span>);
+    <span class="self">self</span>.<span class="ident">assertion_method</span>.<span class="ident">remove</span>(<span class="ident">did</span>);
+    <span class="self">self</span>.<span class="ident">key_agreement</span>.<span class="ident">remove</span>(<span class="ident">did</span>);
+    <span class="self">self</span>.<span class="ident">capability_delegation</span>.<span class="ident">remove</span>(<span class="ident">did</span>);
+    <span class="self">self</span>.<span class="ident">capability_invocation</span>.<span class="ident">remove</span>(<span class="ident">did</span>);
+    <span class="self">self</span>.<span class="ident">verification_method</span>.<span class="ident">remove</span>(<span class="ident">did</span>);
+  }
+
+  <span class="doccomment">/// Returns an iterator over all verification methods in the DID Document.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">methods</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Method</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">__filter_ref</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">DIDKey</span><span class="op">&lt;</span><span class="ident">MethodRef</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Method</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+      <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">method</span> {
+        <span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="ident">method</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">method</span>),
+        <span class="ident">MethodRef</span>::<span class="ident">Refer</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+      }
+    }
+
+    <span class="self">self</span>
+      .<span class="ident">verification_method</span>
+      .<span class="ident">iter</span>()
+      .<span class="ident">map</span>(<span class="op">|</span><span class="ident">method</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">method</span>)
+      .<span class="ident">chain</span>(<span class="self">self</span>.<span class="ident">authentication</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="ident">__filter_ref</span>))
+      .<span class="ident">chain</span>(<span class="self">self</span>.<span class="ident">assertion_method</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="ident">__filter_ref</span>))
+      .<span class="ident">chain</span>(<span class="self">self</span>.<span class="ident">key_agreement</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="ident">__filter_ref</span>))
+      .<span class="ident">chain</span>(<span class="self">self</span>.<span class="ident">capability_delegation</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="ident">__filter_ref</span>))
+      .<span class="ident">chain</span>(<span class="self">self</span>.<span class="ident">capability_invocation</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="ident">__filter_ref</span>))
+  }
+
+  <span class="doccomment">/// Returns the first verification [`method`][`Method`] with an `id` property</span>
+  <span class="doccomment">/// matching the provided `query`.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve</span><span class="op">&lt;</span><span class="lifetime">&#39;query</span>, <span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Method</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>
   <span class="kw">where</span>
-    <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;query</span><span class="op">&gt;</span><span class="op">&gt;</span>,
   {
     <span class="self">self</span>.<span class="ident">resolve_method</span>(<span class="ident">query</span>.<span class="ident">into</span>())
   }
 
-  <span class="doccomment">/// Finds and returns the first verification `Method` matching the provided</span>
-  <span class="doccomment">///`MethodQuery`.</span>
+  <span class="doccomment">/// Returns the first verification [`method`][`Method`] with an `id` property</span>
+  <span class="doccomment">/// matching the provided `query`.</span>
   <span class="doccomment">///</span>
   <span class="doccomment">/// # Errors</span>
   <span class="doccomment">///</span>
   <span class="doccomment">/// Fails if no matching verification `Method` is found.</span>
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_resolve</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_resolve</span><span class="op">&lt;</span><span class="lifetime">&#39;query</span>, <span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Method</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>
   <span class="kw">where</span>
-    <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;query</span><span class="op">&gt;</span><span class="op">&gt;</span>,
   {
     <span class="self">self</span>.<span class="ident">resolve</span>(<span class="ident">query</span>).<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">QueryMethodNotFound</span>)
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve_bytes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>
+  <span class="doccomment">/// Returns a mutable reference to the first verification [`method`][`Method`]</span>
+  <span class="doccomment">/// with an `id` property matching the provided `query`.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;query</span>, <span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Method</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>
   <span class="kw">where</span>
-    <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;query</span><span class="op">&gt;</span><span class="op">&gt;</span>,
   {
-    <span class="self">self</span>.<span class="ident">try_resolve_bytes</span>(<span class="ident">query</span>).<span class="ident">ok</span>()
+    <span class="self">self</span>.<span class="ident">resolve_method_mut</span>(<span class="ident">query</span>.<span class="ident">into</span>())
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_resolve_bytes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>
+  <span class="doccomment">/// Returns a mutable reference to the first verification [`method`][`Method`]</span>
+  <span class="doccomment">/// with an `id` property matching the provided `query`.</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// # Errors</span>
+  <span class="doccomment">///</span>
+  <span class="doccomment">/// Fails if no matching verification `Method` is found.</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_resolve_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;query</span>, <span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Method</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>
   <span class="kw">where</span>
-    <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;query</span><span class="op">&gt;</span><span class="op">&gt;</span>,
   {
-    <span class="self">self</span>.<span class="ident">try_resolve</span>(<span class="ident">query</span>)<span class="question-mark">?</span>.<span class="ident">key_data</span>().<span class="ident">try_decode</span>()
+    <span class="self">self</span>.<span class="ident">resolve_mut</span>(<span class="ident">query</span>).<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">QueryMethodNotFound</span>)
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve_options</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SignatureOptions</span><span class="op">&gt;</span>
-  <span class="kw">where</span>
-    <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-  {
-    <span class="kw">let</span> <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">into</span>();
-    <span class="kw">let</span> <span class="ident">method</span>: <span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">try_resolve</span>(<span class="ident">query</span>)<span class="question-mark">?</span>;
-
-    <span class="prelude-val">Ok</span>(<span class="ident">SignatureOptions</span>::<span class="ident">with_purpose</span>(
-      <span class="ident">method</span>.<span class="ident">id</span>.<span class="ident">to_string</span>(),
-      <span class="ident">query</span>.<span class="ident">scope</span>.<span class="ident">as_str</span>().<span class="ident">to_string</span>(),
-    ))
+  <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve_ref</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MethodRef</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Method</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">match</span> <span class="ident">method</span> {
+      <span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="ident">method</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">method</span>),
+      <span class="ident">MethodRef</span>::<span class="ident">Refer</span>(<span class="ident">did</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">verification_method</span>.<span class="ident">query</span>(<span class="ident">did</span>.<span class="ident">as_str</span>()),
+    }
   }
 
-  <span class="kw">fn</span> <span class="ident">resolve_method</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">query</span>.<span class="ident">scope</span> {
-      <span class="ident">MethodScope</span>::<span class="ident">VerificationMethod</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="self">self</span>.<span class="ident">resolve_verification_method</span>(<span class="ident">query</span>),
-      <span class="ident">MethodScope</span>::<span class="ident">Authentication</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">authentication</span>.<span class="ident">iter</span>(),
-      <span class="ident">MethodScope</span>::<span class="ident">AssertionMethod</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">assertion_method</span>.<span class="ident">iter</span>(),
-      <span class="ident">MethodScope</span>::<span class="ident">KeyAgreement</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">key_agreement</span>.<span class="ident">iter</span>(),
-      <span class="ident">MethodScope</span>::<span class="ident">CapabilityDelegation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">capability_delegation</span>.<span class="ident">iter</span>(),
-      <span class="ident">MethodScope</span>::<span class="ident">CapabilityInvocation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">capability_invocation</span>.<span class="ident">iter</span>(),
-    };
+  <span class="kw">fn</span> <span class="ident">resolve_method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Method</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">MethodRef</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
-    <span class="ident">iter</span>
-      .<span class="ident">enumerate</span>()
-      .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">index</span>, <span class="ident">method</span>)<span class="op">|</span> <span class="ident">query</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">index</span> <span class="op">|</span><span class="op">|</span> <span class="ident">query</span>.<span class="ident">ident</span>.<span class="ident">matches</span>(<span class="ident">method</span>.<span class="ident">id</span>()))
-      .<span class="ident">and_then</span>(<span class="op">|</span>(<span class="ident">index</span>, <span class="ident">method</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">method</span>.<span class="ident">as_ref</span>() {
-        <span class="ident">MethodRef</span>::<span class="ident">Refer</span>(<span class="ident">did</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">resolve</span>(<span class="ident">did</span>.<span class="ident">fragment</span>()<span class="question-mark">?</span>),
-        <span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="ident">method</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">MethodWrap</span>::<span class="ident">new</span>(<span class="ident">method</span>, <span class="ident">index</span>, <span class="ident">query</span>.<span class="ident">scope</span>)),
-      })
+    <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_none</span>() {
+      <span class="ident">method</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">authentication</span>.<span class="ident">query</span>(<span class="ident">query</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_none</span>() {
+      <span class="ident">method</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assertion_method</span>.<span class="ident">query</span>(<span class="ident">query</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_none</span>() {
+      <span class="ident">method</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">key_agreement</span>.<span class="ident">query</span>(<span class="ident">query</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_none</span>() {
+      <span class="ident">method</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">capability_delegation</span>.<span class="ident">query</span>(<span class="ident">query</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_none</span>() {
+      <span class="ident">method</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">capability_invocation</span>.<span class="ident">query</span>(<span class="ident">query</span>);
+    }
+
+    <span class="kw">match</span> <span class="ident">method</span> {
+      <span class="prelude-val">Some</span>(<span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="ident">method</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">method</span>),
+      <span class="prelude-val">Some</span>(<span class="ident">MethodRef</span>::<span class="ident">Refer</span>(<span class="ident">did</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">verification_method</span>.<span class="ident">query</span>(<span class="ident">did</span>.<span class="ident">as_str</span>()),
+      <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">verification_method</span>.<span class="ident">query</span>(<span class="ident">query</span>),
+    }
   }
 
-  <span class="kw">fn</span> <span class="ident">resolve_verification_method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="self">self</span>
-      .<span class="ident">verification_method</span>
-      .<span class="ident">iter</span>()
-      .<span class="ident">enumerate</span>()
-      .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">index</span>, <span class="ident">method</span>)<span class="op">|</span> <span class="ident">query</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">index</span> <span class="op">|</span><span class="op">|</span> <span class="ident">query</span>.<span class="ident">ident</span>.<span class="ident">matches</span>(<span class="ident">method</span>.<span class="ident">id</span>()))
-      .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">index</span>, <span class="ident">method</span>)<span class="op">|</span> <span class="ident">MethodWrap</span>::<span class="ident">new</span>(<span class="ident">method</span>, <span class="ident">index</span>, <span class="ident">MethodScope</span>::<span class="ident">VerificationMethod</span>))
+  <span class="kw">fn</span> <span class="ident">resolve_method_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Method</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">MethodRef</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
+    <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_none</span>() {
+      <span class="ident">method</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">authentication</span>.<span class="ident">query_mut</span>(<span class="ident">query</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_none</span>() {
+      <span class="ident">method</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assertion_method</span>.<span class="ident">query_mut</span>(<span class="ident">query</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_none</span>() {
+      <span class="ident">method</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">key_agreement</span>.<span class="ident">query_mut</span>(<span class="ident">query</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_none</span>() {
+      <span class="ident">method</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">capability_delegation</span>.<span class="ident">query_mut</span>(<span class="ident">query</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_none</span>() {
+      <span class="ident">method</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">capability_invocation</span>.<span class="ident">query_mut</span>(<span class="ident">query</span>);
+    }
+
+    <span class="kw">match</span> <span class="ident">method</span> {
+      <span class="prelude-val">Some</span>(<span class="ident">MethodRef</span>::<span class="ident">Embed</span>(<span class="ident">method</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">method</span>),
+      <span class="prelude-val">Some</span>(<span class="ident">MethodRef</span>::<span class="ident">Refer</span>(<span class="ident">did</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">verification_method</span>.<span class="ident">query_mut</span>(<span class="ident">did</span>.<span class="ident">as_str</span>()),
+      <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">verification_method</span>.<span class="ident">query_mut</span>(<span class="ident">query</span>),
+    }
   }
 }
 
@@ -763,12 +880,6 @@
   }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">ResolveMethod</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Document</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">resolve_method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">MethodQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodWrap</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">Document</span>::<span class="ident">resolve_method</span>(<span class="self">self</span>, <span class="ident">query</span>)
-  }
-}
-
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
   <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">did</span>::<span class="ident">DID</span>;
@@ -777,7 +888,6 @@
   <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">Method</span>;
   <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodBuilder</span>;
   <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodData</span>;
-  <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodScope</span>;
   <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodType</span>;
 
   <span class="kw">fn</span> <span class="ident">controller</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DID</span> {
@@ -814,7 +924,7 @@
   <span class="kw">fn</span> <span class="ident">test_resolve_fragment_identifier</span>() {
     <span class="kw">let</span> <span class="ident">document</span>: <span class="ident">Document</span> <span class="op">=</span> <span class="ident">document</span>();
 
-    <span class="comment">// Resolve methods by fragment using the default scope (VerificationMethod)</span>
+    <span class="comment">// Resolve methods by fragment</span>
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">resolve</span>(<span class="string">&quot;#key-1&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>(), <span class="string">&quot;did:example:1234#key-1&quot;</span>);
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">resolve</span>(<span class="string">&quot;#key-2&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>(), <span class="string">&quot;did:example:1234#key-2&quot;</span>);
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">resolve</span>(<span class="string">&quot;#key-3&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>(), <span class="string">&quot;did:example:1234#key-3&quot;</span>);
@@ -830,35 +940,9 @@
   <span class="kw">fn</span> <span class="ident">test_resolve_index_identifier</span>() {
     <span class="kw">let</span> <span class="ident">document</span>: <span class="ident">Document</span> <span class="op">=</span> <span class="ident">document</span>();
 
-    <span class="comment">// Resolve methods by index using the default scope once again</span>
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">resolve</span>(<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>(), <span class="string">&quot;did:example:1234#key-1&quot;</span>);
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">resolve</span>(<span class="number">2</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>(), <span class="string">&quot;did:example:1234#key-3&quot;</span>);
-  }
-
-  <span class="attribute">#[<span class="ident">test</span>]</span>
-  <span class="attribute">#[<span class="ident">rustfmt</span>::<span class="ident">skip</span>]</span>
-  <span class="kw">fn</span> <span class="ident">test_resolve_explicit_scope</span>() {
-    <span class="kw">let</span> <span class="ident">document</span>: <span class="ident">Document</span> <span class="op">=</span> <span class="ident">document</span>();
-
-    <span class="comment">// Resolve methods by fragment using explicit scopes</span>
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">resolve</span>((<span class="string">&quot;#key-1&quot;</span>, <span class="ident">MethodScope</span>::<span class="ident">KeyAgreement</span>)), <span class="prelude-val">None</span>);
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">resolve</span>((<span class="string">&quot;#key-2&quot;</span>, <span class="ident">MethodScope</span>::<span class="ident">VerificationMethod</span>)).<span class="ident">unwrap</span>().<span class="ident">id</span>(), <span class="string">&quot;did:example:1234#key-2&quot;</span>);
-  }
-
-  <span class="attribute">#[<span class="ident">test</span>]</span>
-  <span class="attribute">#[<span class="ident">rustfmt</span>::<span class="ident">skip</span>]</span>
-  <span class="kw">fn</span> <span class="ident">test_resolve_reference_found</span>() {
-    <span class="kw">let</span> <span class="ident">document</span>: <span class="ident">Document</span> <span class="op">=</span> <span class="ident">document</span>();
-
-    <span class="comment">// Resolving a method reference returns the method object</span>
-    <span class="kw">let</span> <span class="ident">resolved_ref</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">resolve</span>((<span class="string">&quot;#key-3&quot;</span>, <span class="ident">MethodScope</span>::<span class="ident">Authentication</span>)).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">resolved_obj</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">resolve</span>((<span class="string">&quot;#key-3&quot;</span>, <span class="ident">MethodScope</span>::<span class="ident">VerificationMethod</span>)).<span class="ident">unwrap</span>();
-
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resolved_ref</span>.<span class="ident">index</span>(), <span class="number">2</span>);
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">resolved_ref</span>.<span class="ident">scope</span>(), <span class="ident">MethodScope</span>::<span class="ident">VerificationMethod</span>);
-
-    <span class="comment">// The resolved methods should be identical</span>
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">resolved_ref</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">resolved_obj</span>);
+    <span class="comment">// Resolve methods by index</span>
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">methods</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>(), <span class="string">&quot;did:example:1234#key-1&quot;</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">methods</span>().<span class="ident">nth</span>(<span class="number">2</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>(), <span class="string">&quot;did:example:1234#key-3&quot;</span>);
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -867,7 +951,7 @@
     <span class="kw">let</span> <span class="ident">document</span>: <span class="ident">Document</span> <span class="op">=</span> <span class="ident">document</span>();
 
     <span class="comment">// Resolving an existing reference to a missing method returns None</span>
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">resolve</span>((<span class="string">&quot;#key-4&quot;</span>, <span class="ident">MethodScope</span>::<span class="ident">KeyAgreement</span>)), <span class="prelude-val">None</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">document</span>.<span class="ident">resolve</span>(<span class="string">&quot;#key-4&quot;</span>), <span class="prelude-val">None</span>);
   }
 }
 </pre></div>

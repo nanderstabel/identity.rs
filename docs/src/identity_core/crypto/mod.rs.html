@@ -25,30 +25,44 @@
 <span id="22">22</span>
 <span id="23">23</span>
 <span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
 
 <span class="doccomment">//! Cryptographic Utilities</span>
 
+<span class="kw">mod</span> <span class="ident">ed25519</span>;
 <span class="kw">mod</span> <span class="ident">key</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">merkle_tree</span>;
 <span class="kw">mod</span> <span class="ident">proof</span>;
 <span class="kw">mod</span> <span class="ident">signature</span>;
 
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">merkle_key</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">merkle_tree</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">key</span>::<span class="ident">KeyCollection</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">key</span>::<span class="ident">KeyPair</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">key</span>::<span class="ident">KeyRef</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">key</span>::<span class="ident">KeyType</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">key</span>::<span class="ident">PublicKey</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">key</span>::<span class="ident">SecretKey</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">proof</span>::<span class="ident">JcsEd25519Signature2020</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">SetSignature</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">SigName</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">SigSign</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">SigVerify</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">Signature</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">SignatureData</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">SignatureOptions</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">SignatureName</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">SignatureSign</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">SignatureValue</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">SignatureVerify</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">TrySignature</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">signature</span>::<span class="ident">TrySignatureMut</span>;
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ed25519</span>::<span class="ident">ed25519_sign</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ed25519</span>::<span class="ident">ed25519_verify</span>;
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "identity_core";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

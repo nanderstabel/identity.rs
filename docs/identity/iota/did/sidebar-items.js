@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["DID","A DID URL adhering to the IOTA DID method specification."],["Document","A DID Document adhering to the IOTA DID method specification."],["DocumentDiff",""],["Method",""],["Properties","Additional properties stored in an IOTA DID Document."]],"type":[["Signer",""],["Verifier",""]]});

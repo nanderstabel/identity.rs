@@ -18,25 +18,23 @@
 <span id="15">15</span>
 <span id="16">16</span>
 <span id="17">17</span>
-<span id="18">18</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">module_inception</span>)]</span>
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">mod</span> <span class="ident">macros</span>;
 
-<span class="kw">mod</span> <span class="ident">did</span>;
-<span class="kw">mod</span> <span class="ident">did_segments</span>;
-<span class="kw">mod</span> <span class="ident">document</span>;
-<span class="kw">mod</span> <span class="ident">document_builder</span>;
-<span class="kw">mod</span> <span class="ident">document_diff</span>;
-<span class="kw">mod</span> <span class="ident">document_properties</span>;
+<span class="kw">mod</span> <span class="ident">doc</span>;
+<span class="kw">mod</span> <span class="ident">url</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">did</span>::<span class="ident">IotaDID</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">did_segments</span>::<span class="ident">Segments</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">document</span>::<span class="ident">IotaDocument</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">document_builder</span>::<span class="ident">IotaDocumentBuilder</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">document_diff</span>::<span class="ident">DocumentDiff</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">document_properties</span>::<span class="ident">Properties</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">doc</span>::<span class="ident">Document</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">doc</span>::<span class="ident">DocumentDiff</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">doc</span>::<span class="ident">Method</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">doc</span>::<span class="ident">Properties</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">doc</span>::<span class="ident">Signer</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">doc</span>::<span class="ident">Verifier</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">url</span>::<span class="ident">Segments</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">url</span>::<span class="ident">DID</span>;
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "identity_iota";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

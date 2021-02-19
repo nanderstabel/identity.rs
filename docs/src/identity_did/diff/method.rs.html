@@ -160,10 +160,12 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
+<span id="160">160</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
 
+<span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">common</span>::<span class="ident">Object</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">diff</span>::<span class="ident">Diff</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">diff</span>::<span class="ident">DiffString</span>;
 <span class="kw">use</span> <span class="ident">identity_core</span>::<span class="ident">diff</span>::<span class="ident">Error</span>;
@@ -178,7 +180,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">verification</span>::<span class="ident">MethodType</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DiffMethod</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> ()<span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DiffMethod</span><span class="op">&lt;</span><span class="ident">T</span> <span class="op">=</span> <span class="ident">Object</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">Diff</span>,
 {

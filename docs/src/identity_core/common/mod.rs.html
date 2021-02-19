@@ -18,18 +18,22 @@
 <span id="15">15</span>
 <span id="16">16</span>
 <span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2020-2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
 
 <span class="doccomment">//! Definitions of common types.</span>
 
+<span class="kw">mod</span> <span class="ident">bitset</span>;
 <span class="kw">mod</span> <span class="ident">context</span>;
 <span class="kw">mod</span> <span class="ident">object</span>;
 <span class="kw">mod</span> <span class="ident">one_or_many</span>;
 <span class="kw">mod</span> <span class="ident">timestamp</span>;
 <span class="kw">mod</span> <span class="ident">url</span>;
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">bitset</span>::<span class="ident">BitSet</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">context</span>::<span class="ident">Context</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">object</span>::<span class="ident">Object</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">object</span>::<span class="ident">Value</span>;

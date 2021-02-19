@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["generate_ed25519","Generates a new ed25519 [`KeyPair`]."]]});
+initSidebarItems({"fn":[["generate_ed25519","Generates a new pair of public/secret ed25519 keys."],["generate_ed25519_list","Generates a list of public/secret ed25519 keys."]]});
