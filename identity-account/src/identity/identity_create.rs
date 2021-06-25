@@ -4,7 +4,7 @@
 use identity_core::crypto::KeyType;
 
 /// Configuration used to create a new Identity.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct IdentityCreate {
   pub(crate) key_type: KeyType,
   pub(crate) name: Option<String>,
