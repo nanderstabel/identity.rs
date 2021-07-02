@@ -18,6 +18,7 @@ identity-core = { version = "=0.3.0", path = "../identity-core" }
 identity-credential = { version = "=0.3.0", path = "../identity-credential" }
 identity-did = { version = "=0.3.0", path = "../identity-did" }
 identity-iota = { version = "=0.3.0", path = "../identity-iota", default-features = false }
+identity-actor = { path = "../identity-actor", default-features = false }
 
 [dev-dependencies]
 criterion = { version = "0.3" }
@@ -34,10 +35,10 @@ default = ["async"]
 async = ["identity-iota/async"]
 
 # Enables Web Assembly support
-wasm = ["identity-iota/wasm", "identity-comm/wasm"]
+wasm = ["identity-iota/wasm", "identity-comm/wasm", "identity-actor/wasm"]
 
 # Enables support for secure storage of DID Documents
-account = ["identity-account"]
+account = ["identity-account", "identity-actor/account"]
 
 # Enables support for DID Communication
 comm = ["identity-comm"]
