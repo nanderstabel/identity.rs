@@ -14,6 +14,7 @@ mod macros;
 #[macro_use]
 pub mod error;
 
+pub mod actor;
 pub mod credential;
 pub mod crypto;
 pub mod message;
