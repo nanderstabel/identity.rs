@@ -9,6 +9,7 @@ repository = "https://github.com/iotaledger/identity.rs"
 license = "Apache-2.0"
 keywords = ["iota", "tangle", "identity", "wasm"]
 homepage = "https://www.iota.org"
+resolver = "2"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -27,6 +28,12 @@ version = "=0.3.0"
 path = "../../identity"
 default-features = false
 features = ["comm", "wasm"]
+
+[dependencies.libp2p]
+git = "https://github.com/libp2p/rust-libp2p"
+version = "0.39"
+default-features = false
+features = ["wasm-ext", "websocket", "wasm-ext-websocket"]
 
 [dev-dependencies]
 wasm-bindgen-test = { version = "0.3" }
