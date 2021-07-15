@@ -8,7 +8,8 @@ const { createVC } = require('./create_vc');
 const { createVP } = require('./create_vp');
 const { revokeVC } = require('./revocation');
 const { merkleKey } = require('./merkle_key');
-const { CLIENT_CONFIG } = require('./config')
+const { CLIENT_CONFIG } = require('./config');
+const { actor } = require('./actor');
 
 async function main() {
     //Check if an example is mentioned
@@ -33,6 +34,8 @@ async function main() {
             return await createVP(CLIENT_CONFIG);
         case 'merkle_key':
             return await merkleKey(CLIENT_CONFIG);
+        case 'actor':
+            return await actor();
         case 'all':
             console.log(">>> Run All Examples");
 
