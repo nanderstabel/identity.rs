@@ -6,6 +6,7 @@ import { resolveIdentity } from "./resolve.js";
 import { createVP } from "./create_vp.js";
 import { revoke } from "./revocation.js";
 import { merkleKey } from "./merkle_key.js";
+import { actor } from "./actor.js";
 
 await initIdentity();
 const clientConfig = defaultClientConfig();
@@ -43,4 +44,8 @@ document
 //handle merkle key on click event
 document
     .querySelector("#merkle_key_btn")
-    .addEventListener("click", () => merkleKey(clientConfig));
+    .addEventListener("click", () => merkleKey(CLIENT_CONFIG));
+
+document
+    .querySelector("#actor_btn")
+    .addEventListener("click", () => actor());
