@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Method","A DID Document Verification Method"]]});

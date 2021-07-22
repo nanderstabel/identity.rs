@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["MetaDocument","A resolved [`Document`] and associated [`DocumentMetadata`]."]],"trait":[["ResolverMethod","A trait for generic DID Resolvers."]]});

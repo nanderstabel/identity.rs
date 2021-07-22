@@ -1,5 +1,0 @@
-(function() {var implementors = {};
-implementors["identity_core"] = [{"text":"impl&lt;T&gt; AsRef&lt;[T]&gt; for OneOrMany&lt;T&gt;","synthetic":false,"types":[]},{"text":"impl AsRef&lt;[u8]&gt; for PublicKey","synthetic":false,"types":[]},{"text":"impl AsRef&lt;[u8]&gt; for SecretKey","synthetic":false,"types":[]}];
-implementors["identity_did"] = [{"text":"impl&lt;T&gt; AsRef&lt;DID&gt; for Service&lt;T&gt;","synthetic":false,"types":[]},{"text":"impl&lt;T&gt; AsRef&lt;T&gt; for DIDKey&lt;T&gt;","synthetic":false,"types":[]},{"text":"impl&lt;T&gt; AsRef&lt;DID&gt; for Method&lt;T&gt;","synthetic":false,"types":[]},{"text":"impl&lt;T&gt; AsRef&lt;DID&gt; for MethodRef&lt;T&gt;","synthetic":false,"types":[]}];
-implementors["identity_iota"] = [{"text":"impl AsRef&lt;DID&gt; for DID","synthetic":false,"types":[]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

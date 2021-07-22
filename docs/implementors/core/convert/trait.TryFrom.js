@@ -1,5 +1,0 @@
-(function() {var implementors = {};
-implementors["identity_core"] = [{"text":"impl&lt;'_&gt; TryFrom&lt;&amp;'_ str&gt; for Timestamp","synthetic":false,"types":[]},{"text":"impl TryFrom&lt;String&gt; for Timestamp","synthetic":false,"types":[]}];
-implementors["identity_did"] = [{"text":"impl&lt;T&gt; TryFrom&lt;Vec&lt;T&gt;&gt; for OrderedSet&lt;T&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: PartialEq,&nbsp;</span>","synthetic":false,"types":[]}];
-implementors["identity_iota"] = [{"text":"impl TryFrom&lt;Document&lt;BTreeMap&lt;String, Value&gt;, BTreeMap&lt;String, Value&gt;, BTreeMap&lt;String, Value&gt;&gt;&gt; for Document","synthetic":false,"types":[]},{"text":"impl TryFrom&lt;Method&lt;BTreeMap&lt;String, Value&gt;&gt;&gt; for Method","synthetic":false,"types":[]},{"text":"impl TryFrom&lt;DID&gt; for DID","synthetic":false,"types":[]},{"text":"impl&lt;'a&gt; TryFrom&lt;&amp;'a DID&gt; for &amp;'a DID","synthetic":false,"types":[]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

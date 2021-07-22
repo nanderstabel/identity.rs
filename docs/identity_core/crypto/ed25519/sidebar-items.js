@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["PUBLIC_KEY_LEN",""],["SECRET_KEY_LEN",""],["SIGNATURE_LEN",""]],"fn":[["ed25519_sign",""],["ed25519_verify",""],["parse_public",""],["parse_secret",""],["parse_signature",""]]});

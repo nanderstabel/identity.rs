@@ -1,0 +1,1 @@
+(self.webpackChunkdoc_ops=self.webpackChunkdoc_ops||[]).push([[216],{7563:function(s){"use strict";s.exports=JSON.parse('{"allTagsPath":"/identity.rs/blog/tags","slug":"did-comm","name":"did comm","count":1,"permalink":"/identity.rs/blog/tags/did-comm"}')}}]);

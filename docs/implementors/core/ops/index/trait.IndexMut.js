@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["identity_core"] = [{"text":"impl&lt;I&gt; IndexMut&lt;I&gt; for KeyCollection <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;I: SliceIndex&lt;[PublicKey]&gt;,&nbsp;</span>","synthetic":false,"types":[]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

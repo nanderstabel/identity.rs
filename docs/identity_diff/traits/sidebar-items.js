@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["Diff","The primary `Diff` Trait type."]]});

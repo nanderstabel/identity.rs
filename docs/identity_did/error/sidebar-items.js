@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Error","This type represents all possible errors that can occur in the library."]],"type":[["Result","Alias for a `Result` with the error type [`Error`]."]]});

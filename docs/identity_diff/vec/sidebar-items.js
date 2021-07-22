@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["InnerVec","The Inner value for the `DiffVec` type.  Is `untagged` by default for `serde`."]],"struct":[["DiffVec","The Diff Type for `Vec`."]]});

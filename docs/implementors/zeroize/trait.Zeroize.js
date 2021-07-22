@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["identity_core"] = [{"text":"impl Zeroize for PublicKey","synthetic":false,"types":[]},{"text":"impl Zeroize for SecretKey","synthetic":false,"types":[]},{"text":"impl Zeroize for KeyPair","synthetic":false,"types":[]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

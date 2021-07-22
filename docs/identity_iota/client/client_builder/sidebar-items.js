@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["ClientBuilder","A `ClientBuilder` is used to generated a customized `Client`."]]});

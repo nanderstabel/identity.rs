@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Issuer","An identifier representing the issuer of a `Credential`."]],"struct":[["IssuerData","A `Credential` issuer in object form."]]});

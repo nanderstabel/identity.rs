@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["__log2c",""],["__pow2",""],["__split_pow2",""],["compute_merkle_proof","Generate a proof-of-inclusion for the leaf node at the specified `index`."],["compute_merkle_root","Compute the Merkle root hash for the given slice of `leaves`."]]});

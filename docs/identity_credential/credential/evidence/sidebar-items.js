@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Evidence","Information used to increase confidence in the claims of a `Credential`"]]});

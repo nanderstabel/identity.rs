@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["PrimaryResource","A primary resource returned from a DID URL dereferencing process."],["Resource","A resource returned from a DID URL dereferencing process."],["SecondaryResource","A secondary resource returned from a DID URL dereferencing process."]]});

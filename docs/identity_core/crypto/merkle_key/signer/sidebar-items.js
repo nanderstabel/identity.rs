@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Signer","A signature creation helper for Merkle Key Collection Signatures."]],"type":[["DynSigner","An alias for a [`Signer`] with a dynamic [`signature`][`SignatureSign`] type."]]});

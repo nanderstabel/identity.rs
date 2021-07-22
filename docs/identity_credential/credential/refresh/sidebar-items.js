@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Refresh","Information used to refresh or assert the status of a `Credential`."]]});

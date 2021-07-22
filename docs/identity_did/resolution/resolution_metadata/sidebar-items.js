@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["ResolutionMetadata","Metadata associated with a DID resolution process."]]});

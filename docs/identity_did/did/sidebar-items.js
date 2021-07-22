@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Error",""]],"macro":[["did","A helper macro to assist with the construction of [`DID`]s."]],"struct":[["DID","A Decentralized Identifier (DID)."]],"type":[["Result",""]]});

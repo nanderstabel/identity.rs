@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["bundles_from_trytes",""],["cmp_transaction",""],["cmp_trits",""],["create_address_from_trits",""],["encode_trits",""],["to_tryte",""],["trytes_to_utf8",""],["txn_hash",""],["txn_hash_trytes",""],["utf8_to_trytes",""]]});

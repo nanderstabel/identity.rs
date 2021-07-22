@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["KeyPair","A convenient type for representing a pair of cryptographic keys."]]});

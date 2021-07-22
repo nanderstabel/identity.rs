@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["MerkleKey","Common utilities for working with Merkle Key Collection Signatures."]]});

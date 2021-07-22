@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["PREFIX_LEAF","Leaf domain separation prefix."],["PREFIX_NODE","Node domain separation prefix."]],"trait":[["Digest","The `Digest` trait specifies an interface common for digest functions."],["DigestExt","An extension of the [`Digest`] trait for Merkle tree construction."]],"type":[["Output","Output of a [`Digest`] function"]]});

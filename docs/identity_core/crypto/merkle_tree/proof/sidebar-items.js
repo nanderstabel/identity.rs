@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Proof","An Merkle tree inclusion proof that allows proving the existence of a particular leaf in a Merkle tree."]]});

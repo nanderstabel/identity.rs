@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["DiffF32",""],["DiffF64",""],["Diffbool",""],["Diffchar",""],["Diffi128",""],["Diffi16",""],["Diffi32",""],["Diffi64",""],["Diffi8",""],["DiffiSize",""],["Diffu128",""],["Diffu16",""],["Diffu32",""],["Diffu64",""],["Diffu8",""],["DiffuSize",""],["Diffunit",""]]});

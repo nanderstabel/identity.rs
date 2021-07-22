@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["__dbg_transactions",""],["__dbg_trytes",""],["create_transfer",""]],"struct":[["Client",""]]});

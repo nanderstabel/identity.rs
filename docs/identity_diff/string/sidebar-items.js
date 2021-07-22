@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["DiffString","The Diff Type for a `String` type."]]});

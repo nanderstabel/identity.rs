@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["dereference","Dereferences a DID URL into a primary or secondary resource."],["dereference_document",""],["dereference_primary",""],["resolve","Resolves a DID into a DID Document by using the \"Read\" operation of the DID method."],["service_endpoint_ctor",""]],"struct":[["DerefContext",""],["ResolveContext",""]]});

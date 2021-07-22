@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["SIGNATURE_NAME",""]],"struct":[["JcsEd25519Signature2020","An implementation of the JCS Ed25519 Signature 2020 signature suite for Linked Data Proofs."]]});

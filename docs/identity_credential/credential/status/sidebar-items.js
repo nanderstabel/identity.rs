@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Status","Information used to determine the current status of a `Credential`."]]});

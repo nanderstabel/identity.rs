@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Properties","Additional properties stored in an IOTA DID Document."]]});

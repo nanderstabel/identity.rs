@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["DiffValue","The Diff Type for `serde_json::Value`."]]});
