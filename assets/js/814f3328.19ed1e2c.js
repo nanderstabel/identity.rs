@@ -1,0 +1,1 @@
+(self.webpackChunkdoc_ops=self.webpackChunkdoc_ops||[]).push([[2535],{6353:function(e){"use strict";e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"IOTA Identity Beta Release","permalink":"/blog/IOTA Identity Beta Release"}]}')}}]);

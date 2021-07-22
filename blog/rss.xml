@@ -2,14 +2,14 @@
 <rss version="2.0">
     <channel>
         <title>IOTA IDENTITY Blog</title>
-        <link>https://identity-docs.iota.org/identity.rs/blog</link>
+        <link>https://identity-docs.iota.org/blog</link>
         <description>IOTA IDENTITY Blog</description>
         <lastBuildDate>Thu, 22 Jul 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <item>
             <title><![CDATA[IOTA Identity Beta Release]]></title>
-            <link>https://identity-docs.iota.org/identity.rs/blog/IOTA Identity Beta Release</link>
+            <link>https://identity-docs.iota.org/blog/IOTA Identity Beta Release</link>
             <guid>IOTA Identity Beta Release</guid>
             <pubDate>Thu, 22 Jul 2021 00:00:00 GMT</pubDate>
             <description><![CDATA[We’re thrilled to announce the release of IOTA Identity Beta. This marks the framework as “feature complete” on the road to a 1.0 version. It includes several major milestones such as the upgrade to Chrysalis Phase 2, a simplified higher-level API including Stronghold support and an initial implementation of the DID Communications messages based on the Decentralized Identity Foundation (DIF) standard and Hyperledger Aries work.]]></description>
