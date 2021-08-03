@@ -56,8 +56,9 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
-    "node-fetch": "^2.6.0",
     "multiaddr": "^9.0.2",
-    "peer-id": "^0.14.8"
+    "node-fetch": "^2.6.0",
+    "peer-id": "^0.14.8",
+    "ws": "^6.2.2"
   }
 }
