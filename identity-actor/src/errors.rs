@@ -3,7 +3,7 @@ use p2p::{ListenErr, TransportErr};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, strum::IntoStaticStr)]
 /// Error type of the identity actor crate.
 pub enum Error {
   #[error("Lock In Use")]
@@ -29,7 +29,7 @@ impl From<ListenErr> for Error {
 }
 
 /// Errors that can occur during [Actor::send_request] calls.
-#[derive(Debug, PartialEq, thiserror::Error)]
+#[derive(Debug, PartialEq, thiserror::Error, strum::IntoStaticStr)]
 pub enum SendError {
   #[error("{0}")]
   OutboundFailure(#[from] p2p::OutboundFailure),

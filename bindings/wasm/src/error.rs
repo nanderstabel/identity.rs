@@ -69,7 +69,9 @@ impl_wasm_error_from!(
   identity::core::Error,
   identity::credential::Error,
   identity::did::Error,
-  identity::iota::Error
+  identity::iota::Error,
+  identity::actor::Error,
+  identity::actor::SendError
 );
 
 impl From<serde_json::Error> for WasmError<'_> {

@@ -27,6 +27,7 @@ libp2p = { version = "0.39", default-features = false, features = [
 ] }
 uuid = { version = "0.8", features = ["v4"] }
 log = "0.4"
+strum = { version = "0.21", features = ["derive"] }
 
 [dependencies.stronghold-p2p-refactored]
 git = "https://github.com/iotaledger/stronghold.rs"
