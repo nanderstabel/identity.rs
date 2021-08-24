@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://identity-docs.iota.org/blog</id>
+    <id>https://identity.docs.iota.org/blog</id>
     <title>IOTA IDENTITY Blog</title>
     <updated>2021-07-22T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://identity-docs.iota.org/blog"/>
+    <link rel="alternate" href="https://identity.docs.iota.org/blog"/>
     <subtitle>IOTA IDENTITY Blog</subtitle>
-    <icon>https://identity-docs.iota.org/img/favicon.ico</icon>
+    <icon>https://identity.docs.iota.org/img/favicon.ico</icon>
     <entry>
         <title type="html"><![CDATA[IOTA Identity Beta Release]]></title>
         <id>IOTA Identity Beta Release</id>
-        <link href="https://identity-docs.iota.org/blog/IOTA Identity Beta Release"/>
+        <link href="https://identity.docs.iota.org/blog/IOTA Identity Beta Release"/>
         <updated>2021-07-22T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[We’re thrilled to announce the release of IOTA Identity Beta. This marks the framework as “feature complete” on the road to a 1.0 version. It includes several major milestones such as the upgrade to Chrysalis Phase 2, a simplified higher-level API including Stronghold support and an initial implementation of the DID Communications messages based on the Decentralized Identity Foundation (DIF) standard and Hyperledger Aries work.]]></summary>
     </entry>
