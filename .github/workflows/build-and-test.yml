@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - test/brew-update
   pull_request:
     branches:
       - main
@@ -29,14 +30,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        # os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os: [ macos-latest ]
         include:
-          - os: ubuntu-latest
-            sccache-path: /home/runner/.cache/sccache
+          # - os: ubuntu-latest
+          #   sccache-path: /home/runner/.cache/sccache
           - os: macos-latest
             sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
-          - os: windows-latest
-            sccache-path: C:\\Users\\runner\\AppData\\Local\\Mozilla\\sccache\\cache
+          # - os: windows-latest
+          #   sccache-path: C:\\Users\\runner\\AppData\\Local\\Mozilla\\sccache\\cache
     env:
       SCCACHE_DIR: ${{ matrix.sccache-path }}
 
