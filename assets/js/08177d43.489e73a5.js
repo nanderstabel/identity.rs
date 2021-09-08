@@ -1,0 +1,1 @@
+(self.webpackChunkdoc_ops=self.webpackChunkdoc_ops||[]).push([[1689],{3638:function(s){"use strict";s.exports=JSON.parse('{"allTagsPath":"/blog/tags","slug":"/blog/tags/communications","name":"Communications","count":1,"permalink":"/blog/tags/communications"}')}}]);
