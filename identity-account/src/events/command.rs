@@ -30,10 +30,11 @@ use crate::types::MethodSecret;
 // Supported authentication method types.
 const AUTH_TYPES: &[MethodType] = &[MethodType::Ed25519VerificationKey2018];
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Command {
   CreateIdentity {
     network: Option<String>,
+    #[serde(skip)]
     method_secret: Option<MethodSecret>,
     authentication: MethodType,
   },
@@ -41,6 +42,7 @@ pub enum Command {
     scope: MethodScope,
     type_: MethodType,
     fragment: String,
+    #[serde(skip)]
     method_secret: Option<MethodSecret>,
   },
   DeleteMethod {

@@ -11,6 +11,7 @@ pub struct IdentityCreate {
   pub(crate) key_type: KeyType,
   pub(crate) name: Option<String>,
   pub(crate) network: Option<String>,
+  #[serde(skip)]
   pub(crate) method_secret: Option<MethodSecret>,
 }
 
