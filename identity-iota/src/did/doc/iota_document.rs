@@ -7,12 +7,15 @@ use core::fmt::Debug;
 use core::fmt::Display;
 use core::fmt::Formatter;
 use core::fmt::Result as FmtResult;
+
+use serde::Serialize;
+
 use identity_core::common::Object;
 use identity_core::common::Timestamp;
 use identity_core::common::Url;
 use identity_core::convert::SerdeInto;
 use identity_core::crypto::KeyPair;
-use identity_core::crypto::SecretKey;
+use identity_core::crypto::PrivateKey;
 use identity_core::crypto::SetSignature;
 use identity_core::crypto::Signature;
 use identity_core::crypto::TrySignature;
@@ -31,7 +34,6 @@ use identity_did::verification::MethodType;
 use identity_did::verification::MethodUriType;
 use identity_did::verification::TryMethod;
 use identity_did::verification::VerificationMethod;
-use serde::Serialize;
 
 use crate::did::DocumentDiff;
 use crate::did::IotaDID;
@@ -418,16 +420,16 @@ impl IotaDocument {
   ///
   /// Fails if an unsupported verification method is used, document
   /// serialization fails, or the signature operation fails.
-  pub fn sign(&mut self, secret: &SecretKey) -> Result<()> {
+  pub fn sign(&mut self, private_key: &PrivateKey) -> Result<()> {
     let key: String = self.authentication_id().to_string();
 
-    self.document.sign_this(&key, secret).map_err(Into::into)
+    self.document.sign_this(&key, private_key).map_err(Into::into)
   }
 
   /// Creates a new [`DocumentSigner`] that can be used to create digital
   /// signatures from verification methods in this DID Document.
-  pub fn signer<'base>(&'base self, secret: &'base SecretKey) -> Signer<'base, 'base, 'base> {
-    self.document.signer(secret)
+  pub fn signer<'base>(&'base self, private_key: &'base PrivateKey) -> Signer<'base, 'base, 'base> {
+    self.document.signer(private_key)
   }
 
   /// Verifies the signature of the DID document.
@@ -452,13 +454,13 @@ impl IotaDocument {
   ///
   /// Fails if an unsupported verification method is used, document
   /// serialization fails, or the signature operation fails.
-  pub fn sign_data<X>(&self, data: &mut X, secret: &SecretKey) -> Result<()>
+  pub fn sign_data<X>(&self, data: &mut X, private_key: &PrivateKey) -> Result<()>
   where
     X: Serialize + SetSignature + TryMethod,
   {
     self
       .document
-      .signer(secret)
+      .signer(private_key)
       .method(self.authentication_id())
       .sign(data)
       .map_err(Into::into)
@@ -487,15 +489,15 @@ impl IotaDocument {
   /// Creates a `DocumentDiff` representing the changes between `self` and `other`.
   ///
   /// The returned `DocumentDiff` will have a digital signature created using the
-  /// default authentication method and `secret`.
+  /// default authentication method and `private_key`.
   ///
   /// # Errors
   ///
   /// Fails if the diff operation or signature operation fails.
-  pub fn diff(&self, other: &Self, message: MessageId, secret: &SecretKey) -> Result<DocumentDiff> {
-    let mut diff: DocumentDiff = DocumentDiff::new(self, other, message)?;
+  pub fn diff(&self, other: &Self, message_id: MessageId, private_key: &PrivateKey) -> Result<DocumentDiff> {
+    let mut diff: DocumentDiff = DocumentDiff::new(self, other, message_id)?;
 
-    self.sign_data(&mut diff, secret)?;
+    self.sign_data(&mut diff, private_key)?;
 
     Ok(diff)
   }
@@ -520,8 +522,21 @@ impl IotaDocument {
   // Publishing
   // ===========================================================================
 
-  /// Returns the Tangle address of the DID diff chain.
-  pub fn diff_address(message_id: &MessageId) -> Result<String> {
+  /// Returns the Tangle index of the integration chain for this DID.
+  ///
+  /// This is simply the tag segment of the [`IotaDID`].
+  /// E.g.
+  /// For an [`IotaDocument`] `doc` with DID: did:iota:1234567890abcdefghijklmnopqrstuvxyzABCDEFGHI,
+  /// `doc.integration_index()` == "1234567890abcdefghijklmnopqrstuvxyzABCDEFGHI"
+  pub fn integration_index(&self) -> &str {
+    self.did().tag()
+  }
+
+  /// Returns the Tangle index of the DID diff chain. This should only be called on messages
+  /// from documents published on the integration chain.
+  ///
+  /// This is the Base58-btc encoded SHA-256 digest of the hex-encoded message id.
+  pub fn diff_index(message_id: &MessageId) -> Result<String> {
     if message_id.is_null() {
       return Err(Error::InvalidDocumentMessageId);
     }
@@ -585,6 +600,10 @@ impl SetSignature for IotaDocument {
 }
 
 impl TangleRef for IotaDocument {
+  fn did(&self) -> &IotaDID {
+    self.id()
+  }
+
   fn message_id(&self) -> &MessageId {
     &self.message_id
   }
@@ -604,17 +623,16 @@ impl TangleRef for IotaDocument {
 
 #[cfg(test)]
 mod tests {
+  use std::collections::BTreeMap;
+  use std::str::FromStr;
 
-  use crate::did::doc::IotaDocument;
-  use crate::did::doc::IotaVerificationMethod;
-  use crate::did::url::IotaDID;
   use identity_core::common::Value;
   use identity_core::convert::FromJson;
   use identity_core::convert::SerdeInto;
   use identity_core::crypto::KeyPair;
   use identity_core::crypto::KeyType;
+  use identity_core::crypto::PrivateKey;
   use identity_core::crypto::PublicKey;
-  use identity_core::crypto::SecretKey;
   use identity_did::did::DID;
   use identity_did::document::CoreDocument;
   use identity_did::service::Service;
@@ -622,12 +640,16 @@ mod tests {
   use identity_did::verification::MethodRef;
   use identity_did::verification::MethodType;
   use identity_did::verification::VerificationMethod;
-  use std::collections::BTreeMap;
+
+  use crate::did::doc::IotaDocument;
+  use crate::did::doc::IotaVerificationMethod;
+  use crate::did::url::IotaDID;
+  use crate::tangle::MessageId;
 
   const DID_ID: &str = "did:iota:HGE4tecHWL2YiZv5qAGtH7gaeQcaz2Z1CR15GWmMjY1M";
   const DID_AUTH: &str = "did:iota:HGE4tecHWL2YiZv5qAGtH7gaeQcaz2Z1CR15GWmMjY1M#authentication";
-  const DID_TESTNET_ID: &str = "did:iota:test:HGE4tecHWL2YiZv5qAGtH7gaeQcaz2Z1CR15GWmMjY1M";
-  const DID_TESTNET_AUTH: &str = "did:iota:test:HGE4tecHWL2YiZv5qAGtH7gaeQcaz2Z1CR15GWmMjY1M#authentication";
+  const DID_DEVNET_ID: &str = "did:iota:dev:HGE4tecHWL2YiZv5qAGtH7gaeQcaz2Z1CR15GWmMjY1M";
+  const DID_DEVNET_AUTH: &str = "did:iota:dev:HGE4tecHWL2YiZv5qAGtH7gaeQcaz2Z1CR15GWmMjY1M#authentication";
 
   fn valid_did() -> DID {
     DID_ID.parse().unwrap()
@@ -685,7 +707,7 @@ mod tests {
   }
 
   fn generate_testkey() -> KeyPair {
-    let secret_key: Vec<u8> = vec![
+    let private_key: Vec<u8> = vec![
       40, 185, 109, 70, 134, 119, 123, 37, 190, 254, 232, 186, 106, 48, 213, 63, 133, 223, 167, 126, 159, 43, 178, 4,
       190, 217, 52, 66, 92, 63, 69, 84,
     ];
@@ -696,7 +718,7 @@ mod tests {
     KeyPair::from((
       KeyType::Ed25519,
       PublicKey::from(public_key),
-      SecretKey::from(secret_key),
+      PrivateKey::from(private_key),
     ))
   }
 
@@ -714,8 +736,8 @@ mod tests {
   }
 
   fn compare_document_testnet(document: &IotaDocument) {
-    assert_eq!(document.id().to_string(), DID_TESTNET_ID);
-    assert_eq!(document.authentication_id(), DID_TESTNET_AUTH);
+    assert_eq!(document.id().to_string(), DID_DEVNET_ID);
+    assert_eq!(document.authentication_id(), DID_DEVNET_AUTH);
     assert_eq!(
       document.authentication().key_type(),
       MethodType::Ed25519VerificationKey2018
@@ -905,7 +927,7 @@ mod tests {
   fn test_from_keypair_with_network() {
     //from keypair
     let keypair: KeyPair = generate_testkey();
-    let document: IotaDocument = IotaDocument::from_keypair_with_network(&keypair, "test").unwrap();
+    let document: IotaDocument = IotaDocument::from_keypair_with_network(&keypair, "dev").unwrap();
     compare_document_testnet(&document);
   }
 
@@ -982,7 +1004,7 @@ mod tests {
     let document2: IotaDocument = IotaDocument::from_json(&json_doc).unwrap();
     assert_eq!(document, document2);
 
-    assert!(document.sign(keypair.secret()).is_ok());
+    assert!(document.sign(keypair.private()).is_ok());
 
     let json_doc: String = document.to_string();
     let document2: IotaDocument = IotaDocument::from_json(&json_doc).unwrap();
@@ -1020,14 +1042,32 @@ mod tests {
       .ok();
     assert_eq!(0, document.service().len());
   }
+
   #[test]
   fn test_relative_method_uri() {
     let keypair: KeyPair = generate_testkey();
     let mut document: IotaDocument = IotaDocument::from_keypair(&keypair).unwrap();
 
     assert!(document.proof().is_none());
-    assert!(document.sign(keypair.secret()).is_ok());
+    assert!(document.sign(keypair.private()).is_ok());
 
     assert_eq!(document.proof().unwrap().verification_method(), "#authentication");
+  }
+
+  #[test]
+  fn test_integration_index() {
+    let keypair: KeyPair = generate_testkey();
+    let document: IotaDocument = IotaDocument::from_keypair(&keypair).unwrap();
+
+    // The integration chain index should just be the tag of the DID
+    let tag = document.id().tag();
+    assert_eq!(document.integration_index(), tag);
+  }
+
+  #[test]
+  fn test_diff_index() {
+    let message_id = MessageId::from_str("c38d6c541f98f780ddca6ad648ff0e073cd86c4dee248149c2de789d84d42132").unwrap();
+    let diff_index = IotaDocument::diff_index(&message_id).expect("failed to generate diff_index");
+    assert_eq!(diff_index, "2g45GsCAmkvQfcrHGUgqwQJLbYY3Gic8f23wf71sGGGP");
   }
 }

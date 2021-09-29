@@ -3,12 +3,12 @@ name = "identity-iota"
 version = "0.3.0"
 authors = ["IOTA Stiftung"]
 edition = "2018"
-description = "An IOTA Tangle intergration for the identity-rs library."
+homepage = "https://www.iota.org"
+keywords = ["iota", "tangle", "identity"]
+license = "Apache-2.0"
 readme = "../README.md"
 repository = "https://github.com/iotaledger/identity.rs"
-license = "Apache-2.0"
-keywords = ["iota", "tangle", "identity"]
-homepage = "https://www.iota.org"
+description = "An IOTA Tangle intergration for the identity-rs library."
 
 [dependencies]
 async-trait = { version = "0.1", default-features = false }
@@ -26,11 +26,11 @@ thiserror = { version = "1.0", default-features = false }
 
 [dependencies.iota-client]
 git = "https://github.com/iotaledger/iota.rs"
-rev = "0a011ec37f70874358cf530d3b8e4817c69c9a4c"
+rev = "e8c050a749a2e7c13633e97b3372b38388f48c37"
 default-features = false
 
 [dependencies.iota-crypto]
-version = "0.5"
+version = "0.7"
 default-features = false
 features = ["blake2b"]
 

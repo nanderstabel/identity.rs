@@ -42,8 +42,8 @@ The individual libraries are developed to be agnostic about the utilized [Distri
 
 ## Documentation and Resources
 
-- [API Reference](https://identity-docs.iota.org/docs/identity/index.html): Package documentation (cargo docs).
-- [Identity Documentation Pages](https://identity-docs.iota.org/welcome.html): Supplementing documentation with context around identity and simple examples on library usage.
+- [API Reference](https://wiki.iota.org/identity.rs/libraries/rust/api_reference): Package documentation (cargo docs).
+- [Identity Documentation Pages](https://wiki.iota.org/identity.rs/introduction): Supplementing documentation with context around identity and simple examples on library usage.
 - [Examples in /examples folder](https://github.com/iotaledger/identity.rs/tree/main/examples): Practical code snippets to get you started with the library.
 - [IOTA Identity Experience Team Website](https://iota-community.github.io/X-Team_IOTA_Identity/): Website for a collaborative effort to provide help, guidance and spotlight to the IOTA Identity Community through offering feedback and introducing consistent workflows around IOTA Identity.
 
@@ -66,7 +66,7 @@ To try out the [examples](https://github.com/iotaledger/identity.rs/tree/main/ex
 2. Build the repository with `cargo build `
 3. Run your first example using `cargo run --example getting_started `
 
-If you would like to build the [API Reference](https://identity-docs.iota.org/docs/identity/index.html) yourself from source, you can do so using:
+If you would like to build the [API Reference](https://wiki.iota.org/identity.rs/libraries/rust/api_reference) yourself from source, you can do so using:
 ```rust
 cargo doc --document-private-items --no-deps --open
 ```
@@ -101,30 +101,30 @@ use identity::iota::IotaDocument;
 async fn main() -> Result<()> {
   pretty_env_logger::init();
 
-  // The Stronghold settings for the storage
+  // The Stronghold settings for the storage.
   let snapshot: PathBuf = "./example-strong.hodl".into();
   let password: String = "my-password".into();
 
-  // Create a new Account with Stronghold as the storage adapter
+  // Create a new Account with Stronghold as the storage adapter.
   let account: Account = Account::builder()
     .storage(AccountStorage::Stronghold(snapshot, Some(password)))
     .build()
     .await?;
 
-  // Create a new Identity with default settings
-  let snapshot1: IdentitySnapshot = account.create_identity(IdentityCreate::default()).await?;
+  // Create a new Identity with default settings.
+  let snapshot: IdentitySnapshot = account.create_identity(IdentityCreate::default()).await?;
 
   // Retrieve the DID from the newly created Identity state.
-  let document1: &IotaDID = snapshot1.identity().try_did()?;
+  let did: &IotaDID = snapshot.identity().try_did()?;
 
-  println!("[Example] Local Snapshot = {:#?}", snapshot1);
-  println!("[Example] Local Document = {:#?}", snapshot1.identity().to_document()?);
+  println!("[Example] Local Snapshot = {:#?}", snapshot);
+  println!("[Example] Local Document = {:#?}", snapshot.identity().to_document()?);
   println!("[Example] Local Document List = {:#?}", account.list_identities().await);
 
   // Fetch the DID Document from the Tangle
   //
   // This is an optional step to ensure DID Document consistency.
-  let resolved: IotaDocument = account.resolve_identity(document1).await?;
+  let resolved: IotaDocument = account.resolve_identity(did).await?;
 
   println!("[Example] Tangle Document = {:#?}", resolved);
 
@@ -157,8 +157,8 @@ IOTA Identity is in heavy development, and will naturally change as it matures a
 | Support Embedded Rust | | :large_orange_diamond: | | | |
 | [WASM Bindings](https://github.com/iotaledger/identity.rs/tree/main/bindings/wasm) | | | :large_orange_diamond: | | implemented for low-level APIs |
 | [Code Examples](https://github.com/iotaledger/identity.rs/tree/main/examples) | | | | :large_orange_diamond: | |
-| [API Reference](https://identity-docs.iota.org/docs/identity/index.html) | | | :large_orange_diamond: | | |
-| [mdBook Documentation](https://identity-docs.iota.org/welcome.html) | | | :large_orange_diamond: | | |
+| [API Reference](https://wiki.iota.org/identity.rs/libraries/rust/api_reference) | | | :large_orange_diamond: | | |
+| [Documentation Portal](https://wiki.iota.org/identity.rs/introduction) | | | :large_orange_diamond: | | |
 
 
 #### Next Milestones

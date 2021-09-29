@@ -1,6 +1,15 @@
 ---
 title: IOTA DID Method Specification
 sidebar_label: DID Method
+description: How IOTA Identity implements the Decentralized Identifiers Standard on the IOTA Tangle.
+image: /img/Identity_icon.png
+keywords:
+- DID
+- specs
+- specifications
+- Decentralized Identifiers
+- Tangle
+- format
 ---
 
 # IOTA DID Method Specification
@@ -19,7 +28,8 @@ This specification defines a method of implementing DID on top of the [IOTA Tang
 
 Blockchain | Tangle
 :---------:|:---------:
-![](/img/blockchain-bottleneck.gif) | ![](/img/tangle-bottleneck.gif)
+
+![Blockchain bottleneck](/img/blockchain-bottleneck.gif) | ![Tangle Bottleneck](/img/tangle-bottleneck.gif)
 
 For this method, the most important features of IOTA are: 
 
@@ -52,7 +62,7 @@ The iota-network is an identifer of the network where the DID is stored. This ne
 
 The following values are reserved and cannot reference other networks:
 1. `main` references the main network which refers to the Tangle known to host the IOTA cryptocurrency
-2. `test` references the test network known as "devnet" or "testnet" maintained by the IOTA Foundation.
+2. `dev` references the development network known as "devnet" maintained by the IOTA Foundation.
 
 When no IOTA network is specified, it is assumed that the DID is located on the `main` network. This means that the following DIDs will resolve to the same DID Document:
 ```

@@ -27,10 +27,6 @@ pub enum Error {
   /// Caused by attempting to perform an invalid IO operation.
   #[error(transparent)]
   IoError(#[from] std::io::Error),
-  /// Caused by an internal failure of the riker actor system.
-  #[cfg(feature = "stronghold")]
-  #[error(transparent)]
-  ActorSystemError(#[from] riker::system::SystemError),
   /// Caused by errors from the [iota_stronghold] crate.
   #[cfg(feature = "stronghold")]
   #[error(transparent)]
@@ -92,9 +88,11 @@ pub enum Error {
   /// Caused by attempting to find a service that does not exist.
   #[error("Service not found")]
   ServiceNotFound,
-  /// Caused by attempting to perform a command in an invalid context.
-  #[error("Command Error: {0}")]
-  CommandError(#[from] crate::events::CommandError),
+  /// Caused by attempting to perform an upate in an invalid context.
+  #[error("Update Error: {0}")]
+  UpdateError(#[from] crate::events::UpdateError),
+  #[error("Invalid Private Key: {0}")]
+  InvalidPrivateKey(String),
 }
 
 #[doc(hidden)]
