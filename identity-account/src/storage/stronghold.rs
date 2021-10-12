@@ -14,8 +14,14 @@ use identity_core::convert::ToJson;
 use identity_core::crypto::PrivateKey;
 use identity_core::crypto::PublicKey;
 use identity_did::verification::MethodType;
+use iota_stronghold::procedures::Ed25519PublicKey;
+use iota_stronghold::procedures::OutputInfo;
+use iota_stronghold::procedures::OutputKey;
+use iota_stronghold::procedures::ProcedureStep;
+use iota_stronghold::procedures::Slip10Derive;
+use iota_stronghold::procedures::Slip10Generate;
+use iota_stronghold::procedures::TargetInfo;
 use iota_stronghold::Location;
-use iota_stronghold::SLIP10DeriveInput;
 use std::convert::TryFrom;
 use std::io;
 use std::path::Path;
@@ -369,28 +375,31 @@ impl Storage for Stronghold {
 }
 
 async fn generate_ed25519(vault: &Vault<'_>, location: &KeyLocation) -> Result<PublicKey> {
-  // Generate a SLIP10 seed as the private key
-  vault
-    .slip10_generate(location_seed(location), default_hint(), None)
-    .await?;
-
+  let generate = Slip10Generate::default();
   let chain: Chain = Chain::from_u32_hardened(vec![0, 0, 0]);
-  let seed: SLIP10DeriveInput = SLIP10DeriveInput::Seed(location_seed(location));
 
-  // Use the SLIP10 seed to derive a child key
-  vault
-    .slip10_derive(chain, seed, location_skey(location), default_hint())
-    .await?;
+  let output_key = OutputKey::new("chain-code");
+  let output_location = location_skey(location);
+  let derive = Slip10Derive::new_from_seed(generate.target(), chain)
+    .store_output(output_key)
+    .write_secret(output_location, default_hint());
+
+  let output = vault.execute(generate.then(derive)).await?;
 
   // Retrieve the public key of the derived child key
   retrieve_ed25519(vault, location).await
 }
 
 async fn retrieve_ed25519(vault: &Vault<'_>, location: &KeyLocation) -> Result<PublicKey> {
-  vault
-    .ed25519_public_key(location_skey(location))
-    .await
-    .map(|public| public.to_vec().into())
+  let output_key = OutputKey::new("public-key");
+
+  let public_key = Ed25519PublicKey::new(location_skey(location)).store_output(output_key.clone());
+
+  let mut output = vault.execute(public_key.into()).await?;
+
+  let vec = output.take::<Vec<u8>>(&output_key).unwrap();
+
+  Ok(PublicKey::from(vec))
 }
 
 async fn sign_ed25519(vault: &Vault<'_>, payload: Vec<u8>, location: &KeyLocation) -> Result<Signature> {

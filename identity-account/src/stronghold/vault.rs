@@ -4,10 +4,12 @@
 use crypto::keys::slip10::Chain;
 use crypto::keys::slip10::ChainCode;
 use engine::vault::RecordId;
+use iota_stronghold::procedures::CollectedOutput;
+use iota_stronghold::procedures::Procedure;
 use iota_stronghold::Location;
-use iota_stronghold::Procedure;
 use iota_stronghold::RecordHint;
-use iota_stronghold::SLIP10DeriveInput;
+// use iota_stronghold::SLIP10DeriveInput;
+use iota_stronghold::procedures::{Slip10Derive, Slip10Generate};
 use iota_stronghold::StrongholdFlags;
 use iota_stronghold::VaultFlags;
 use std::path::Path;
@@ -96,7 +98,7 @@ impl Vault<'_> {
   }
 
   /// Executes a runtime [`procedure`][`Procedure`].
-  pub async fn execute(&self, procedure: Procedure) -> Result<ProcedureResult> {
+  pub async fn execute(&self, procedure: Procedure) -> Result<CollectedOutput> {
     Context::scope(self.path, &self.name, &self.flags)
       .await?
       .runtime_exec(procedure)
@@ -117,102 +119,108 @@ impl Vault<'_> {
     Ok(data)
   }
 
-  pub async fn slip10_generate(&self, output: Location, hint: RecordHint, bytes: Option<usize>) -> Result<()> {
-    let procedure: Procedure = Procedure::SLIP10Generate {
-      output,
-      hint,
-      size_bytes: bytes,
-    };
+  // pub async fn slip10_generate(&self, output: Location, hint: RecordHint, bytes: Option<usize>) -> Result<()> {
 
-    match self.execute(procedure).await? {
-      ProcedureResult::SLIP10Generate => Ok(()),
-      _ => Err(Error::StrongholdProcedureFailure),
-    }
-  }
+  //   let generate = SLIP10Generate::new();
 
-  pub async fn slip10_derive(
-    &self,
-    chain: Chain,
-    input: SLIP10DeriveInput,
-    output: Location,
-    hint: RecordHint,
-  ) -> Result<ChainCode> {
-    let procedure: Procedure = Procedure::SLIP10Derive {
-      chain,
-      input,
-      output,
-      hint,
-    };
+  //   let procedure: Procedure = SLIP10Generate {
+  //     output,
+  //     hint,
+  //     size_bytes: bytes,
+  //   };
 
-    match self.execute(procedure).await? {
-      ProcedureResult::SLIP10Derive(chaincode) => Ok(chaincode),
-      _ => Err(Error::StrongholdProcedureFailure),
-    }
-  }
+  //   match self.execute(procedure).await? {
+  //     ProcedureResult::SLIP10Generate => Ok(()),
+  //     _ => Err(Error::StrongholdProcedureFailure),
+  //   }
+  // }
 
-  pub async fn bip39_recover<P>(
-    &self,
-    mnemonic: String,
-    output: Location,
-    passphrase: P,
-    hint: RecordHint,
-  ) -> Result<()>
-  where
-    P: Into<Option<String>>,
-  {
-    let procedure: Procedure = Procedure::BIP39Recover {
-      mnemonic,
-      passphrase: passphrase.into(),
-      output,
-      hint,
-    };
+  // pub async fn slip10_derive(
+  //   &self,
+  //   chain: Chain,
+  //   seed: Location,
+  //   output: Location,
+  //   hint: RecordHint,
+  // ) -> Result<ChainCode> {
 
-    match self.execute(procedure).await? {
-      ProcedureResult::BIP39Recover => Ok(()),
-      _ => Err(Error::StrongholdProcedureFailure),
-    }
-  }
+  //   let derive = Slip10Derive::new_from_seed(seed, chain);
 
-  pub async fn bip39_generate<P>(&self, output: Location, passphrase: P, hint: RecordHint) -> Result<()>
-  where
-    P: Into<Option<String>>,
-  {
-    let procedure: Procedure = Procedure::BIP39Generate {
-      passphrase: passphrase.into(),
-      output,
-      hint,
-    };
+  //   // let procedure: Procedure = Procedure::SLIP10Derive {
+  //   //   chain,
+  //   //   input,
+  //   //   output,
+  //   //   hint,
+  //   // };
 
-    match self.execute(procedure).await? {
-      ProcedureResult::BIP39Generate => Ok(()),
-      _ => Err(Error::StrongholdProcedureFailure),
-    }
-  }
+  //   match self.execute(derive).await? {
+  //     ProcedureResult::SLIP10Derive(chaincode) => Ok(chaincode),
+  //     _ => Err(Error::StrongholdProcedureFailure),
+  //   }
+  // }
 
-  pub async fn bip39_mnemonic_sentence(&self, seed: Location) -> Result<String> {
-    let procedure: Procedure = Procedure::BIP39MnemonicSentence { seed };
+  // pub async fn bip39_recover<P>(
+  //   &self,
+  //   mnemonic: String,
+  //   output: Location,
+  //   passphrase: P,
+  //   hint: RecordHint,
+  // ) -> Result<()>
+  // where
+  //   P: Into<Option<String>>,
+  // {
+  //   let procedure: Procedure = Procedure::BIP39Recover {
+  //     mnemonic,
+  //     passphrase: passphrase.into(),
+  //     output,
+  //     hint,
+  //   };
 
-    match self.execute(procedure).await? {
-      ProcedureResult::BIP39MnemonicSentence(mnemonic) => Ok(mnemonic),
-      _ => Err(Error::StrongholdProcedureFailure),
-    }
-  }
+  //   match self.execute(procedure).await? {
+  //     ProcedureResult::BIP39Recover => Ok(()),
+  //     _ => Err(Error::StrongholdProcedureFailure),
+  //   }
+  // }
 
-  pub async fn ed25519_public_key(&self, private_key: Location) -> Result<[u8; 32]> {
-    let procedure: Procedure = Procedure::Ed25519PublicKey { private_key };
+  // pub async fn bip39_generate<P>(&self, output: Location, passphrase: P, hint: RecordHint) -> Result<()>
+  // where
+  //   P: Into<Option<String>>,
+  // {
+  //   let procedure: Procedure = Procedure::BIP39Generate {
+  //     passphrase: passphrase.into(),
+  //     output,
+  //     hint,
+  //   };
 
-    match self.execute(procedure).await? {
-      ProcedureResult::Ed25519PublicKey(public_key) => Ok(public_key),
-      _ => Err(Error::StrongholdProcedureFailure),
-    }
-  }
+  //   match self.execute(procedure).await? {
+  //     ProcedureResult::BIP39Generate => Ok(()),
+  //     _ => Err(Error::StrongholdProcedureFailure),
+  //   }
+  // }
 
-  pub async fn ed25519_sign(&self, msg: Vec<u8>, private_key: Location) -> Result<[u8; 64]> {
-    let procedure: Procedure = Procedure::Ed25519Sign { private_key, msg };
+  // pub async fn bip39_mnemonic_sentence(&self, seed: Location) -> Result<String> {
+  //   let procedure: Procedure = Procedure::BIP39MnemonicSentence { seed };
 
-    match self.execute(procedure).await? {
-      ProcedureResult::Ed25519Sign(signature) => Ok(signature),
-      _ => Err(Error::StrongholdProcedureFailure),
-    }
-  }
+  //   match self.execute(procedure).await? {
+  //     ProcedureResult::BIP39MnemonicSentence(mnemonic) => Ok(mnemonic),
+  //     _ => Err(Error::StrongholdProcedureFailure),
+  //   }
+  // }
+
+  // pub async fn ed25519_public_key(&self, private_key: Location) -> Result<[u8; 32]> {
+  //   let procedure: Procedure = Procedure::Ed25519PublicKey { private_key };
+
+  //   match self.execute(procedure).await? {
+  //     ProcedureResult::Ed25519PublicKey(public_key) => Ok(public_key),
+  //     _ => Err(Error::StrongholdProcedureFailure),
+  //   }
+  // }
+
+  // pub async fn ed25519_sign(&self, msg: Vec<u8>, private_key: Location) -> Result<[u8; 64]> {
+  //   let procedure: Procedure = Procedure::Ed25519Sign { private_key, msg };
+
+  //   match self.execute(procedure).await? {
+  //     ProcedureResult::Ed25519Sign(signature) => Ok(signature),
+  //     _ => Err(Error::StrongholdProcedureFailure),
+  //   }
+  // }
 }
