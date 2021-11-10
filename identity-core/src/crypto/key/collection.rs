@@ -28,10 +28,13 @@ use crate::utils::generate_ed25519_keypairs;
 /// This value respects a current stronghold limitation
 const MAX_KEYS_ALLOWED: usize = 4_096;
 
+/// Like a [`KeyPair`], but where the `KeyType` is implicit. 
+type KeyCouple = (PublicKey, PrivateKey);
 /// A collection of cryptographic keys.
 #[derive(Clone, Debug)]
 pub struct KeyCollection {
   type_: KeyType,
+  keys: Box<[KeyCouple]>,
   public: Box<[PublicKey]>,
   private: Box<[PrivateKey]>,
 }
@@ -43,6 +46,7 @@ impl KeyCollection {
   where
     I: IntoIterator<Item = (PublicKey, PrivateKey)>,
   {
+    /* 
     let (public, private): (Vec<_>, Vec<_>) = iter.into_iter().unzip();
 
     if public.is_empty() {
@@ -58,6 +62,8 @@ impl KeyCollection {
       public: public.into_boxed_slice(),
       private: private.into_boxed_slice(),
     })
+    */
+    todo!()
   }
 
   /// Creates a new [`KeyCollection`] with [`Ed25519`][`KeyType::Ed25519`] keys.
@@ -73,6 +79,7 @@ impl KeyCollection {
   /// it will be rounded up to the next one.
   /// E.g. 230 -> 256
   pub fn new(type_: KeyType, count: usize) -> Result<Self> {
+    /* 
     if count == 0 {
       return Err(Error::InvalidKeyCollectionSize(0));
     }
@@ -86,6 +93,8 @@ impl KeyCollection {
     };
 
     Self::from_iterator(type_, keys.into_iter())
+    */
+    todo!()
   }
 
   /// Returns the [`type`][`KeyType`] of the `KeyCollection` object.
@@ -95,56 +104,52 @@ impl KeyCollection {
 
   /// Returns the number of keys in the collection.
   pub fn len(&self) -> usize {
-    self.public.len()
+    self.keys.len()
   }
 
   /// Returns `true` if the collection contains no keys.
   pub fn is_empty(&self) -> bool {
-    self.public.is_empty()
+    self.keys.is_empty()
   }
 
   /// Returns a reference to the public key at the specified `index`.
   pub fn public(&self, index: usize) -> Option<&PublicKey> {
-    self.public.get(index)
+    self.keys.get(index).map(|(public, _)| public)
   }
 
   /// Returns a [`KeyRef`] object referencing the public key at the specified `index`.
   pub fn public_ref(&self, index: usize) -> Option<KeyRef<'_>> {
-    self.public.get(index).map(|key| KeyRef::new(self.type_, key.as_ref()))
+    self.keys.get(index).map(|(public,_)| KeyRef::new(self.type_, public.as_ref()))
   }
 
   /// Returns a reference to the private key at the specified `index`.
   pub fn private(&self, index: usize) -> Option<&PrivateKey> {
-    self.private.get(index)
+    self.keys.get(index).map(|(_,private)|private)
   }
 
   /// Returns a [`KeyRef`] object referencing the private key at the specified `index`.
   pub fn private_ref(&self, index: usize) -> Option<KeyRef<'_>> {
-    self.private.get(index).map(|key| KeyRef::new(self.type_, key.as_ref()))
+    self.keys.get(index).map(|(_,private)| KeyRef::new(self.type_, private.as_ref()))
   }
 
   /// Returns a [`KeyPair`] object for the keys at the specified `index`.
   pub fn keypair(&self, index: usize) -> Option<KeyPair> {
-    if let (Some(public), Some(private)) = (self.public.get(index), self.private.get(index)) {
-      Some((self.type_, public.clone(), private.clone()).into())
-    } else {
-      None
-    }
+    self.keys.get(index).map(|(public, private)| (self.type_, public.clone(), private.clone()).into())
   }
 
   /// Returns an iterator over the key pairs in the collection.
-  pub fn iter(&self) -> impl Iterator<Item = (&PublicKey, &PrivateKey)> {
-    self.public.iter().zip(self.private.iter())
+  pub fn iter(&self) -> impl Iterator<Item = (&PublicKey, &PrivateKey)> { //TODO: Consider setting Item = KeyCouple 
+    self.keys.iter().map(|(public,private)| (public,private))
   }
 
   /// Returns an iterator over the public keys in the collection.
-  pub fn iter_public(&self) -> Iter<'_, PublicKey> {
-    self.public.iter()
+  pub fn iter_public(&self) -> impl Iterator<Item = &PublicKey>{
+    self.keys.iter().map(|(public,_)|public)
   }
 
   /// Returns an iterator over the private keys in the collection.
-  pub fn iter_private(&self) -> Iter<'_, PrivateKey> {
-    self.private.iter()
+  pub fn iter_private(&self) -> impl Iterator<Item = &PrivateKey> {
+    self.keys.iter().map(|(_,private)| private)
   }
 
   /// Returns the Merkle root hash of the public keys in the collection.
@@ -152,6 +157,7 @@ impl KeyCollection {
   where
     D: DigestExt,
   {
+
     compute_merkle_root(&self.public)
   }
 
@@ -208,10 +214,9 @@ where
 
 impl IntoIterator for KeyCollection {
   type Item = (PublicKey, PrivateKey);
-  type IntoIter = Zip<IntoIter<PublicKey>, IntoIter<PrivateKey>>;
-
+  type IntoIter = std::vec::IntoIter<(PublicKey, PrivateKey)>;
   fn into_iter(self) -> Self::IntoIter {
-    self.public.to_vec().into_iter().zip(self.private.to_vec().into_iter())
+    self.keys.to_vec().into_iter()
   }
 }
 
