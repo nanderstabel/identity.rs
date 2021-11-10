@@ -1,13 +1,6 @@
 // Copyright 2020-2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use core::iter::Zip;
-use core::ops::Index;
-use core::ops::IndexMut;
-use core::slice::Iter;
-use core::slice::SliceIndex;
-use std::vec::IntoIter;
-
 use crate::crypto::merkle_key::MerkleDigest;
 use crate::crypto::merkle_key::SigningKey;
 use crate::crypto::merkle_tree::compute_merkle_proof;
@@ -24,46 +17,46 @@ use crate::error::Error;
 use crate::error::Result;
 use crate::utils::generate_ed25519_keypairs;
 
-/// Defines an upper limit to the amount of keys that can be created (2^12)
-/// This value respects a current stronghold limitation
-const MAX_KEYS_ALLOWED: usize = 4_096;
+/// Like a [`KeyPair`], but where the `KeyType` is implicit.
+#[derive(Debug, Clone)]
+pub(crate) struct KeyCouple(pub(crate) PublicKey, PrivateKey);
+impl From<KeyCouple> for (PublicKey, PrivateKey) {
+  fn from(key_couple: KeyCouple) -> Self {
+    (key_couple.0, key_couple.1)
+  }
+}
 
-/// Like a [`KeyPair`], but where the `KeyType` is implicit. 
-type KeyCouple = (PublicKey, PrivateKey);
 /// A collection of cryptographic keys.
 #[derive(Clone, Debug)]
 pub struct KeyCollection {
   type_: KeyType,
   keys: Box<[KeyCouple]>,
-  public: Box<[PublicKey]>,
-  private: Box<[PrivateKey]>,
 }
 
 impl KeyCollection {
+  /// Defines an upper limit to the amount of keys that can be created (2^12)
+  /// This value respects a current stronghold limitation
+  const MAX_KEYS_ALLOWED: usize = 4_096;
+
   /// Creates a new [`KeyCollection`] from an iterator of
   /// [`PublicKey`]/[`PrivateKey`] pairs.
   pub fn from_iterator<I>(type_: KeyType, iter: I) -> Result<Self>
   where
     I: IntoIterator<Item = (PublicKey, PrivateKey)>,
   {
-    /* 
-    let (public, private): (Vec<_>, Vec<_>) = iter.into_iter().unzip();
-
-    if public.is_empty() {
-      return Err(Error::InvalidKeyCollectionSize(public.len()));
+    let keys: Vec<_> = iter
+      .into_iter()
+      .map(|(public, private)| KeyCouple(public, private))
+      .collect();
+    let num_keys = keys.len();
+    if num_keys == 0 || !num_keys.is_power_of_two() || num_keys > Self::MAX_KEYS_ALLOWED {
+      Err(Error::InvalidKeyCollectionSize(num_keys))
+    } else {
+      Ok(Self {
+        type_,
+        keys: keys.into_boxed_slice(),
+      })
     }
-
-    if private.is_empty() {
-      return Err(Error::InvalidKeyCollectionSize(private.len()));
-    }
-
-    Ok(Self {
-      type_,
-      public: public.into_boxed_slice(),
-      private: private.into_boxed_slice(),
-    })
-    */
-    todo!()
   }
 
   /// Creates a new [`KeyCollection`] with [`Ed25519`][`KeyType::Ed25519`] keys.
@@ -79,12 +72,11 @@ impl KeyCollection {
   /// it will be rounded up to the next one.
   /// E.g. 230 -> 256
   pub fn new(type_: KeyType, count: usize) -> Result<Self> {
-    /* 
     if count == 0 {
       return Err(Error::InvalidKeyCollectionSize(0));
     }
     let count_next_power = count.checked_next_power_of_two().unwrap_or(0);
-    if count_next_power == 0 || count_next_power > MAX_KEYS_ALLOWED {
+    if count_next_power == 0 || count_next_power > Self::MAX_KEYS_ALLOWED {
       return Err(Error::InvalidKeyCollectionSize(count_next_power));
     }
 
@@ -93,8 +85,6 @@ impl KeyCollection {
     };
 
     Self::from_iterator(type_, keys.into_iter())
-    */
-    todo!()
   }
 
   /// Returns the [`type`][`KeyType`] of the `KeyCollection` object.
@@ -114,42 +104,52 @@ impl KeyCollection {
 
   /// Returns a reference to the public key at the specified `index`.
   pub fn public(&self, index: usize) -> Option<&PublicKey> {
-    self.keys.get(index).map(|(public, _)| public)
+    self.keys.get(index).map(|KeyCouple(public, _)| public)
   }
 
   /// Returns a [`KeyRef`] object referencing the public key at the specified `index`.
   pub fn public_ref(&self, index: usize) -> Option<KeyRef<'_>> {
-    self.keys.get(index).map(|(public,_)| KeyRef::new(self.type_, public.as_ref()))
+    self
+      .keys
+      .get(index)
+      .map(|KeyCouple(public, _)| KeyRef::new(self.type_, public.as_ref()))
   }
 
   /// Returns a reference to the private key at the specified `index`.
   pub fn private(&self, index: usize) -> Option<&PrivateKey> {
-    self.keys.get(index).map(|(_,private)|private)
+    self.keys.get(index).map(|KeyCouple(_, private)| private)
   }
 
   /// Returns a [`KeyRef`] object referencing the private key at the specified `index`.
   pub fn private_ref(&self, index: usize) -> Option<KeyRef<'_>> {
-    self.keys.get(index).map(|(_,private)| KeyRef::new(self.type_, private.as_ref()))
+    self
+      .keys
+      .get(index)
+      .map(|KeyCouple(_, private)| KeyRef::new(self.type_, private.as_ref()))
   }
 
   /// Returns a [`KeyPair`] object for the keys at the specified `index`.
   pub fn keypair(&self, index: usize) -> Option<KeyPair> {
-    self.keys.get(index).map(|(public, private)| (self.type_, public.clone(), private.clone()).into())
+    self
+      .keys
+      .get(index)
+      .map(|KeyCouple(public, private)| (self.type_, public.clone(), private.clone()).into())
   }
 
   /// Returns an iterator over the key pairs in the collection.
-  pub fn iter(&self) -> impl Iterator<Item = (&PublicKey, &PrivateKey)> { //TODO: Consider setting Item = KeyCouple 
-    self.keys.iter().map(|(public,private)| (public,private))
+  pub fn iter(&self) -> impl Iterator<Item = (&PublicKey, &PrivateKey)> {
+    //TODO: Consider setting Item = KeyCouple
+    self.keys.iter().map(|KeyCouple(public, private)| (public, private))
   }
 
   /// Returns an iterator over the public keys in the collection.
-  pub fn iter_public(&self) -> impl Iterator<Item = &PublicKey>{
-    self.keys.iter().map(|(public,_)|public)
+  pub fn iter_public(&self) -> impl Iterator<Item = &PublicKey> {
+    self.keys.iter().map(|KeyCouple(public, _)| public)
   }
 
   /// Returns an iterator over the private keys in the collection.
   pub fn iter_private(&self) -> impl Iterator<Item = &PrivateKey> {
-    self.keys.iter().map(|(_,private)| private)
+    self.keys.iter().map(|KeyCouple(_, private)| private)
   }
 
   /// Returns the Merkle root hash of the public keys in the collection.
@@ -157,8 +157,7 @@ impl KeyCollection {
   where
     D: DigestExt,
   {
-
-    compute_merkle_root(&self.public)
+    compute_merkle_root(&self.keys)
   }
 
   /// Returns a proof-of-inclusion for the public key at the specified index.
@@ -166,7 +165,7 @@ impl KeyCollection {
   where
     D: DigestExt,
   {
-    compute_merkle_proof(&self.public, index)
+    compute_merkle_proof(&self.keys, index)
   }
 
   /// Returns a Merkle Key [`SigningKey`] for the key pair at the
@@ -192,31 +191,17 @@ impl KeyCollection {
   }
 }
 
-impl<I> Index<I> for KeyCollection
-where
-  I: SliceIndex<[PublicKey]>,
-{
-  type Output = <I as SliceIndex<[PublicKey]>>::Output;
-
-  fn index(&self, index: I) -> &Self::Output {
-    self.public.index(index)
-  }
-}
-
-impl<I> IndexMut<I> for KeyCollection
-where
-  I: SliceIndex<[PublicKey]>,
-{
-  fn index_mut(&mut self, index: I) -> &mut Self::Output {
-    self.public.index_mut(index)
-  }
-}
-
 impl IntoIterator for KeyCollection {
   type Item = (PublicKey, PrivateKey);
   type IntoIter = std::vec::IntoIter<(PublicKey, PrivateKey)>;
   fn into_iter(self) -> Self::IntoIter {
-    self.keys.to_vec().into_iter()
+    self
+      .keys
+      .to_vec()
+      .into_iter()
+      .map(<(PublicKey, PrivateKey)>::from)
+      .collect::<Vec<_>>()
+      .into_iter()
   }
 }
 

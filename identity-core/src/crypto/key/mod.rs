@@ -10,6 +10,7 @@ mod reference;
 mod type_;
 
 pub use self::collection::KeyCollection;
+pub(crate) use self::collection::KeyCouple;
 pub use self::key::PrivateKey;
 pub use self::key::PublicKey;
 pub use self::pair::KeyPair;
