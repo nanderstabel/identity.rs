@@ -4,6 +4,7 @@
 use futures::stream::FuturesUnordered;
 use futures::stream::TryStreamExt;
 use iota_client::Client as IotaClient;
+use log::trace;
 
 use identity_core::convert::ToJson;
 
@@ -12,9 +13,9 @@ use crate::chain::DiffChain;
 use crate::chain::DocumentChain;
 use crate::chain::DocumentHistory;
 use crate::chain::IntegrationChain;
-use crate::did::DocumentDiff;
 use crate::did::IotaDID;
-use crate::did::IotaDocument;
+use crate::document::{DiffMessage, IntegrationMessage};
+use crate::document::IotaDocument;
 use crate::error::Error;
 use crate::error::Result;
 use crate::tangle::ClientBuilder;
@@ -83,7 +84,7 @@ impl Client {
 
   /// Publishes a [`DocumentDiff`] to the Tangle to form part of the diff chain for the integration
   /// chain message specified by the given [`MessageId`].
-  pub async fn publish_diff(&self, message_id: &MessageId, diff: &DocumentDiff) -> Result<Receipt> {
+  pub async fn publish_diff(&self, message_id: &MessageId, diff: &DiffMessage) -> Result<Receipt> {
     self.publish_json(&IotaDocument::diff_index(message_id)?, diff).await
   }
 
@@ -102,7 +103,7 @@ impl Client {
   }
 
   /// Fetch the [`IotaDocument`] specified by the given [`IotaDID`].
-  pub async fn read_document(&self, did: &IotaDID) -> Result<IotaDocument> {
+  pub async fn read_document(&self, did: &IotaDID) -> Result<IntegrationMessage> {
     self.read_document_chain(did).await.and_then(DocumentChain::fold)
   }
 
@@ -149,15 +150,15 @@ impl Client {
     DocumentHistory::read(self, did).await
   }
 
-  /// Returns the [`ChainHistory`] of a diff chain starting from an [`IotaDocument`] on the
+  /// Returns the [`ChainHistory`] of a diff chain starting from an [`IotaIdentityMessage`] on the
   /// integration chain.
   ///
-  /// NOTE: the document must have been published to the Tangle and have a valid message id and
-  /// authentication method.
-  pub async fn resolve_diff_history(&self, document: &IotaDocument) -> Result<ChainHistory<DocumentDiff>> {
-    let diff_index: String = IotaDocument::diff_index(document.message_id())?;
+  /// NOTE: the identity must have been published to the Tangle and have a valid message id and
+  /// signing method.
+  pub async fn resolve_diff_history(&self, integration_message: &IntegrationMessage) -> Result<ChainHistory<DiffMessage>> {
+    let diff_index: String = IotaDocument::diff_index(integration_message.message_id())?;
     let diff_messages: Vec<Message> = self.read_messages(&diff_index).await?;
-    ChainHistory::try_from_raw_messages(document, &diff_messages)
+    ChainHistory::try_from_raw_messages(&integration_message, &diff_messages)
   }
 
   /// Fetch all [`Messages`][Message] from the given index on the IOTA Tangle.
@@ -189,9 +190,9 @@ impl Client {
   }
 }
 
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait(? Send)]
 impl TangleResolve for Client {
-  async fn resolve(&self, did: &IotaDID) -> Result<IotaDocument> {
+  async fn resolve(&self, did: &IotaDID) -> Result<IntegrationMessage> {
     self.read_document(did).await
   }
 }

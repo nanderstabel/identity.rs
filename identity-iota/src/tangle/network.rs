@@ -7,6 +7,10 @@ use core::fmt::Formatter;
 use core::ops::Deref;
 use std::borrow::Cow;
 
+use serde;
+use serde::Deserialize;
+use serde::Serialize;
+
 use identity_core::common::Url;
 
 use crate::did::IotaDID;
@@ -16,7 +20,7 @@ use crate::error::Result;
 const NETWORK_NAME_MAIN: &str = "main";
 const NETWORK_NAME_DEV: &str = "dev";
 
-lazy_static! {
+lazy_static::lazy_static! {
   static ref EXPLORER_MAIN: Url = Url::parse("https://explorer.iota.org/mainnet/identity-resolver").unwrap();
   static ref EXPLORER_DEV: Url = Url::parse("https://explorer.iota.org/devnet/identity-resolver/").unwrap();
   static ref NODE_MAIN: Url = Url::parse("https://chrysalis-nodes.iota.org").unwrap();
@@ -51,9 +55,9 @@ impl Network {
   ///
   /// See [`NetworkName`].
   pub fn try_from_name<S>(name: S) -> Result<Self>
-  where
+    where
     // Allow String, &'static str, Cow<'static, str>, NetworkName
-    S: AsRef<str> + Into<Cow<'static, str>>,
+      S: AsRef<str> + Into<Cow<'static, str>>,
   {
     match name.as_ref() {
       NETWORK_NAME_MAIN => Ok(Self::Mainnet),
@@ -159,8 +163,8 @@ pub struct NetworkName(Cow<'static, str>);
 impl NetworkName {
   /// Creates a new [`NetworkName`] if the name passes validation.
   pub fn try_from<T>(name: T) -> Result<Self>
-  where
-    T: Into<Cow<'static, str>>,
+    where
+      T: Into<Cow<'static, str>>,
   {
     let name_cow: Cow<'static, str> = name.into();
     Self::validate_network_name(&name_cow)?;

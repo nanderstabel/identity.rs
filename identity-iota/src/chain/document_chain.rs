@@ -6,24 +6,27 @@ use core::fmt::Error as FmtError;
 use core::fmt::Formatter;
 use core::fmt::Result as FmtResult;
 
+use serde::Deserialize;
+use serde::Serialize;
+
 use identity_core::convert::ToJson;
 
 use crate::chain::DiffChain;
 use crate::chain::IntegrationChain;
-use crate::did::DocumentDiff;
 use crate::did::IotaDID;
-use crate::did::IotaDocument;
+use crate::document::{DiffMessage, IntegrationMessage};
 use crate::error::Result;
 use crate::tangle::MessageId;
+use crate::tangle::TangleRef;
 
 /// Holds an [`IntegrationChain`] and its corresponding [`DiffChain`] that can be used to resolve the
-/// latest version of an [`IotaDocument`].
+/// latest version of an [`IotaIdentityMessage`].
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DocumentChain {
   chain_i: IntegrationChain,
   chain_d: DiffChain,
   #[serde(skip_serializing_if = "Option::is_none")]
-  document: Option<IotaDocument>,
+  identity: Option<IntegrationMessage>,
 }
 
 impl DocumentChain {
@@ -33,14 +36,25 @@ impl DocumentChain {
       .unwrap_or_else(|| chain_i.current_message_id())
   }
 
-  pub(crate) fn __fold(chain_i: &IntegrationChain, chain_d: &DiffChain) -> Result<IotaDocument> {
-    let mut this: IotaDocument = chain_i.current().clone();
+  pub(crate) fn __fold(chain_i: &IntegrationChain, chain_d: &DiffChain) -> Result<IntegrationMessage> {
+    let mut current: IntegrationMessage = chain_i.current().clone();
 
+    // Apply the changes from the diff chain.
     for diff in chain_d.iter() {
-      this.merge(diff)?;
+      current = Self::merge_diff_message(current, &diff)?;
     }
 
-    Ok(this)
+    Ok(current)
+  }
+
+  /// Applies the changes from a [`DiffMessage`] to an [`IntegrationMessage`], also updating its
+  /// `diff_message_id`.
+  ///
+  /// Assumes the diff is validated by the `DiffChain` and does not make any disallowed changes.
+  pub fn merge_diff_message(mut identity_message: IntegrationMessage, diff_message: &DiffMessage) -> Result<IntegrationMessage> {
+    identity_message.identity.merge(&diff_message)?;
+    identity_message.diff_message_id = *diff_message.message_id();
+    Ok(identity_message)
   }
 
   /// Creates a new [`DocumentChain`] from the given [`IntegrationChain`].
@@ -48,13 +62,13 @@ impl DocumentChain {
     Self {
       chain_i,
       chain_d: DiffChain::new(),
-      document: None,
+      identity: None,
     }
   }
 
   /// Creates a new [`DocumentChain`] from given the [`IntegrationChain`] and [`DiffChain`].
   pub fn new_with_diff_chain(chain_i: IntegrationChain, chain_d: DiffChain) -> Result<Self> {
-    let document: Option<IotaDocument> = if chain_d.is_empty() {
+    let identity: Option<IntegrationMessage> = if chain_d.is_empty() {
       None
     } else {
       Some(Self::__fold(&chain_i, &chain_d)?)
@@ -63,13 +77,13 @@ impl DocumentChain {
     Ok(Self {
       chain_d,
       chain_i,
-      document,
+      identity,
     })
   }
 
   /// Returns a reference to the [`IotaDID`] identifying this document chain.
   pub fn id(&self) -> &IotaDID {
-    self.chain_i.current().id()
+    self.chain_i.current().identity.document.id()
   }
 
   /// Returns a reference to the [`IntegrationChain`].
@@ -94,22 +108,18 @@ impl DocumentChain {
 
   /// Merges the changes from the [`DiffChain`] into the current [`IotaDocument`] from
   /// the [`IntegrationChain`].
-  pub fn fold(self) -> Result<IotaDocument> {
+  pub fn fold(self) -> Result<IntegrationMessage> {
     Self::__fold(&self.chain_i, &self.chain_d)
   }
 
   /// Returns a reference to the latest [`IotaDocument`].
-  pub fn current(&self) -> &IotaDocument {
-    self.document.as_ref().unwrap_or_else(|| self.chain_i.current())
+  pub fn current(&self) -> &IntegrationMessage {
+    self.identity.as_ref().unwrap_or_else(|| self.chain_i.current())
   }
 
   /// Returns a mutable reference to the latest [`IotaDocument`].
-  pub fn current_mut(&mut self) -> &mut IotaDocument {
-    if let Some(document) = self.document.as_mut() {
-      document
-    } else {
-      self.chain_i.current_mut()
-    }
+  pub fn current_mut(&mut self) -> &mut IntegrationMessage {
+    self.identity.as_mut().unwrap_or_else(|| self.chain_i.current_mut())
   }
 
   /// Returns the Tangle [`MessageId`] of the latest integration [`IotaDocument`].
@@ -127,11 +137,11 @@ impl DocumentChain {
   /// # Errors
   ///
   /// Fails if the document is not a valid integration document.
-  pub fn try_push_integration(&mut self, document: IotaDocument) -> Result<()> {
-    self.chain_i.try_push(document)?;
+  pub fn try_push_integration(&mut self, integration_message: IntegrationMessage) -> Result<()> {
+    self.chain_i.try_push(integration_message)?;
     self.chain_d.clear();
 
-    self.document = None;
+    self.identity = None;
 
     Ok(())
   }
@@ -141,19 +151,19 @@ impl DocumentChain {
   /// # Errors
   ///
   /// Fails if the diff is invalid.
-  pub fn try_push_diff(&mut self, diff: DocumentDiff) -> Result<()> {
+  pub fn try_push_diff(&mut self, diff: DiffMessage) -> Result<()> {
     // Use the last integration chain document to validate the signature on the diff.
-    let integration_document: &IotaDocument = self.chain_i.current();
+    let integration_message: &IntegrationMessage = self.chain_i.current();
     let expected_prev_message_id: &MessageId = self.diff_message_id();
-    DiffChain::check_valid_addition(&diff, integration_document, expected_prev_message_id)?;
+    DiffChain::check_valid_addition(&diff, &integration_message.identity.document, expected_prev_message_id)?;
 
-    // Merge the diff into the latest state
-    let mut document: IotaDocument = self.document.take().unwrap_or_else(|| self.chain_i.current().clone());
-    document.merge(&diff)?;
+    // Merge the diff into the latest state.
+    let mut current: IntegrationMessage = self.identity.take().unwrap_or_else(|| self.chain_i.current().clone());
+    current = Self::merge_diff_message(current, &diff)?;
 
     // Extend the diff chain and store the merged result.
     self.chain_d.try_push(diff, &self.chain_i)?;
-    self.document = Some(document);
+    self.identity = Some(current);
 
     Ok(())
   }

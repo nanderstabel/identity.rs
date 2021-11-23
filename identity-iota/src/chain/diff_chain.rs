@@ -7,12 +7,18 @@ use core::fmt::Formatter;
 use core::fmt::Result as FmtResult;
 use core::slice::Iter;
 
+use log::debug;
+use log::trace;
+use serde;
+use serde::Deserialize;
+use serde::Serialize;
+
 use identity_core::convert::ToJson;
 
 use crate::chain::IntegrationChain;
-use crate::did::DocumentDiff;
 use crate::did::IotaDID;
-use crate::did::IotaDocument;
+use crate::document::{DiffMessage, IntegrationMessage, IotaMetaDocument};
+use crate::document::IotaDocument;
 use crate::error::Error;
 use crate::error::Result;
 use crate::tangle::Message;
@@ -25,15 +31,15 @@ use crate::tangle::TangleRef;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(transparent)]
 pub struct DiffChain {
-  inner: Vec<DocumentDiff>,
+  inner: Vec<DiffMessage>,
 }
 
 impl DiffChain {
   /// Constructs a new [`DiffChain`] for the given [`IntegrationChain`] from a slice of [`Messages`][Message].
   pub fn try_from_messages(integration_chain: &IntegrationChain, messages: &[Message]) -> Result<Self> {
-    let did: &IotaDID = integration_chain.current().id();
+    let did: &IotaDID = integration_chain.current().identity.document.id();
 
-    let index: MessageIndex<DocumentDiff> = messages
+    let index: MessageIndex<DiffMessage> = messages
       .iter()
       .flat_map(|message| message.try_extract_diff(did))
       .collect();
@@ -44,16 +50,16 @@ impl DiffChain {
   }
 
   /// Constructs a new [`DiffChain`] for the given [`IntegrationChain`] from the given [`MessageIndex`].
-  pub fn try_from_index(integration_chain: &IntegrationChain, index: MessageIndex<DocumentDiff>) -> Result<Self> {
+  pub fn try_from_index(integration_chain: &IntegrationChain, index: MessageIndex<DiffMessage>) -> Result<Self> {
     trace!("[Diff] Message Index = {:#?}", index);
-    Self::try_from_index_with_document(integration_chain.current(), index)
+    Self::try_from_index_with_integration(integration_chain.current(), index)
   }
 
   /// Constructs a new [`DiffChain`] from the given [`MessageIndex`], using an integration document
   /// to validate.
-  pub(in crate::chain) fn try_from_index_with_document(
-    integration_document: &IotaDocument,
-    mut index: MessageIndex<DocumentDiff>,
+  pub(in crate::chain) fn try_from_index_with_integration(
+    integration_message: &IntegrationMessage,
+    mut index: MessageIndex<DiffMessage>,
   ) -> Result<Self> {
     if index.is_empty() {
       return Ok(Self::new());
@@ -63,10 +69,10 @@ impl DiffChain {
     while let Some(mut list) = index.remove(
       this
         .current_message_id()
-        .unwrap_or_else(|| integration_document.message_id()),
+        .unwrap_or_else(|| integration_message.message_id()),
     ) {
       'inner: while let Some(next_diff) = list.pop() {
-        if this.try_push_inner(next_diff, integration_document).is_ok() {
+        if this.try_push_inner(next_diff, &integration_message).is_ok() {
           break 'inner;
         }
       }
@@ -96,7 +102,7 @@ impl DiffChain {
   }
 
   /// Returns an iterator yielding references to [`DocumentDiffs`][DocumentDiff].
-  pub fn iter(&self) -> Iter<'_, DocumentDiff> {
+  pub fn iter(&self) -> Iter<'_, DiffMessage> {
     self.inner.iter()
   }
 
@@ -111,9 +117,9 @@ impl DiffChain {
   ///
   /// Fails if the diff signature is invalid or the Tangle message
   /// references within the diff are invalid.
-  pub fn try_push(&mut self, diff: DocumentDiff, integration_chain: &IntegrationChain) -> Result<()> {
-    let document: &IotaDocument = integration_chain.current();
-    self.try_push_inner(diff, document)
+  pub fn try_push(&mut self, diff: DiffMessage, integration_chain: &IntegrationChain) -> Result<()> {
+    let integration_message: &IntegrationMessage = integration_chain.current();
+    self.try_push_inner(diff, &integration_message)
   }
 
   /// Adds a new diff to the [`DiffChain`].
@@ -122,26 +128,12 @@ impl DiffChain {
   ///
   /// Fails if the diff signature is invalid or the Tangle message
   /// references within the diff are invalid.
-  fn try_push_inner(&mut self, diff: DocumentDiff, document: &IotaDocument) -> Result<()> {
-    let expected_prev_message_id: &MessageId = self.current_message_id().unwrap_or_else(|| document.message_id());
-    Self::check_valid_addition(&diff, document, expected_prev_message_id)?;
-
-    // SAFETY: we performed the necessary validation in `check_validity`.
-    unsafe {
-      self.push_unchecked(diff);
-    }
+  fn try_push_inner(&mut self, diff: DiffMessage, integration_message: &IntegrationMessage) -> Result<()> {
+    let expected_prev_message_id: &MessageId = self.current_message_id().unwrap_or_else(|| integration_message.message_id());
+    Self::check_valid_addition(&diff, &integration_message.identity, expected_prev_message_id)?;
+    self.inner.push(diff);
 
     Ok(())
-  }
-
-  /// Adds a new diff to the [`DiffChain`] with performing validation checks.
-  ///
-  /// # Safety
-  ///
-  /// This function is unsafe because it does not check the validity of
-  /// the signature or Tangle references of the [`DocumentDiff`].
-  pub unsafe fn push_unchecked(&mut self, diff: DocumentDiff) {
-    self.inner.push(diff);
   }
 
   /// Checks if the [`DocumentDiff`] can be added to the [`DiffChain`].
@@ -150,11 +142,11 @@ impl DiffChain {
   ///
   /// Fails if the [`DocumentDiff`] is not a valid addition.
   pub fn check_valid_addition(
-    diff: &DocumentDiff,
-    document: &IotaDocument,
+    diff: &DiffMessage,
+    document: &IotaMetaDocument,
     expected_prev_message_id: &MessageId,
   ) -> Result<()> {
-    if document.id() != &diff.did {
+    if document.id() != &diff.id {
       return Err(Error::ChainError { error: "Invalid DID" });
     }
 
@@ -202,7 +194,7 @@ impl Display for DiffChain {
   }
 }
 
-impl From<DiffChain> for Vec<DocumentDiff> {
+impl From<DiffChain> for Vec<DiffMessage> {
   fn from(diff_chain: DiffChain) -> Self {
     diff_chain.inner
   }
@@ -221,8 +213,8 @@ mod test {
 
   use crate::chain::DocumentChain;
   use crate::chain::IntegrationChain;
-  use crate::did::DocumentDiff;
-  use crate::did::IotaDocument;
+  use crate::document::{DiffMessage, IntegrationMessage, IotaMetaDocument};
+  use crate::document::IotaDocument;
   use crate::tangle::MessageId;
   use crate::tangle::TangleRef;
 
@@ -236,12 +228,13 @@ mod test {
     // =========================================================================
     {
       let keypair: KeyPair = KeyPair::new_ed25519().unwrap();
-      let mut document: IotaDocument = IotaDocument::new(&keypair).unwrap();
-      document
-        .sign_self(keypair.private(), &document.default_signing_method().unwrap().id())
+      let mut metadoc: IotaMetaDocument = IotaMetaDocument::new(&keypair).unwrap();
+      metadoc
+        .sign_self(keypair.private(), &metadoc.document.default_signing_method().unwrap().id())
         .unwrap();
-      document.set_message_id(MessageId::new([8; 32]));
-      chain = DocumentChain::new(IntegrationChain::new(document).unwrap());
+      let mut integration_message: IntegrationMessage = IntegrationMessage::from(metadoc);
+      integration_message.set_message_id(MessageId::new([8; 32]));
+      chain = DocumentChain::new(IntegrationChain::new(integration_message).unwrap());
       keys.push(keypair);
     }
 
@@ -254,7 +247,7 @@ mod test {
     // Push Integration Chain Update
     // =========================================================================
     {
-      let mut new: IotaDocument = chain.current().clone();
+      let mut new: IntegrationMessage = chain.current().clone();
       let keypair: KeyPair = KeyPair::new_ed25519().unwrap();
 
       // Replace the capability invocation signing key (one step key rotation).
@@ -268,12 +261,12 @@ mod test {
         .unwrap();
 
       unsafe {
-        new.as_document_mut().capability_invocation_mut().clear();
-        new.as_document_mut().capability_invocation_mut().append(signing_method);
+        new.identity.document.as_document_mut().capability_invocation_mut().clear();
+        new.identity.document.as_document_mut().capability_invocation_mut().append(signing_method);
       }
 
-      new.set_updated(Timestamp::now_utc());
-      new.set_previous_message_id(*chain.integration_message_id());
+      new.identity.metadata.set_updated(Timestamp::now_utc());
+      new.identity.metadata.set_previous_message_id(*chain.integration_message_id());
 
       // Sign the update using the old document.
       assert!(chain
@@ -281,7 +274,7 @@ mod test {
         .sign_data(
           &mut new,
           keys[0].private(),
-          chain.current().default_signing_method().unwrap().id()
+          chain.current().default_signing_method().unwrap().id(),
         )
         .is_ok());
       assert_eq!(
@@ -297,18 +290,19 @@ mod test {
     // Push Diff Chain Update
     // =========================================================================
     {
-      let new: IotaDocument = {
-        let mut this: IotaDocument = chain.current().clone();
-        this.properties_mut().insert("foo".into(), 123.into());
-        this.properties_mut().insert("bar".into(), 456.into());
-        this.set_updated(Timestamp::now_utc());
+      let new: IntegrationMessage = {
+        let mut this: IntegrationMessage = chain.current().clone();
+        this.identity.document.properties_mut().insert("foo".into(), 123.into());
+        this.identity.document.properties_mut().insert("bar".into(), 456.into());
+        this.identity.metadata.set_updated(Timestamp::now_utc());
         this
       };
 
       // Sign using the new key added in the previous integration chain update.
       let message_id = *chain.diff_message_id();
-      let mut diff: DocumentDiff = chain
+      let mut diff: DiffMessage = chain
         .current()
+        .identity
         .diff(&new, message_id, keys[1].private(), "#key-2")
         .unwrap();
       diff.set_message_id(message_id);

@@ -1,9 +1,13 @@
 // Copyright 2020-2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crypto::hashes::sha::Sha256;
+use core::fmt::Error as FmtError;
+use core::fmt::Formatter;
+use core::fmt::Result as FmtResult;
+
 use crypto::hashes::Digest;
 use crypto::hashes::Output;
+use crypto::hashes::sha::Sha256;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -46,6 +50,25 @@ pub trait ToJson: Serialize + Sized {
 }
 
 impl<T> ToJson for T where T: Serialize {}
+
+// =============================================================================
+// =============================================================================
+
+/// A convenience-trait to format types as JSON strings for display.
+pub trait FmtJson: ToJson {
+
+  /// Format this as a JSON string or pretty-JSON string based on whether the `#` format flag
+  /// was used.
+  fn fmt_json(&self, f: &mut Formatter<'_>) -> FmtResult {
+    if f.alternate() {
+      f.write_str(&self.to_json_pretty().map_err(|_| FmtError)?)
+    } else {
+      f.write_str(&self.to_json().map_err(|_| FmtError)?)
+    }
+  }
+}
+
+impl<T> FmtJson for T where T: ToJson {}
 
 // =============================================================================
 // =============================================================================

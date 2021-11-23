@@ -12,7 +12,7 @@ use identity_credential::credential::Credential;
 use identity_credential::presentation::Presentation;
 
 use crate::did::IotaDID;
-use crate::did::IotaDocument;
+use crate::document::IntegrationMessage;
 use crate::error::Error;
 use crate::error::Result;
 use crate::tangle::Client;
@@ -37,8 +37,7 @@ pub struct PresentationValidation<T = Object, U = Object> {
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct DocumentValidation {
   pub did: IotaDID,
-  pub document: IotaDocument,
-  pub metadata: Object,
+  pub integration: IntegrationMessage,
   pub verified: bool,
 }
 
@@ -56,8 +55,8 @@ impl<'a, R: TangleResolve> CredentialValidator<'a, R> {
   /// Deserializes the given JSON-encoded `Credential` and validates
   /// all associated DID documents.
   pub async fn check<T>(&self, data: &str) -> Result<CredentialValidation<T>>
-  where
-    T: DeserializeOwned + Serialize,
+    where
+      T: DeserializeOwned + Serialize,
   {
     self.validate_credential(Credential::from_json(data)?).await
   }
@@ -65,9 +64,9 @@ impl<'a, R: TangleResolve> CredentialValidator<'a, R> {
   /// Deserializes the given JSON-encoded `Presentation` and
   /// validates all associated DID documents/`Credential`s.
   pub async fn check_presentation<T, U>(&self, data: &str) -> Result<PresentationValidation<T, U>>
-  where
-    T: Clone + DeserializeOwned + Serialize,
-    U: Clone + DeserializeOwned + Serialize,
+    where
+      T: Clone + DeserializeOwned + Serialize,
+      U: Clone + DeserializeOwned + Serialize,
   {
     self.validate_presentation(Presentation::from_json(data)?).await
   }
@@ -78,8 +77,8 @@ impl<'a, R: TangleResolve> CredentialValidator<'a, R> {
   /// Note: The credential issuer URL is expected to be a valid DID.
   /// Note: Credential subject IDs are expected to be valid DIDs (if present).
   pub async fn validate_credential<T>(&self, credential: Credential<T>) -> Result<CredentialValidation<T>>
-  where
-    T: Serialize,
+    where
+      T: Serialize,
   {
     // Resolve the issuer DID Document and validate the digital signature.
     let issuer_url: &str = credential.issuer.url().as_str();
@@ -97,7 +96,7 @@ impl<'a, R: TangleResolve> CredentialValidator<'a, R> {
     }
 
     // Verify the credential signature using the issuers DID Document
-    let credential_verified: bool = issuer_doc.document.verify_data(&credential).is_ok();
+    let credential_verified: bool = issuer_doc.integration.identity.document.verify_data(&credential).is_ok();
 
     // Check if all subjects have valid signatures
     let subjects_verified: bool = subjects.values().all(|subject| subject.verified);
@@ -121,9 +120,9 @@ impl<'a, R: TangleResolve> CredentialValidator<'a, R> {
     &self,
     presentation: Presentation<T, U>,
   ) -> Result<PresentationValidation<T, U>>
-  where
-    T: Clone + Serialize,
-    U: Clone + Serialize,
+    where
+      T: Clone + Serialize,
+      U: Clone + Serialize,
   {
     let holder_url: &str = presentation
       .holder
@@ -142,7 +141,7 @@ impl<'a, R: TangleResolve> CredentialValidator<'a, R> {
     }
 
     // Verify the presentation signature using the holders DID Document
-    let presentation_verified: bool = holder_doc.document.verify_data(&presentation).is_ok();
+    let presentation_verified: bool = holder_doc.integration.identity.document.verify_data(&presentation).is_ok();
 
     // Check if all credentials are verified
     let credentials_verified: bool = credentials.iter().all(|credential| credential.verified);
@@ -161,13 +160,12 @@ impl<'a, R: TangleResolve> CredentialValidator<'a, R> {
   /// Resolves the document from the Tangle, which performs checks on all signatures etc.
   async fn validate_document(&self, did: impl AsRef<str>) -> Result<DocumentValidation> {
     let did: IotaDID = did.as_ref().parse()?;
-    let document: IotaDocument = self.client.resolve(&did).await?;
+    let identity: IntegrationMessage = self.client.resolve(&did).await?;
     // TODO: check if document is deactivated, does that matter?
 
     Ok(DocumentValidation {
       did,
-      document,
-      metadata: Object::new(),
+      integration: identity,
       verified: true,
     })
   }

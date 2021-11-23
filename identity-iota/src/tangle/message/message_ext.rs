@@ -1,23 +1,24 @@
 // Copyright 2020-2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use iota_client::bee_message::payload::transaction::Essence;
-use iota_client::bee_message::payload::Payload;
+use core::convert::TryFrom;
+
 use iota_client::bee_message::Message;
-use iota_client::bee_message::MessageId;
 use iota_client::bee_message::MESSAGE_ID_LENGTH;
+use iota_client::bee_message::MessageId;
+use iota_client::bee_message::payload::Payload;
+use iota_client::bee_message::payload::transaction::Essence;
 
 use identity_core::convert::FromJson;
 use identity_core::convert::ToJson;
 use identity_did::did::DID;
 
-use crate::did::DocumentDiff;
 use crate::did::IotaDID;
-use crate::did::IotaDocument;
+use crate::document::{DiffMessage, IntegrationMessage};
 use crate::error::Result;
-use crate::tangle::message::compression_brotli;
 use crate::tangle::DIDMessageEncoding;
 use crate::tangle::DIDMessageVersion;
+use crate::tangle::message::compression_brotli;
 use crate::tangle::TangleRef;
 
 /// Magic bytes used to mark DID messages.
@@ -72,7 +73,7 @@ fn parse_data<T: FromJson + TangleRef>(message_id: MessageId, data: &[u8]) -> Op
     DIDMessageEncoding::Json => T::from_json_slice(inner),
     DIDMessageEncoding::JsonBrotli => T::from_json_slice(&compression_brotli::decompress_brotli(inner).ok()?),
   }
-  .ok()?;
+    .ok()?;
   resource.set_message_id(message_id);
   Some(resource)
 }
@@ -129,18 +130,18 @@ impl MessageIdExt for MessageId {
 }
 
 pub trait MessageExt {
-  fn try_extract_document(&self, did: &IotaDID) -> Option<IotaDocument>;
+  fn try_extract_integration(&self, did: &IotaDID) -> Option<IntegrationMessage>;
 
-  fn try_extract_diff(&self, did: &IotaDID) -> Option<DocumentDiff>;
+  fn try_extract_diff(&self, did: &IotaDID) -> Option<DiffMessage>;
 }
 
 impl MessageExt for Message {
-  fn try_extract_document(&self, did: &IotaDID) -> Option<IotaDocument> {
-    IotaDocument::try_from_message(self, did)
+  fn try_extract_integration(&self, did: &IotaDID) -> Option<IntegrationMessage> {
+    IntegrationMessage::try_from_message(self, did)
   }
 
-  fn try_extract_diff(&self, did: &IotaDID) -> Option<DocumentDiff> {
-    DocumentDiff::try_from_message(self, did)
+  fn try_extract_diff(&self, did: &IotaDID) -> Option<DiffMessage> {
+    DiffMessage::try_from_message(self, did)
   }
 }
 
@@ -148,13 +149,13 @@ pub trait TryFromMessage: Sized {
   fn try_from_message(message: &Message, did: &IotaDID) -> Option<Self>;
 }
 
-impl TryFromMessage for IotaDocument {
+impl TryFromMessage for IntegrationMessage {
   fn try_from_message(message: &Message, did: &IotaDID) -> Option<Self> {
     parse_message(message, did)
   }
 }
 
-impl TryFromMessage for DocumentDiff {
+impl TryFromMessage for DiffMessage {
   fn try_from_message(message: &Message, did: &IotaDID) -> Option<Self> {
     parse_message(message, did)
   }
@@ -164,7 +165,7 @@ impl TryFromMessage for DocumentDiff {
 mod test {
   use identity_core::crypto::KeyPair;
 
-  use crate::did::IotaDocument;
+  use crate::document::IotaMetaDocument;
   use crate::tangle::message::message_encoding::DIDMessageEncoding;
   use crate::tangle::MessageId;
 
@@ -173,19 +174,19 @@ mod test {
   #[test]
   fn test_pack_did_message_round_trip() {
     let keypair: KeyPair = KeyPair::new_ed25519().unwrap();
-    let mut document: IotaDocument = IotaDocument::new(&keypair).unwrap();
-    document
-      .sign_self(keypair.private(), &document.default_signing_method().unwrap().id())
+    let mut metadoc = IotaMetaDocument::new(&keypair).unwrap();
+    metadoc
+      .sign_self(keypair.private(), &metadoc.document.default_signing_method().unwrap().id())
       .unwrap();
 
     for encoding in [DIDMessageEncoding::Json, DIDMessageEncoding::JsonBrotli] {
-      let encoded: Vec<u8> = pack_did_message(&document, encoding).unwrap();
+      let encoded: Vec<u8> = pack_did_message(&metadoc, encoding).unwrap();
       assert_eq!(encoded[0], DIDMessageVersion::CURRENT as u8);
       assert_eq!(&encoded[1..4], DID_MESSAGE_MARKER);
       assert_eq!(encoded[4], encoding as u8);
 
-      let decoded: IotaDocument = parse_data(MessageId::null(), &encoded).unwrap();
-      assert_eq!(decoded, document);
+      let decoded: IntegrationMessage = parse_data(MessageId::null(), &encoded).unwrap();
+      assert_eq!(decoded.identity, metadoc);
     }
   }
 }

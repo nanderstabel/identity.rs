@@ -6,9 +6,9 @@ use std::sync::Arc;
 use dashmap::DashMap;
 
 use crate::chain::DocumentChain;
-use crate::did::DocumentDiff;
 use crate::did::IotaDID;
-use crate::did::IotaDocument;
+use crate::document::{DiffMessage, IntegrationMessage};
+use crate::document::IotaDocument;
 use crate::error::Result;
 use crate::tangle::Client;
 use crate::tangle::ClientBuilder;
@@ -61,14 +61,14 @@ impl ClientMap {
     client.publish_document(document).await
   }
 
-  pub async fn publish_diff(&self, message_id: &MessageId, diff: &DocumentDiff) -> Result<Receipt> {
+  pub async fn publish_diff(&self, message_id: &MessageId, diff: &DiffMessage) -> Result<Receipt> {
     let network: Network = diff.id().network()?;
     let client: Arc<Client> = self.client(network).await?;
 
     client.publish_diff(message_id, diff).await
   }
 
-  pub async fn read_document(&self, did: &IotaDID) -> Result<IotaDocument> {
+  pub async fn read_document(&self, did: &IotaDID) -> Result<IntegrationMessage> {
     let network: Network = did.network()?;
     let client: Arc<Client> = self.client(network).await?;
 
@@ -102,9 +102,9 @@ impl Default for ClientMap {
   }
 }
 
-#[async_trait::async_trait(?Send)]
+#[async_trait::async_trait(? Send)]
 impl TangleResolve for ClientMap {
-  async fn resolve(&self, did: &IotaDID) -> Result<IotaDocument> {
+  async fn resolve(&self, did: &IotaDID) -> Result<IntegrationMessage> {
     self.read_document(did).await
   }
 }

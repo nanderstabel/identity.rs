@@ -8,6 +8,10 @@ use crate::tangle::Message;
 use crate::tangle::MessageId;
 use crate::tangle::Network;
 
+use serde;
+use serde::Deserialize;
+use serde::Serialize;
+
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct Receipt {
   network: Network,

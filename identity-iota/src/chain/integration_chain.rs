@@ -7,10 +7,16 @@ use core::fmt::Formatter;
 use core::fmt::Result as FmtResult;
 use core::mem;
 
+use log::debug;
+use log::trace;
+use serde;
+use serde::Deserialize;
+use serde::Serialize;
+
 use identity_core::convert::ToJson;
 
 use crate::did::IotaDID;
-use crate::did::IotaDocument;
+use crate::document::{IntegrationMessage, IotaMetaDocument};
 use crate::error::Error;
 use crate::error::Result;
 use crate::tangle::Message;
@@ -20,23 +26,42 @@ use crate::tangle::MessageIdExt;
 use crate::tangle::MessageIndex;
 use crate::tangle::TangleRef;
 
-/// Primary chain of full [`IotaDocuments`](IotaDocument) holding the latest document and its
-/// history.
+/// Primary chain of [`IotaIdentityMessages`](IotaIdentityMessage) holding the latest full
+/// DID document and its history.
 ///
 /// See also [`DiffChain`](crate::chain::DiffChain)
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct IntegrationChain {
   #[serde(skip_serializing_if = "Option::is_none")]
-  history: Option<Vec<IotaDocument>>,
-  current: IotaDocument,
+  history: Option<Vec<IntegrationMessage>>,
+  current: IntegrationMessage,
 }
 
 impl IntegrationChain {
+  /// Creates a new [`IntegrationChain`] with `current` as the root document message and no history.
+  ///
+  /// Use [`IntegrationChain::try_from_messages`] or [`IntegrationChain::try_from_index`] instead.
+  pub fn new(current: IntegrationMessage) -> Result<Self> {
+    if IotaMetaDocument::verify_root(&current.identity).is_err() {
+      return Err(Error::ChainError {
+        error: "Invalid Root Document",
+      });
+    }
+
+    if current.message_id().is_null() {
+      return Err(Error::ChainError {
+        error: "Invalid Message Id",
+      });
+    }
+
+    Ok(Self { current, history: None })
+  }
+
   /// Constructs a new [`IntegrationChain`] from a slice of [`Message`]s.
   pub fn try_from_messages(did: &IotaDID, messages: &[Message]) -> Result<Self> {
-    let index: MessageIndex<IotaDocument> = messages
+    let index: MessageIndex<IntegrationMessage> = messages
       .iter()
-      .flat_map(|message| message.try_extract_document(did))
+      .flat_map(|message| message.try_extract_integration(did))
       .collect();
 
     debug!("[Int] Valid Messages = {}/{}", messages.len(), index.len());
@@ -45,13 +70,13 @@ impl IntegrationChain {
   }
 
   /// Constructs a new [`IntegrationChain`] from the given [`MessageIndex`].
-  pub fn try_from_index(mut index: MessageIndex<IotaDocument>) -> Result<Self> {
+  pub fn try_from_index(mut index: MessageIndex<IntegrationMessage>) -> Result<Self> {
     trace!("[Int] Message Index = {:#?}", index);
 
     // Extract root document.
-    let current: IotaDocument = index
-      .remove_where(&MessageId::null(), |doc| {
-        IotaDocument::verify_root_document(doc).is_ok()
+    let current: IntegrationMessage = index
+      .remove_where(&MessageId::null(), |message| {
+        IotaMetaDocument::verify_root(&message.identity).is_ok()
       })
       .ok_or(Error::ChainError {
         error: "Invalid Root Document",
@@ -70,30 +95,13 @@ impl IntegrationChain {
     Ok(this)
   }
 
-  /// Creates a new [`IntegrationChain`] with `current` as the root [`IotaDocument`] and no history.
-  pub fn new(current: IotaDocument) -> Result<Self> {
-    if IotaDocument::verify_root_document(&current).is_err() {
-      return Err(Error::ChainError {
-        error: "Invalid Root Document",
-      });
-    }
-
-    if current.message_id().is_null() {
-      return Err(Error::ChainError {
-        error: "Invalid Message Id",
-      });
-    }
-
-    Ok(Self { current, history: None })
-  }
-
-  /// Returns a reference to the latest [`IotaDocument`].
-  pub fn current(&self) -> &IotaDocument {
+  /// Returns a reference to the latest [`IotaIdentityMessage`].
+  pub fn current(&self) -> &IntegrationMessage {
     &self.current
   }
 
-  /// Returns a mutable reference to the latest [`IotaDocument`].
-  pub fn current_mut(&mut self) -> &mut IotaDocument {
+  /// Returns a mutable reference to the latest [`IotaIdentityMessage`].
+  pub fn current_mut(&mut self) -> &mut IntegrationMessage {
     &mut self.current
   }
 
@@ -104,7 +112,7 @@ impl IntegrationChain {
 
   /// Returns a slice of [`IotaDocuments`](IotaDocument) in the integration chain, if present.
   /// This excludes the current document.
-  pub fn history(&self) -> Option<&[IotaDocument]> {
+  pub fn history(&self) -> Option<&[IntegrationMessage]> {
     self.history.as_deref()
   }
 
@@ -114,13 +122,13 @@ impl IntegrationChain {
   ///
   /// Fails if the [`IotaDocument`] is not a valid addition.
   /// See [`IntegrationChain::check_valid_addition`].
-  pub fn try_push(&mut self, document: IotaDocument) -> Result<()> {
-    self.check_valid_addition(&document)?;
+  pub fn try_push(&mut self, integration_message: IntegrationMessage) -> Result<()> {
+    self.check_valid_addition(&integration_message)?;
 
     self
       .history
       .get_or_insert_with(Vec::new)
-      .push(mem::replace(&mut self.current, document));
+      .push(mem::replace(&mut self.current, integration_message));
 
     Ok(())
   }
@@ -128,8 +136,8 @@ impl IntegrationChain {
   /// Returns `true` if the [`IotaDocument`] can be added to this [`IntegrationChain`].
   ///
   /// See [`IntegrationChain::check_valid_addition`].
-  pub fn is_valid_addition(&self, document: &IotaDocument) -> bool {
-    self.check_valid_addition(document).is_ok()
+  pub fn is_valid_addition(&self, integration_message: &IntegrationMessage) -> bool {
+    self.check_valid_addition(integration_message).is_ok()
   }
 
   /// Checks if the [`IotaDocument`] can be added to this [`IntegrationChain`].
@@ -140,32 +148,32 @@ impl IntegrationChain {
   /// # Errors
   ///
   /// Fails if the document signature is invalid or the Tangle message
-  /// references within the [`IotaDocument`] are invalid.
-  pub fn check_valid_addition(&self, document: &IotaDocument) -> Result<()> {
-    if document.id() != self.current.id() {
+  /// references within the [`IotaIdentityMessage`] are invalid.
+  pub fn check_valid_addition(&self, integration_message: &IntegrationMessage) -> Result<()> {
+    if integration_message.identity.document.id() != self.current.identity.document.id() {
       return Err(Error::ChainError { error: "Invalid DID" });
     }
 
-    if document.message_id().is_null() {
+    if integration_message.message_id().is_null() {
       return Err(Error::ChainError {
         error: "Missing Message Id",
       });
     }
 
-    if document.previous_message_id().is_null() {
+    if integration_message.previous_message_id().is_null() {
       return Err(Error::ChainError {
         error: "Missing Previous Message Id",
       });
     }
 
-    if self.current_message_id() != document.previous_message_id() {
+    if self.current_message_id() != integration_message.previous_message_id() {
       return Err(Error::ChainError {
         error: "Invalid Previous Message Id",
       });
     }
 
     // Verify the next document was signed by a valid method from the previous document.
-    if IotaDocument::verify_document(document, &self.current).is_err() {
+    if IotaMetaDocument::verify_meta_document(&integration_message.identity, &self.current.identity.document).is_err() {
       return Err(Error::ChainError {
         error: "Invalid Signature",
       });
@@ -187,10 +195,10 @@ impl Display for IntegrationChain {
 
 /// Convert an [`IntegrationChain`] into an ordered list of documents with the current document
 /// as the last entry.
-impl From<IntegrationChain> for Vec<IotaDocument> {
+impl From<IntegrationChain> for Vec<IntegrationMessage> {
   fn from(integration_chain: IntegrationChain) -> Self {
-    let mut documents = integration_chain.history.unwrap_or_default();
-    documents.push(integration_chain.current);
-    documents
+    let mut messages: Vec<IntegrationMessage> = integration_chain.history.unwrap_or_default();
+    messages.push(integration_chain.current);
+    messages
   }
 }

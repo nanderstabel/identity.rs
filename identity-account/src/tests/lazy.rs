@@ -8,7 +8,7 @@ use futures::Future;
 use identity_core::common::Url;
 use identity_iota::chain::DocumentHistory;
 use identity_iota::did::IotaDID;
-use identity_iota::did::IotaVerificationMethod;
+use identity_iota::document::IotaVerificationMethod;
 use identity_iota::tangle::Client;
 use identity_iota::tangle::Network;
 use identity_iota::Error as IotaError;

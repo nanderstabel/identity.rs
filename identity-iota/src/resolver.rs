@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use async_trait::async_trait;
+
 use identity_core::convert::SerdeInto;
 use identity_did::did::CoreDID;
 use identity_did::error::Error;
@@ -12,7 +13,7 @@ use identity_did::resolution::MetaDocument;
 use identity_did::resolution::ResolverMethod;
 
 use crate::did::IotaDID;
-use crate::did::IotaDocument;
+use crate::document::IntegrationMessage;
 use crate::tangle::Client;
 use crate::tangle::ClientMap;
 use crate::tangle::TangleResolve;
@@ -24,18 +25,18 @@ impl ResolverMethod for Client {
   }
 
   async fn read(&self, did: &CoreDID, _input: InputMetadata) -> Result<Option<MetaDocument>> {
-    let document: IotaDocument = IotaDID::try_from_borrowed(did)
+    let integration: IntegrationMessage = IotaDID::try_from_borrowed(did)
       .map_err(|_| Error::MissingResolutionDID)
       .map(|did| self.resolve(did))?
       .await
       .map_err(|_| Error::MissingResolutionDocument)?;
 
     let mut meta: DocumentMetadata = DocumentMetadata::new();
-    meta.created = Some(document.created());
-    meta.updated = Some(document.updated());
+    meta.created = Some(integration.identity.metadata.created);
+    meta.updated = Some(integration.identity.metadata.updated);
 
     Ok(Some(MetaDocument {
-      data: document.serde_into()?,
+      data: integration.serde_into()?,
       meta,
     }))
   }

@@ -8,9 +8,9 @@ use identity_core::common::Fragment;
 use identity_core::crypto::KeyType;
 use identity_core::crypto::SetSignature;
 use identity_did::verification::MethodType;
-use identity_iota::did::DocumentDiff;
+use identity_iota::document::DiffMessage;
 use identity_iota::did::IotaDID;
-use identity_iota::did::IotaDocument;
+use identity_iota::document::IotaDocument;
 use identity_iota::tangle::Client;
 use identity_iota::tangle::ClientMap;
 use identity_iota::tangle::MessageId;
@@ -338,7 +338,7 @@ impl Account {
 
     let diff_id: &MessageId = old_state.diff_message_id();
 
-    let mut diff: DocumentDiff = DocumentDiff::new(&old_doc, &new_doc, *diff_id)?;
+    let mut diff: DiffMessage = DiffMessage::new(&old_doc, &new_doc, *diff_id)?;
 
     // Sign the update using a capability invocation method.
     let method: &TinyMethod = old_state.capability_invocation()?;

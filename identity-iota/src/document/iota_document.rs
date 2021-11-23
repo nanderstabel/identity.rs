@@ -8,30 +8,25 @@ use core::fmt::Display;
 use core::fmt::Formatter;
 use core::fmt::Result as FmtResult;
 
+use serde::Deserialize;
 use serde::Serialize;
 
 use identity_core::common::Object;
-use identity_core::common::Timestamp;
 use identity_core::common::Url;
-use identity_core::convert::SerdeInto;
 use identity_core::crypto::Ed25519;
 use identity_core::crypto::JcsEd25519;
 use identity_core::crypto::KeyPair;
 use identity_core::crypto::PrivateKey;
 use identity_core::crypto::PublicKey;
 use identity_core::crypto::SetSignature;
-use identity_core::crypto::Signature;
 use identity_core::crypto::Signer;
 use identity_core::crypto::TrySignature;
-use identity_core::crypto::TrySignatureMut;
-use identity_core::crypto::Verifier;
 use identity_did::did::CoreDIDUrl;
 use identity_did::document::CoreDocument;
 use identity_did::service::Service;
 use identity_did::utils::OrderedSet;
 use identity_did::verifiable::DocumentSigner;
 use identity_did::verifiable::DocumentVerifier;
-use identity_did::verifiable::Properties as VerifiableProperties;
 use identity_did::verification::MethodQuery;
 use identity_did::verification::MethodRef;
 use identity_did::verification::MethodScope;
@@ -40,106 +35,32 @@ use identity_did::verification::MethodUriType;
 use identity_did::verification::TryMethod;
 use identity_did::verification::VerificationMethod;
 
-use crate::did::DocumentDiff;
 use crate::did::IotaDID;
 use crate::did::IotaDIDUrl;
-use crate::did::IotaVerificationMethod;
-use crate::did::Properties as BaseProperties;
+use crate::document::DiffMessage;
+use crate::document::IotaVerificationMethod;
 use crate::error::Error;
 use crate::error::Result;
 use crate::tangle::MessageId;
 use crate::tangle::MessageIdExt;
 use crate::tangle::NetworkName;
-use crate::tangle::TangleRef;
 
-type Properties = VerifiableProperties<BaseProperties>;
-type BaseDocument = CoreDocument<Properties, Object, Object>;
-
-pub type IotaDocumentSigner<'a, 'b, 'c> = DocumentSigner<'a, 'b, 'c, Properties, Object, Object>;
-pub type IotaDocumentVerifier<'a> = DocumentVerifier<'a, Properties, Object, Object>;
+pub type IotaDocumentSigner<'a, 'b, 'c> = DocumentSigner<'a, 'b, 'c, Object, Object, Object>;
+pub type IotaDocumentVerifier<'a> = DocumentVerifier<'a, Object, Object, Object>;
 
 /// A DID Document adhering to the IOTA DID method specification.
 ///
 /// This is a thin wrapper around [`CoreDocument`].
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[serde(try_from = "CoreDocument", into = "BaseDocument")]
-pub struct IotaDocument {
-  document: BaseDocument,
-  message_id: MessageId,
-}
+#[repr(transparent)]
+#[serde(into = "CoreDocument", try_from = "CoreDocument")]
+pub struct IotaDocument(CoreDocument);
 
 impl TryMethod for IotaDocument {
   const TYPE: MethodUriType = MethodUriType::Absolute;
 }
 
 impl IotaDocument {
-  pub const DEFAULT_METHOD_FRAGMENT: &'static str = "sign-0";
-
-  /// Creates a new DID Document from the given [`KeyPair`].
-  ///
-  /// The DID Document will be pre-populated with a single verification method
-  /// derived from the provided [`KeyPair`] embedded as a capability invocation
-  /// verification relationship. This method will have the DID URL fragment
-  /// `#sign-0` and can be easily retrieved with [`IotaDocument::default_signing_method`].
-  ///
-  /// NOTE: the generated document is unsigned, see [`IotaDocument::sign_self`].
-  ///
-  /// Example:
-  ///
-  /// ```
-  /// # use identity_core::crypto::KeyPair;
-  /// # use identity_iota::did::IotaDocument;
-  /// #
-  /// // Create a DID Document from a new Ed25519 keypair.
-  /// let keypair = KeyPair::new_ed25519().unwrap();
-  /// let document = IotaDocument::new(&keypair).unwrap();
-  /// ```
-  pub fn new(keypair: &KeyPair) -> Result<Self> {
-    Self::new_with_options(keypair, None, None)
-  }
-
-  /// Creates a new DID Document from the given [`KeyPair`], network, and verification method
-  /// fragment name.
-  ///
-  /// See [`IotaDocument::new`].
-  ///
-  /// Arguments:
-  ///
-  /// * keypair: the initial verification method is derived from the public key of this [`KeyPair`].
-  /// * network: Tangle network to use for the DID; default [`Network::Mainnet`](crate::tangle::Network::Mainnet).
-  /// * fragment: name of the initial verification method; default [`DEFAULT_METHOD_FRAGMENT`].
-  ///
-  /// Example:
-  ///
-  /// ```
-  /// # use identity_core::crypto::KeyPair;
-  /// # use identity_iota::did::IotaDocument;
-  /// # use identity_iota::tangle::Network;
-  /// #
-  /// // Create a new DID Document for the devnet from a new Ed25519 keypair.
-  /// let keypair = KeyPair::new_ed25519().unwrap();
-  /// let document = IotaDocument::new_with_options(&keypair, Some(Network::Devnet.name()), Some("auth-key")).unwrap();
-  /// assert_eq!(document.id().network_str(), "dev");
-  /// assert_eq!(
-  ///   document.default_signing_method().unwrap().try_into_fragment().unwrap(),
-  ///   "#auth-key"
-  /// );
-  /// ```
-  pub fn new_with_options(keypair: &KeyPair, network: Option<NetworkName>, fragment: Option<&str>) -> Result<Self> {
-    let public_key: &PublicKey = keypair.public();
-
-    let did: IotaDID = if let Some(network_name) = network {
-      IotaDID::new_with_network(public_key.as_ref(), network_name)?
-    } else {
-      IotaDID::new(public_key.as_ref())?
-    };
-
-    let method: IotaVerificationMethod =
-      IotaVerificationMethod::from_did(did, keypair, fragment.unwrap_or(Self::DEFAULT_METHOD_FRAGMENT))?;
-
-    Self::from_verification_method(method)
-  }
-
   /// Creates a new DID Document from the given [`IotaVerificationMethod`], inserting it as the
   /// default capability invocation method.
   ///
@@ -150,7 +71,6 @@ impl IotaDocument {
       .id(method.id_core().did().clone())
       .capability_invocation(MethodRef::Embed(method.into()))
       .build()
-      .map(CoreDocument::into_verifiable)
       .map(TryInto::try_into)?
   }
 
@@ -162,24 +82,7 @@ impl IotaDocument {
   pub fn try_from_core(document: CoreDocument) -> Result<Self> {
     IotaDocument::validate_core_document(&document)?;
 
-    Ok(Self {
-      document: document.serde_into()?,
-      message_id: MessageId::null(),
-    })
-  }
-
-  /// Converts a generic DID [`Document`](BaseDocument) to an IOTA DID Document.
-  ///
-  /// # Errors
-  ///
-  /// Returns `Err` if the document is not a valid IOTA DID Document.
-  pub fn try_from_base(document: BaseDocument) -> Result<Self> {
-    IotaDocument::validate_core_document(&document)?;
-
-    Ok(Self {
-      document: document.serde_into()?,
-      message_id: MessageId::null(),
-    })
+    Ok(Self(document))
   }
 
   /// Performs validation that a [`CoreDocument`] adheres to the IOTA spec.
@@ -224,7 +127,7 @@ impl IotaDocument {
 
   /// Validates whether the verification method is a valid [`IotaVerificationMethod`] and that
   /// its key type is allowed to sign document updates.
-  fn check_signing_method<T>(method: &VerificationMethod<T>) -> Result<()> {
+  pub(crate) fn check_signing_method<T>(method: &VerificationMethod<T>) -> Result<()> {
     IotaVerificationMethod::check_validity(method)?;
 
     // Ensure the verification method type is supported
@@ -237,8 +140,8 @@ impl IotaDocument {
   }
 
   /// Returns a reference to the underlying [`CoreDocument`].
-  pub fn as_document(&self) -> &BaseDocument {
-    &self.document
+  pub fn as_document(&self) -> &CoreDocument {
+    &self.0
   }
 
   /// Returns a mutable reference to the underlying [`CoreDocument`].
@@ -250,8 +153,8 @@ impl IotaDocument {
   ///
   /// If this constraint is violated, it may cause issues with future uses of
   /// the DID Document.
-  pub unsafe fn as_document_mut(&mut self) -> &mut BaseDocument {
-    &mut self.document
+  pub unsafe fn as_document_mut(&mut self) -> &mut CoreDocument {
+    &mut self.0
   }
 
   // ===========================================================================
@@ -263,18 +166,18 @@ impl IotaDocument {
     // SAFETY: We checked the validity of the DID Document ID in the
     // DID Document constructors; we don't provide mutable references so
     // the value cannot change with typical "safe" Rust.
-    unsafe { IotaDID::new_unchecked_ref(self.document.id()) }
+    unsafe { IotaDID::new_unchecked_ref(self.0.id()) }
   }
 
   /// Returns a reference to the `IotaDocument` controller.
   pub fn controller(&self) -> Option<&IotaDID> {
     // SAFETY: Validity of controller checked in DID Document constructors.
-    unsafe { self.document.controller().map(|did| IotaDID::new_unchecked_ref(did)) }
+    unsafe { self.0.controller().map(|did| IotaDID::new_unchecked_ref(did)) }
   }
 
   /// Returns a reference to the [`CoreDocument`] alsoKnownAs set.
   pub fn also_known_as(&self) -> &[Url] {
-    self.document.also_known_as()
+    self.0.also_known_as()
   }
 
   /// Returns the first [`IotaVerificationMethod`] with a capability invocation relationship
@@ -292,51 +195,14 @@ impl IotaDocument {
       .ok_or(Error::MissingSigningKey)
   }
 
-  /// Returns the [`Timestamp`] of when the DID document was created.
-  pub fn created(&self) -> Timestamp {
-    self.document.properties().created
-  }
-
-  /// Sets the [`Timestamp`] of when the DID document was created.
-  pub fn set_created(&mut self, value: Timestamp) {
-    self.document.properties_mut().created = value;
-  }
-
-  /// Returns the [`Timestamp`] of the last DID document update.
-  pub fn updated(&self) -> Timestamp {
-    self.document.properties().updated
-  }
-
-  /// Sets the [`Timestamp`] of the last DID document update.
-  pub fn set_updated(&mut self, value: Timestamp) {
-    self.document.properties_mut().updated = value;
-  }
-
-  /// Returns the Tangle [`MessageId`] of the previous DID document, if any.
-  ///
-  /// Returns [`MessageId::null`] if not set.
-  pub fn previous_message_id(&self) -> &MessageId {
-    &self.document.properties().previous_message_id
-  }
-
-  /// Sets the Tangle [`MessageId`] the previous DID document.
-  pub fn set_previous_message_id(&mut self, value: impl Into<MessageId>) {
-    self.document.properties_mut().previous_message_id = value.into();
-  }
-
   /// Returns a reference to the custom DID Document properties.
   pub fn properties(&self) -> &Object {
-    &self.document.properties().properties
+    self.0.properties()
   }
 
   /// Returns a mutable reference to the custom DID Document properties.
   pub fn properties_mut(&mut self) -> &mut Object {
-    &mut self.document.properties_mut().properties
-  }
-
-  /// Returns a reference to the [`proof`](Signature), if one exists.
-  pub fn proof(&self) -> Option<&Signature> {
-    self.document.proof()
+    self.0.properties_mut()
   }
 
   // ===========================================================================
@@ -345,7 +211,7 @@ impl IotaDocument {
 
   /// Return a set of all [`Service`]s in the document.
   pub fn service(&self) -> &OrderedSet<Service> {
-    self.document.service()
+    self.0.service()
   }
 
   /// Add a new [`Service`] to the document.
@@ -353,14 +219,14 @@ impl IotaDocument {
     if service.id().fragment().is_none() {
       false
     } else {
-      self.document.service_mut().append(service)
+      self.0.service_mut().append(service)
     }
   }
 
   /// Remove a [`Service`] identified by the given [`IotaDIDUrl`] from the document.
   pub fn remove_service(&mut self, did_url: IotaDIDUrl) -> Result<()> {
     let core_did_url: CoreDIDUrl = CoreDIDUrl::from(did_url);
-    self.document.service_mut().remove(&core_did_url);
+    self.0.service_mut().remove(&core_did_url);
     Ok(())
   }
 
@@ -369,37 +235,37 @@ impl IotaDocument {
   // ===========================================================================
 
   /// Returns an iterator over all [`IotaVerificationMethods`][IotaVerificationMethod] in the DID Document.
-  pub fn methods(&self) -> impl Iterator<Item = &IotaVerificationMethod> {
-    self.document.methods().map(|m|
-        // SAFETY: Validity of verification methods checked in `IotaVerificationMethod::check_validity`.
-        unsafe { IotaVerificationMethod::new_unchecked_ref(m) })
+  pub fn methods(&self) -> impl Iterator<Item=&IotaVerificationMethod> {
+    self.0.methods().map(|m|
+      // SAFETY: Validity of verification methods checked in `IotaVerificationMethod::check_validity`.
+      unsafe { IotaVerificationMethod::new_unchecked_ref(m) })
   }
 
   /// Adds a new [`IotaVerificationMethod`] to the DID Document.
   pub fn insert_method(&mut self, method: IotaVerificationMethod, scope: MethodScope) -> bool {
-    self.document.insert_method(method.into(), scope)
+    self.0.insert_method(method.into(), scope)
   }
 
   /// Removes all occurrences of and references to the specified [`VerificationMethod`]
   /// from this document.
   pub fn remove_method(&mut self, did_url: IotaDIDUrl) -> Result<()> {
     let core_did_url: CoreDIDUrl = CoreDIDUrl::from(did_url);
-    self.document.remove_method(&core_did_url);
+    self.0.remove_method(&core_did_url);
     Ok(())
   }
 
   /// Returns the first [`IotaVerificationMethod`] with an `id` property
   /// matching the provided `query`.
   pub fn resolve_method<'query, Q>(&self, query: Q) -> Option<&IotaVerificationMethod>
-  where
-    Q: Into<MethodQuery<'query>>,
+    where
+      Q: Into<MethodQuery<'query>>,
   {
     // SAFETY: Validity of verification methods checked in `IotaVerificationMethod::check_validity`.
     unsafe {
       self
-        .document
+        .0
         .resolve_method(query)
-        .map(|m| IotaVerificationMethod::new_unchecked_ref(m))
+        .map(|method| IotaVerificationMethod::new_unchecked_ref(method))
     }
   }
 
@@ -410,148 +276,41 @@ impl IotaDocument {
   ///
   /// Fails if no matching verification [`IotaVerificationMethod`] is found.
   pub fn try_resolve_method<'query, Q>(&self, query: Q) -> Result<&IotaVerificationMethod>
-  where
-    Q: Into<MethodQuery<'query>>,
+    where
+      Q: Into<MethodQuery<'query>>,
   {
     // SAFETY: Validity of verification methods checked in `IotaVerificationMethod::check_validity`.
     unsafe {
       self
-        .document
+        .0
         .try_resolve_method(query)
-        .map(|m| IotaVerificationMethod::new_unchecked_ref(m))
+        .map(|method| IotaVerificationMethod::new_unchecked_ref(method))
         .map_err(Error::InvalidDoc)
     }
   }
 
   #[doc(hidden)]
   pub fn try_resolve_method_mut<'query, Q>(&mut self, query: Q) -> Result<&mut VerificationMethod>
-  where
-    Q: Into<MethodQuery<'query>>,
+    where
+      Q: Into<MethodQuery<'query>>,
   {
-    self.document.try_resolve_method_mut(query).map_err(Into::into)
+    self.0.try_resolve_method_mut(query).map_err(Into::into)
   }
 
   // ===========================================================================
   // Signatures
   // ===========================================================================
 
-  /// Signs this DID document with the verification method specified by `method_query`.
-  /// The `method_query` may be the full [`IotaDIDUrl`] of the method or just its fragment,
-  /// e.g. "#sign-0". The signing method must have a capability invocation verification
-  /// relationship.
-  ///
-  /// NOTE: does not validate whether `private_key` corresponds to the verification method.
-  /// See [`IotaDocument::verify_document`].
-  ///
-  /// # Errors
-  ///
-  /// Fails if an unsupported verification method is used or the signature operation fails.
-  pub fn sign_self<'query, Q>(&mut self, private_key: &PrivateKey, method_query: Q) -> Result<()>
-  where
-    Q: Into<MethodQuery<'query>>,
-  {
-    // Ensure signing method has a capability invocation verification relationship.
-    let method: &VerificationMethod<_> = self
-      .as_document()
-      .try_resolve_method_with_scope(method_query.into(), MethodScope::CapabilityInvocation)?;
-    let _ = Self::check_signing_method(method)?;
-
-    // Specify the full method DID Url if the verification method id does not match the document id.
-    let method_did: &IotaDID = IotaDID::try_from_borrowed(method.id().did())?;
-    let method_id: String = if method_did == self.id() {
-      method.try_into_fragment()?
-    } else {
-      method.id().to_string()
-    };
-
-    // Sign document.
-    match method.key_type() {
-      MethodType::Ed25519VerificationKey2018 => {
-        JcsEd25519::<Ed25519>::create_signature(self, method_id, private_key.as_ref())?;
-      }
-      MethodType::MerkleKeyCollection2021 => {
-        // Merkle Key Collections cannot be used to sign documents.
-        return Err(Error::InvalidDocumentSigningMethodType);
-      }
-    }
-
-    Ok(())
-  }
-
   /// Creates a new [`IotaDocumentSigner`] that can be used to create digital
   /// signatures from verification methods in this DID Document.
   pub fn signer<'base>(&'base self, private_key: &'base PrivateKey) -> IotaDocumentSigner<'base, 'base, 'base> {
-    self.document.signer(private_key)
-  }
-
-  /// Verifies that the signature on the DID document `signed` was generated by a valid method from
-  /// the `signer` DID document.
-  ///
-  /// # Errors
-  ///
-  /// Fails if:
-  /// - The signature proof section is missing in the `signed` document.
-  /// - The method is not found in the `signer` document.
-  /// - An unsupported verification method is used.
-  /// - The signature verification operation fails.
-  pub fn verify_document(signed: &IotaDocument, signer: &IotaDocument) -> Result<()> {
-    // Ensure signing key has a capability invocation verification relationship.
-    let signature: &Signature = signed.try_signature()?;
-    let method: &VerificationMethod<_> = signer
-      .as_document()
-      .try_resolve_method_with_scope(signature, MethodScope::CapabilityInvocation)?;
-
-    // Verify signature.
-    let public: PublicKey = method.key_data().try_decode()?.into();
-    match method.key_type() {
-      MethodType::Ed25519VerificationKey2018 => {
-        JcsEd25519::<Ed25519>::verify_signature(signed, public.as_ref())?;
-      }
-      MethodType::MerkleKeyCollection2021 => {
-        // Merkle Key Collections cannot be used to sign documents.
-        return Err(identity_did::error::Error::InvalidMethodType.into());
-      }
-    }
-
-    Ok(())
-  }
-
-  /// Verifies a self-signed signature on this DID document.
-  ///
-  /// Equivalent to `IotaDocument::verify_document(&doc, &doc)`.
-  ///
-  /// See [`IotaDocument::verify_document`].
-  pub fn verify_self_signed(&self) -> Result<()> {
-    Self::verify_document(self, self)
-  }
-
-  /// Verifies whether `document` is a valid root DID document according to the IOTA DID method
-  /// specification.
-  ///
-  /// It must be signed using a verification method with a public key whose BLAKE2b-256 hash matches
-  /// the DID tag.
-  pub fn verify_root_document(document: &IotaDocument) -> Result<()> {
-    // The previous message id must be null.
-    if !document.previous_message_id().is_null() {
-      return Err(Error::InvalidRootDocument);
-    }
-
-    // Validate the hash of the public key matches the DID tag.
-    let signature: &Signature = document.try_signature()?;
-    let method: &VerificationMethod<_> = document.as_document().try_resolve_method(signature)?;
-    let public: PublicKey = method.key_data().try_decode()?.into();
-    if document.id().tag() != IotaDID::encode_key(public.as_ref()) {
-      return Err(Error::InvalidRootDocument);
-    }
-
-    // Validate the document is signed correctly.
-    document.verify_self_signed()
+    self.0.signer(private_key)
   }
 
   /// Creates a new [`IotaDocumentVerifier`] that can be used to verify signatures
   /// created with this DID Document.
   pub fn verifier(&self) -> IotaDocumentVerifier<'_> {
-    self.document.verifier()
+    self.0.verifier()
   }
 
   /// Signs the provided `data` with the verification method specified by `method_query`.
@@ -569,9 +328,9 @@ impl IotaDocument {
     private_key: &'query PrivateKey,
     method_query: Q,
   ) -> Result<()>
-  where
-    X: Serialize + SetSignature + TryMethod,
-    Q: Into<MethodQuery<'query>>,
+    where
+      X: Serialize + SetSignature + TryMethod,
+      Q: Into<MethodQuery<'query>>,
   {
     self
       .signer(private_key)
@@ -591,8 +350,8 @@ impl IotaDocument {
   /// Fails if an unsupported verification method is used, document
   /// serialization fails, or the verification operation fails.
   pub fn verify_data<X>(&self, data: &X) -> Result<()>
-  where
-    X: Serialize + TrySignature,
+    where
+      X: Serialize + TrySignature,
   {
     self.verifier().verify(data).map_err(Into::into)
   }
@@ -604,75 +363,10 @@ impl IotaDocument {
   ///
   /// Fails if an unsupported verification method is used or the verification operation fails.
   pub fn verify_data_with_scope<X>(&self, data: &X, scope: MethodScope) -> Result<()>
-  where
-    X: Serialize + TrySignature,
+    where
+      X: Serialize + TrySignature,
   {
     self.verifier().verify_with_scope(data, scope).map_err(Into::into)
-  }
-
-  // ===========================================================================
-  // Diffs
-  // ===========================================================================
-
-  /// Creates a `DocumentDiff` representing the changes between `self` and `other`.
-  ///
-  /// The returned `DocumentDiff` will have a digital signature created using the
-  /// specified `private_key` and `method_query`.
-  ///
-  /// NOTE: the method must be a capability invocation method.
-  ///
-  /// # Errors
-  ///
-  /// Fails if the diff operation or signature operation fails.
-  pub fn diff<'query, 's: 'query, Q>(
-    &'query self,
-    other: &Self,
-    message_id: MessageId,
-    private_key: &'query PrivateKey,
-    method_query: Q,
-  ) -> Result<DocumentDiff>
-  where
-    Q: Into<MethodQuery<'query>>,
-  {
-    let mut diff: DocumentDiff = DocumentDiff::new(self, other, message_id)?;
-
-    // Ensure the signing method has a capability invocation verification relationship.
-    let method_query = method_query.into();
-    let _ = self
-      .as_document()
-      .try_resolve_method_with_scope(method_query.clone(), MethodScope::CapabilityInvocation)?;
-
-    self.sign_data(&mut diff, private_key, method_query)?;
-
-    Ok(diff)
-  }
-
-  /// Verifies the signature of the `diff` was created using a capability invocation method
-  /// in this DID Document.
-  ///
-  /// # Errors
-  ///
-  /// Fails if an unsupported verification method is used or the verification operation fails.
-  pub fn verify_diff(&self, diff: &DocumentDiff) -> Result<()> {
-    self.verify_data_with_scope(diff, MethodScope::CapabilityInvocation)
-  }
-
-  /// Verifies a `DocumentDiff` signature and merges the changes into `self`.
-  ///
-  /// If merging fails `self` remains unmodified, otherwise `self` represents
-  /// the merged document state.
-  ///
-  /// See [`IotaDocument::verify_diff`].
-  ///
-  /// # Errors
-  ///
-  /// Fails if the merge operation or signature operation fails.
-  pub fn merge(&mut self, diff: &DocumentDiff) -> Result<()> {
-    self.verify_diff(diff)?;
-
-    *self = diff.merge(self)?;
-
-    Ok(())
   }
 
   // ===========================================================================
@@ -687,7 +381,7 @@ impl IotaDocument {
   /// For an [`IotaDocument`] `doc` with `"did:iota:1234567890abcdefghijklmnopqrstuvxyzABCDEFGHI"`,
   /// `doc.integration_index() == "1234567890abcdefghijklmnopqrstuvxyzABCDEFGHI"`
   pub fn integration_index(&self) -> &str {
-    self.did().tag()
+    self.id().tag()
   }
 
   /// Returns the Tangle index of the DID diff chain. This should only be called on messages
@@ -703,31 +397,21 @@ impl IotaDocument {
   }
 }
 
-impl<'a, 'b, 'c> IotaDocument {}
-
 impl Display for IotaDocument {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-    Display::fmt(&self.document, f)
+    Display::fmt(&self.0, f)
   }
 }
 
 impl Debug for IotaDocument {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-    Debug::fmt(&self.document, f)
+    Debug::fmt(&self.0, f)
   }
 }
 
-impl TryFrom<BaseDocument> for IotaDocument {
-  type Error = Error;
-
-  fn try_from(other: BaseDocument) -> Result<Self, Self::Error> {
-    IotaDocument::try_from_base(other)
-  }
-}
-
-impl From<IotaDocument> for BaseDocument {
+impl From<IotaDocument> for CoreDocument {
   fn from(other: IotaDocument) -> Self {
-    other.document
+    other.0
   }
 }
 
@@ -739,49 +423,9 @@ impl TryFrom<CoreDocument> for IotaDocument {
   }
 }
 
-impl TrySignature for IotaDocument {
-  fn signature(&self) -> Option<&Signature> {
-    self.document.proof()
-  }
-}
-
-impl TrySignatureMut for IotaDocument {
-  fn signature_mut(&mut self) -> Option<&mut Signature> {
-    self.document.proof_mut()
-  }
-}
-
-impl SetSignature for IotaDocument {
-  fn set_signature(&mut self, signature: Signature) {
-    self.document.set_proof(signature)
-  }
-}
-
-impl TangleRef for IotaDocument {
-  fn did(&self) -> &IotaDID {
-    self.id()
-  }
-
-  fn message_id(&self) -> &MessageId {
-    &self.message_id
-  }
-
-  fn set_message_id(&mut self, message_id: MessageId) {
-    self.message_id = message_id;
-  }
-
-  fn previous_message_id(&self) -> &MessageId {
-    IotaDocument::previous_message_id(self)
-  }
-
-  fn set_previous_message_id(&mut self, message_id: MessageId) {
-    IotaDocument::set_previous_message_id(self, message_id)
-  }
-}
-
 #[cfg(test)]
 mod tests {
-  use std::collections::BTreeMap;
+  use std::collections::btree_map::BTreeMap;
   use std::str::FromStr;
 
   use iota_client::bee_message::MESSAGE_ID_LENGTH;
@@ -789,10 +433,10 @@ mod tests {
   use identity_core::common::Value;
   use identity_core::convert::FromJson;
   use identity_core::convert::SerdeInto;
-  use identity_core::crypto::merkle_key::Sha256;
   use identity_core::crypto::KeyCollection;
   use identity_core::crypto::KeyPair;
   use identity_core::crypto::KeyType;
+  use identity_core::crypto::merkle_key::Sha256;
   use identity_core::crypto::PrivateKey;
   use identity_core::crypto::PublicKey;
   use identity_core::utils::encode_b58;
@@ -807,15 +451,15 @@ mod tests {
   use identity_did::verification::MethodType;
   use identity_did::verification::VerificationMethod;
 
-  use crate::did::did::IotaDID;
-  use crate::did::doc::iota_document::Properties;
-  use crate::did::doc::IotaDocument;
-  use crate::did::doc::IotaVerificationMethod;
+  use crate::did::IotaDID;
   use crate::did::IotaDIDUrl;
+  use crate::document::IotaVerificationMethod;
+  use crate::Error;
   use crate::tangle::MessageId;
   use crate::tangle::Network;
   use crate::tangle::TangleRef;
-  use crate::Error;
+
+  use super::*;
 
   const DID_ID: &str = "did:iota:HGE4tecHWL2YiZv5qAGtH7gaeQcaz2Z1CR15GWmMjY1M";
   const DID_METHOD_ID: &str = "did:iota:HGE4tecHWL2YiZv5qAGtH7gaeQcaz2Z1CR15GWmMjY1M#sign-0";
@@ -826,11 +470,8 @@ mod tests {
     DID_ID.parse().unwrap()
   }
 
-  fn valid_properties() -> BTreeMap<String, Value> {
-    let mut properties: BTreeMap<String, Value> = BTreeMap::default();
-    properties.insert("created".to_string(), "2020-01-02T00:00:00Z".into());
-    properties.insert("updated".to_string(), "2020-01-02T00:00:00Z".into());
-    properties
+  fn valid_properties() -> Object {
+    BTreeMap::default()
   }
 
   fn core_verification_method(controller: &CoreDID, fragment: &str) -> VerificationMethod {
@@ -866,7 +507,7 @@ mod tests {
         .build()
         .unwrap(),
     )
-    .unwrap()
+      .unwrap()
   }
 
   fn generate_testkey() -> KeyPair {
@@ -1153,7 +794,7 @@ mod tests {
         .build()
         .unwrap(),
     )
-    .unwrap();
+      .unwrap();
 
     let mut methods = document.methods();
 
@@ -1311,7 +952,7 @@ mod tests {
         "serviceEndpoint": "https://bar.example.com"
       }"#,
       )
-      .unwrap();
+        .unwrap();
       doc2.insert_service(service);
 
       // Try generate and sign a diff using the specified method.
@@ -1328,9 +969,9 @@ mod tests {
 
   #[test]
   fn test_verify_data_with_scope() {
-    fn generate_data() -> Properties {
+    fn generate_data() -> Object {
       use identity_core::json;
-      let mut properties: Properties = Properties::default();
+      let mut properties: Object = Object::default();
       properties.properties.insert("int_key".to_owned(), json!(1));
       properties.properties.insert("str".to_owned(), json!("some value"));
       properties
@@ -1493,7 +1134,7 @@ mod tests {
         .unwrap()
         .clone(),
     )
-    .unwrap();
+      .unwrap();
     assert_eq!(&signing_method, &capability_invocation);
 
     // Adding a new capability invocation method still returns the original method.
@@ -1534,7 +1175,7 @@ mod tests {
       "serviceEndpoint": "https://bar.example.com"
     }"#,
     )
-    .unwrap();
+      .unwrap();
     document.insert_service(service);
 
     assert_eq!(1, document.service().len());

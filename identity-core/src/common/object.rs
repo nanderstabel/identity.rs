@@ -1,7 +1,7 @@
 // Copyright 2020-2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::BTreeMap;
+use std::collections::btree_map::BTreeMap;
 
 #[doc(inline)]
 pub use serde_json::Value;
