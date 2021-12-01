@@ -182,6 +182,12 @@ impl DiffChain {
       });
     }
 
+    if diff.diff.contains("capability_invocation") {
+      return Err(Error::ChainError {
+        error: "Diff Messages Cannot Alter Capability Invocation",
+      });
+    }
+
     if document.verify_diff(diff).is_err() {
       return Err(Error::ChainError {
         error: "Invalid Signature",
@@ -229,8 +235,10 @@ mod test {
   use crate::chain::IntegrationChain;
   use crate::document::DiffMessage;
   use crate::document::IotaDocument;
+  use crate::tangle::Client;
   use crate::tangle::MessageId;
   use crate::tangle::TangleRef;
+  use crate::tangle::TangleResolve;
 
   #[test]
   fn test_diff_chain() {
@@ -320,5 +328,58 @@ mod test {
       diff.set_message_id(message_id);
       assert!(chain.try_push_diff(diff).is_ok());
     }
+  }
+
+  #[tokio::test]
+  async fn test_filter_diff_messages_updating_capability_invocation() {
+    let client: Client = Client::new().await.unwrap();
+    // =========================================================================
+    // Create and publish Initial Document
+    // =========================================================================
+    let keypair: KeyPair = KeyPair::new_ed25519().unwrap();
+    let mut document: IotaDocument = IotaDocument::new(&keypair).unwrap();
+    document
+      .sign_self(keypair.private(), &document.default_signing_method().unwrap().id())
+      .unwrap();
+    document.set_message_id(MessageId::new([8; 32]));
+    client.publish_document(&document).await.unwrap();
+
+    let chain: DocumentChain = client.read_document_chain(document.did()).await.unwrap();
+
+    // =========================================================================
+    // Create and publish DiffMessage altering capability invocation
+    // =========================================================================
+    let mut new_document: IotaDocument = document.clone();
+    new_document.properties_mut().insert("foo".into(), 123.into());
+    unsafe {
+      new_document.as_document_mut().capability_invocation_mut().clear();
+    }
+    new_document.set_previous_message_id(*chain.integration_message_id());
+    new_document.set_updated(Timestamp::now_utc());
+
+    let mut diff_msg: DiffMessage =
+      DiffMessage::new(&document, &new_document, *chain.integration_message_id()).unwrap();
+    document
+      .sign_data(
+        &mut diff_msg,
+        keypair.private(),
+        document.default_signing_method().unwrap().id(),
+      )
+      .unwrap();
+    client
+      .publish_diff(&chain.integration_message_id(), &diff_msg)
+      .await
+      .unwrap();
+    let chain = client.read_document_chain(diff_msg.did()).await.unwrap();
+    assert!(chain.diff().is_empty());
+
+    // =========================================================================
+    // Resolve
+    // =========================================================================
+    let resolved_doc = client.resolve(document.did()).await.unwrap();
+    assert_eq!(
+      document.as_document().capability_invocation(),
+      resolved_doc.as_document().capability_invocation()
+    );
   }
 }
